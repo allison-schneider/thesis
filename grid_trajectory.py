@@ -74,14 +74,10 @@ def compass_bearing(math_bearing):
 
 #position_lat, position_lon = initial_position(42.3603088, -71.0893148)
 
-def speed_grid(position_lat, position_lon, filename):
+def speed_grid(lat, lon, filename):
 	file = netcdf.netcdf_file(filename, mmap=False)
 	vars = file.variables
-	file.close()
-
-	# Get closest grid position to starting coordinates
-	grid_lat = round_to_grid(position_lat)
-	grid_lon = round_to_grid(position_lon)    
+	file.close()   
 
 	# Get indices of latitude and longitude in grid
 	lat_index = np.where(vars['lat'][:] == grid_lat)[0][0]
@@ -90,12 +86,15 @@ def speed_grid(position_lat, position_lon, filename):
 	# Get u and v for current latitude
 	u_speed = vars['u'][0][0][lat_index][lon_index]    # meters per second
 	v_speed = vars['v'][0][0][lat_index][lon_index]    # meters per second
-	return u_speed, v_speed, grid_lat, grid_lon
+	return u_speed, v_speed
 
 # Open a file and calculate next latitude and longitude from wind speed
 def next_position(position_lat, position_lon, filename):
-	u_speed, v_speed, grid_lat, grid_lon = speed_grid(position_lat, 
-														position_lon, filename)
+	# Get closest grid position to starting coordinates
+	grid_lat = round_to_grid(position_lat)
+	grid_lon = round_to_grid(position_lon) 
+
+	u_speed, v_speed = speed_grid(grid_lat, grid_lon, filename)
 
 	# Get magnitude and direction of wind vector
 	wind_speed = spherical_hypotenuse(u_speed, v_speed)
