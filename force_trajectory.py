@@ -101,11 +101,6 @@ def gh_gradient(grid):
 	grad_gh_rows, grad_gh_columns = np.gradient(grid)
 	return grad_gh_rows, grad_gh_columns
 
-filename = "hgt-000.nc"
-file = netcdf.netcdf_file(filename, mmap=False)
-vars = file.variables
-file.close()
-
 def speed_force(lat, lon, filename):
 	file = netcdf.netcdf_file(filename, mmap=False)
 	vars = file.variables
@@ -131,12 +126,13 @@ def speed_force(lat, lon, filename):
 	v_gradient = v_gradient_grid_meters[lat_index][lon_index]
 	u_gradient = u_gradient_grid_meters[lat_index][lon_index]
 
-	g = 9.806 # ms^-2
+	# should g in fact be negative?
+	g = -9.806 # ms^-2
 	omega = 7.2921150e-5 # radians per second	
-	u_speed = (-g / (2 * omega * np.sin(np.radians(lat)))) * u_gradient
-	v_speed = (g / (2 * omega * np.sin(np.radians(lat)))) * v_gradient
+	# are u_gradient and v_gradient 
+	u_speed = (-g / (2 * omega * np.sin(np.radians(lat)))) * v_gradient
+	v_speed = (g / (2 * omega * np.sin(np.radians(lat)))) * u_gradient
 	return u_speed, v_speed
-
 
 # Open a file and calculate next latitude and longitude from wind speed
 def next_position(position_lat, position_lon, filename):
@@ -145,6 +141,9 @@ def next_position(position_lat, position_lon, filename):
 	grid_lon = round_to_grid(position_lon) 
 
 	u_speed, v_speed = speed_force(grid_lat, grid_lon, filename)
+
+	#print("u_speed is ", u_speed)
+	#print("v_speed is ", v_speed)
 
 	# Get magnitude and direction of wind vector
 	wind_speed = spherical_hypotenuse(u_speed, v_speed)
@@ -188,9 +187,8 @@ def test_plot():
 	# draw the edge of the map projection region (the projection limb)
 	map.drawmapboundary(fill_color='aqua')
 	map.plot(trajectory_lon, trajectory_lat, latlon=True, zorder=2)
-	#plt.savefig('first_trajectory.svg')
-	filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".png"
-	plt.savefig(filename)
+	#filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".png"
+	#plt.savefig(filename)
 	plt.show()		
 
 def main():
