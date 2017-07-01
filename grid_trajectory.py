@@ -80,8 +80,8 @@ def speed_grid(lat, lon, filename):
 	file.close()   
 
 	# Get indices of latitude and longitude in grid
-	lat_index = np.where(vars['lat'][:] == grid_lat)[0][0]
-	lon_index = np.where(vars['lon'][:] == grid_lon)[0][0]
+	lat_index = np.where(vars['lat'][:] == lat)[0][0]
+	lon_index = np.where(vars['lon'][:] == lon)[0][0]
 
 	# Get u and v for current latitude
 	u_speed = vars['u'][0][0][lat_index][lon_index]    # meters per second
