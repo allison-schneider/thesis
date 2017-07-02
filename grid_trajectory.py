@@ -75,6 +75,7 @@ def compass_bearing(math_bearing):
 #position_lat, position_lon = initial_position(42.3603088, -71.0893148)
 
 def speed_grid(lat, lon, filename):
+	"""  """
 	file = netcdf.netcdf_file(filename, mmap=False)
 	vars = file.variables
 	file.close()   
@@ -113,17 +114,22 @@ def next_position(position_lat, position_lon, filename):
 	return new_lat, new_lon
 
 # Get trajectory from computed wind fields
-def trajectory_grid(lat, lon):
-	trajectory = np.zeros((81,2))
+def trajectory(lat, lon):
+	num_files = 81
+	trajectory = np.zeros((num_files,2))
 	# Initial position
 	# Green building is 42.3603088, -71.0893148
-	current_lat, current_lon = initial_position(lat, lon)
+	initial_lat, initial_lon = np.array(initial_position(lat,lon))
+	current_lat, current_lon = initial_lat, initial_lon
+	trajectory 
 	for i, time in enumerate(np.arange(0,241,3)):
 	    filename = 'hgt-{:03d}.nc'.format(time)
 	    trajectory[i,:] = next_position(current_lat, current_lon, filename)
 	    current_lat = trajectory[i,0]
 	    current_lon = trajectory[i,1]
 	trajectory_lat, trajectory_lon = trajectory[:,0], trajectory[:,1]
+	trajectory_lat = np.insert(trajectory_lat, 0, initial_lat)
+	trajectory_lon = np.insert(trajectory_lon, 0, initial_lon)
 	return trajectory_lat, trajectory_lon
 
 	## Plot a subset of the trajectory
@@ -133,7 +139,7 @@ def trajectory_grid(lat, lon):
 
 # Plot trajectory on a globe
 def globe_plot():
-	trajectory_lat, trajectory_lon = trajectory_grid(lat, lon)
+	trajectory_lat, trajectory_lon = trajectory(lat, lon)
 	map = Basemap(projection='ortho', lat_0=90, lon_0=90, resolution='c')
 	map.drawcoastlines(linewidth=0.25)
 	map.drawcountries(linewidth=0.25)
@@ -145,7 +151,7 @@ def globe_plot():
 
 def test_plot():
 	lat, lon = float(sys.argv[1]), float(sys.argv[2])
-	trajectory_lat, trajectory_lon = trajectory_grid(lat, lon)
+	trajectory_lat, trajectory_lon = trajectory(lat, lon)
 	# Adjust longitude to -180 to 180 range
 	trajectory_lon = trajectory_lon - 180
 	map = Basemap(projection='ortho',lon_0=-105,lat_0=90,resolution='c')

@@ -118,7 +118,6 @@ def speed_force(lat, lon, filename):
 	longitudes = vars['lon'][:]
 
 	# Get acceleration in u and v components from geopotential height
-	# Add coriolis force to this
 	length_grid_v, length_grid_u = calc_dx_dy(longitudes, latitudes)
 	v_gradient_grid, u_gradient_grid = gh_gradient(gh)
 	v_gradient_grid_meters = v_gradient_grid / length_grid_v
@@ -161,18 +160,23 @@ def next_position(position_lat, position_lon, filename):
 																wind_bearing)
 	return new_lat, new_lon
 
-# Get trajectory from computed wind fields
+# Get trajectory
 def trajectory(lat, lon):
-	trajectory = np.zeros((81,2))
+	num_files = 81
+	trajectory = np.zeros((num_files,2))
 	# Initial position
 	# Green building is 42.3603088, -71.0893148
-	current_lat, current_lon = initial_position(lat, lon)
+	initial_lat, initial_lon = np.array(initial_position(lat,lon))
+	current_lat, current_lon = initial_lat, initial_lon
+	trajectory 
 	for i, time in enumerate(np.arange(0,241,3)):
 	    filename = 'hgt-{:03d}.nc'.format(time)
 	    trajectory[i,:] = next_position(current_lat, current_lon, filename)
 	    current_lat = trajectory[i,0]
 	    current_lon = trajectory[i,1]
 	trajectory_lat, trajectory_lon = trajectory[:,0], trajectory[:,1]
+	trajectory_lat = np.insert(trajectory_lat, 0, initial_lat)
+	trajectory_lon = np.insert(trajectory_lon, 0, initial_lon)
 	return trajectory_lat, trajectory_lon
 
 def test_plot():
