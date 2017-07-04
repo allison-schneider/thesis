@@ -241,7 +241,7 @@ def plot_ortho(trajectory_lat, trajectory_lon, lat_center=90, lon_center=-105,
 	# draw the edge of the map projection region (the projection limb)
 	map.drawmapboundary(fill_color='white')
 	map.plot(trajectory_lon, trajectory_lat, latlon=True, zorder=2, 
-				color='black')
+				color='black', marker='.')
 	if savefig == True:
 		filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
 		plt.savefig(filename)
