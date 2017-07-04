@@ -1,5 +1,5 @@
 """
-A relatively inaccurate method for calculating the an atmospheric trajectory.
+Library for calculating an atmospheric trajectory.
 Uses the 82 netCDF files starting with "hgt-000.nc" 
 The last function, trajectory(), calculates displacement using wind velocity 
 times the timestep.
@@ -235,12 +235,13 @@ def trajectory(lat, lon, scheme="grid"):
 def plot_ortho(trajectory_lat, trajectory_lon, lat_center=90, lon_center=-105,
 		savefig=False):
 	map = Basemap(projection='ortho',lon_0=-105,lat_0=90,resolution='c')
-	map.drawcoastlines(linewidth=0.25)
+	map.drawcoastlines(linewidth=0.25, color='gray')
 	map.drawcountries(linewidth=0)
-	map.fillcontinents(color='coral',lake_color='aqua', zorder=1)
+	map.fillcontinents(color='white',lake_color='white', zorder=1)
 	# draw the edge of the map projection region (the projection limb)
-	map.drawmapboundary(fill_color='aqua')
-	map.plot(trajectory_lon, trajectory_lat, latlon=True, zorder=2)
+	map.drawmapboundary(fill_color='white')
+	map.plot(trajectory_lon, trajectory_lat, latlon=True, zorder=2, 
+				color='black')
 	if savefig == True:
 		filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
 		plt.savefig(filename)
