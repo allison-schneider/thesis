@@ -233,7 +233,7 @@ def trajectory(lat, lon, scheme="grid"):
 	return trajectory_lat, trajectory_lon
 
 def plot_ortho(trajectory_lat, trajectory_lon, lat_center=90, lon_center=-105,
-		savefig=False):
+		savefig=True):
 	map = Basemap(projection='ortho',lon_0=-105,lat_0=90,resolution='c')
 	map.drawcoastlines(linewidth=0.25, color='gray')
 	map.drawcountries(linewidth=0)
