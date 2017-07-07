@@ -118,6 +118,20 @@ def calc_dx_dy(longitude,latitude):
     dx = np.repeat(dx[:,np.newaxis],longitude.shape,axis=1)
     return dx, dy
 
+def midpoint(lat1, lon1, lat2, lon2):
+	""" Midpoint along a great circle path between two points. 
+	Equation from http://www.movable-type.co.uk/scripts/latlong.html 
+
+	Latitudes are from -90 to 90 degrees.
+	Longitudes are from 0 to 360 degrees. """
+	delta_lon = np.absolute(lon2 - lon1)
+	bx = np.cos(np.radians(lat2)) * np.cos(np.radians(delta_lon))
+	by = np.cos(np.radians(lat2)) * np.sin(np.radians(delta_lon))
+	lat_mid = np.degrees(np.arctan2(np.sin(np.radians(lat1)) + np.sin(np.radians(lat2)),
+				np.sqrt((np.cos(np.radians(lat1)) + bx) ** 2 ) + by ** 2))
+	lon_mid = lon1 + np.degrees(np.arctan2(by, np.cos(np.radians(lat1)) + bx))
+	return lat_mid, lon_mid    
+
 def gh_gradient(grid):
 	# Make this take sphere into account
 	grad_gh_rows, grad_gh_columns = np.gradient(grid)
@@ -235,7 +249,7 @@ def trajectory(lat, lon, scheme="grid"):
 	return trajectory_lat, trajectory_lon
 
 def plot_ortho(trajectory_lat, trajectory_lon, lat_center=90, lon_center=-105,
-		savefig=True):
+		savefig=False):
 	map = Basemap(projection='ortho',lon_0=-105,lat_0=90,resolution='c')
 	map.drawcoastlines(linewidth=0.25, color='gray')
 	map.drawcountries(linewidth=0)
