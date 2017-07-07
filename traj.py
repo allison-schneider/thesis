@@ -38,7 +38,6 @@ def initial_position(lat,lon):
 	lon -- Longitude in degrees, -180 to 180"""
 	starting_lat = lat
 	starting_lon = lon % 360
-	print(starting_lat, starting_lon)
 	return starting_lat, starting_lon
 
 def round_to_grid(float, spacing=0.5):
@@ -106,13 +105,15 @@ def calc_dx_dy(longitude,latitude):
                                     in the x and y direction in meters 
     '''
     dlat = np.abs(latitude[1]-latitude[0])*np.pi/180
-    dy = 2*(np.arctan2(np.sqrt((np.sin(dlat/2))**2),np.sqrt(1-(np.sin(dlat/2))**2)))*6371000
+    dy = 2*(np.arctan2(np.sqrt((np.sin(dlat/2))**2),
+    		np.sqrt(1-(np.sin(dlat/2))**2)))*6371000
     dy = np.ones((latitude.shape[0],longitude.shape[0]))*dy
 
     dx = np.empty((latitude.shape))
     dlon = np.abs(longitude[1] - longitude[0])*np.pi/180
     for i in range(latitude.shape[0]):
-        a = (np.cos(latitude[i]*np.pi/180)*np.cos(latitude[i]*np.pi/180)*np.sin(dlon/2))**2
+        a = (np.cos(latitude[i]*np.pi/180)
+        	*np.cos(latitude[i]*np.pi/180)*np.sin(dlon/2))**2
         c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a) )
         dx[i] = c * 6371000
     dx = np.repeat(dx[:,np.newaxis],longitude.shape,axis=1)
@@ -127,7 +128,8 @@ def midpoint(lat1, lon1, lat2, lon2):
 	delta_lon = np.absolute(lon2 - lon1)
 	bx = np.cos(np.radians(lat2)) * np.cos(np.radians(delta_lon))
 	by = np.cos(np.radians(lat2)) * np.sin(np.radians(delta_lon))
-	lat_mid = np.degrees(np.arctan2(np.sin(np.radians(lat1)) + np.sin(np.radians(lat2)),
+	lat_mid = np.degrees(np.arctan2(np.sin(np.radians(lat1)) 
+				+ np.sin(np.radians(lat2)),
 				np.sqrt((np.cos(np.radians(lat1)) + bx) ** 2 ) + by ** 2))
 	lon_mid = lon1 + np.degrees(np.arctan2(by, np.cos(np.radians(lat1)) + bx))
 	return lat_mid, lon_mid    
@@ -184,10 +186,9 @@ def speed_grid(lat, lon, filename):
 	v_speed = vars['v'][0][0][lat_index][lon_index]    # meters per second
 	return u_speed, v_speed
 
-# Open a file and calculate next latitude and longitude from wind speed
-def next_position(position_lat, position_lon, filename, scheme):
-	""" This gets the next position in a trajectory according to the given 
-		calculation scheme. 
+def velocity_components(position_lat, position_lon, filename, scheme):
+	""" This gets the u and v components of wind velocity at a point according 
+		to the current calculation scheme. 
 
 		Schemes:
 		grid -- calculate from wind field
@@ -206,6 +207,21 @@ def next_position(position_lat, position_lon, filename, scheme):
 
 	else:
 		print("Invalid calculation scheme.")
+
+	return u_speed, v_speed, grid_lat, grid_lon	
+
+# Open a file and calculate next latitude and longitude from wind speed
+def next_position(position_lat, position_lon, filename, scheme):
+	""" This gets the next position in a trajectory according to the given 
+		calculation scheme, by multiplying velocity with the timestep. 
+
+		Schemes:
+		grid -- calculate from wind field
+		force -- calculate advection from geostropic wind equation using 
+				 geopotential height
+	"""
+	u_speed, v_speed, grid_lat, grid_lon = velocity_components(position_lat, 
+											position_lon, filename, scheme)
 
 	# Get magnitude and direction of wind vector
 	wind_speed = spherical_hypotenuse(u_speed, v_speed)
