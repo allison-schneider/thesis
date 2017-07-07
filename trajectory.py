@@ -14,8 +14,7 @@ import traj
 
 lat, lon = float(sys.argv[1]), float(sys.argv[2])
 scheme = sys.argv[3]
-trajectory_lat, trajectory_lon = traj.trajectory(lat, lon, scheme)
+trajectory_lat, trajectory_lon = traj.runge_kutta_trajectory(lat, lon, scheme)
 
-# Adjust longitude to -180 to 180 range
-trajectory_lon = trajectory_lon
+# Plot trajectory
 traj.plot_ortho(trajectory_lat, trajectory_lon, savefig=False)
