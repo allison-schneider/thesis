@@ -280,6 +280,8 @@ def runge_kutta_trajectory(lat, lon, scheme="grid"):
 		current_lat = trajectory[i,0]
 		current_lon = trajectory[i,1]
 	rk_lat, rk_lon = trajectory[:-1,0], trajectory[:-1,1]
+	rk_lat = np.insert(rk_lat, 0, initial_lat)
+	rk_lon = np.insert(rk_lon, 0, initial_lon)
 
 	return rk_lat, rk_lon
 
