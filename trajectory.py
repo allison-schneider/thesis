@@ -11,10 +11,11 @@ import traj
 # 3 -- keyword for calculation scheme, from the following list 
 #		grid -- calculate based on gridded wind fields
 #		force -- calculate from geostrophic wind equation using geopotential height field
+
 lat, lon = float(sys.argv[1]), float(sys.argv[2])
 scheme = sys.argv[3]
 trajectory_lat, trajectory_lon = traj.trajectory(lat, lon, scheme)
 
 # Adjust longitude to -180 to 180 range
-trajectory_lon = trajectory_lon - 180
+trajectory_lon = trajectory_lon
 traj.plot_ortho(trajectory_lat, trajectory_lon, savefig=False)

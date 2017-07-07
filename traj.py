@@ -37,7 +37,8 @@ def initial_position(lat,lon):
 	lat -- Latitude in degrees, -90 to 90
 	lon -- Longitude in degrees, -180 to 180"""
 	starting_lat = lat
-	starting_lon = lon + 180
+	starting_lon = lon % 360
+	print(starting_lat, starting_lon)
 	return starting_lat, starting_lon
 
 def round_to_grid(float, spacing=0.5):
@@ -181,7 +182,7 @@ def next_position(position_lat, position_lon, filename, scheme):
 	"""
 	# Get closest grid position to starting coordinates
 	grid_lat = round_to_grid(position_lat)
-	grid_lon = round_to_grid(position_lon) 
+	grid_lon = round_to_grid(position_lon) % 360
 
 	if scheme == "grid":
 		u_speed, v_speed = speed_grid(grid_lat, grid_lon, filename)
@@ -209,7 +210,8 @@ def next_position(position_lat, position_lon, filename, scheme):
 	return new_lat, new_lon
 
 def filenames():
-	"""Generate filenames for test set of GFS netCDF files."""
+	"""Generate filenames for test set of GFS netCDF files.
+	Assumes there's a folder called "data" in this library's folder. """
 	filenames = ['data/hgt-{:03d}.nc'.format(time) for time in np.arange(0,241,3)]
 	return filenames
 
