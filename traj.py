@@ -136,8 +136,18 @@ def midpoint(lat1, lon1, lat2, lon2):
 
 def gh_gradient(grid):
 	# Make this take sphere into account
+	earth_radius = 6371e3
 	grad_gh_rows, grad_gh_columns = np.gradient(grid)
 	return grad_gh_rows, grad_gh_columns
+
+## Not working
+# def gh_gradient(grid, latitudes):
+# 	earth_radius = 6371e3
+# 	grad_gh_rows, grad_gh_columns = np.gradient(grid)
+# 	grad_lat = grad_gh_rows / earth_radius
+# 	grad_lon = grad_gh_columns / (earth_radius 
+# 							* np.cos(np.radians(latitudes[:,np.newaxis])))
+# 	return grad_lat, grad_lon
 
 def speed_force(lat, lon, filename):
 	file = netcdf.netcdf_file(filename, mmap=False)
@@ -147,7 +157,7 @@ def speed_force(lat, lon, filename):
 	# Get indices of latitude and longitude in grid
 	lat_index = np.where(vars['lat'][:] == lat)[0][0]
 	lon_index = np.where(vars['lon'][:] == lon)[0][0]
-
+	
 	# Get geopotential height
 	gh = vars['gh'][0][0]
 
@@ -157,7 +167,7 @@ def speed_force(lat, lon, filename):
 
 	# Get acceleration in u and v components from geopotential height
 	length_grid_v, length_grid_u = calc_dx_dy(longitudes, latitudes)
-	v_gradient_grid, u_gradient_grid = gh_gradient(gh)
+	v_gradient_grid, u_gradient_grid = gh_gradient(gh, latitudes)
 	v_gradient_grid_meters = v_gradient_grid / length_grid_v
 	u_gradient_grid_meters = u_gradient_grid / length_grid_u
 	v_gradient = v_gradient_grid_meters[lat_index][lon_index]
@@ -283,10 +293,13 @@ def runge_kutta_trajectory(lat, lon, scheme="grid"):
 	rk_lat = np.insert(rk_lat, 0, initial_lat)
 	rk_lon = np.insert(rk_lon, 0, initial_lon)
 
+	print(rk_lat)
+
 	return rk_lat, rk_lon
 
 # Get trajectory from computed wind fields
 def trajectory(lat, lon, scheme="grid"):
+	"""Calculate trajectory with first order finite difference method."""
 	num_files = 81
 	trajectory = np.zeros((num_files,2))
 	# Initial position
@@ -300,7 +313,6 @@ def trajectory(lat, lon, scheme="grid"):
 		current_lon = trajectory[i,1]
 	trajectory_lat, trajectory_lon = trajectory[:,0], trajectory[:,1]
 	trajectory_lat = np.insert(trajectory_lat, 0, initial_lat)
-	trajectory_lon = np.insert(trajectory_lon, 0, initial_lon)
 	return trajectory_lat, trajectory_lon
 
 def plot_ortho(trajectory_lat, trajectory_lon, lat_center=90, lon_center=-105,
