@@ -14,6 +14,7 @@ import traj
 
 lat, lon = float(sys.argv[1]), float(sys.argv[2])
 scheme = sys.argv[3]
+
 trajectory_lat, trajectory_lon = traj.runge_kutta_trajectory(lat, lon, scheme)
 
 # Plot trajectory

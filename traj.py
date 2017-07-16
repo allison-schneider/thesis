@@ -167,7 +167,7 @@ def speed_force(lat, lon, filename):
 
 	# Get acceleration in u and v components from geopotential height
 	length_grid_v, length_grid_u = calc_dx_dy(longitudes, latitudes)
-	v_gradient_grid, u_gradient_grid = gh_gradient(gh, latitudes)
+	v_gradient_grid, u_gradient_grid = gh_gradient(gh)
 	v_gradient_grid_meters = v_gradient_grid / length_grid_v
 	u_gradient_grid_meters = u_gradient_grid / length_grid_u
 	v_gradient = v_gradient_grid_meters[lat_index][lon_index]
@@ -292,8 +292,6 @@ def runge_kutta_trajectory(lat, lon, scheme="grid"):
 	rk_lat, rk_lon = trajectory[:-1,0], trajectory[:-1,1]
 	rk_lat = np.insert(rk_lat, 0, initial_lat)
 	rk_lon = np.insert(rk_lon, 0, initial_lon)
-
-	print(rk_lat)
 
 	return rk_lat, rk_lon
 
