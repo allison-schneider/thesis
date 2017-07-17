@@ -7,10 +7,11 @@ import sys
 
 class Atmosphere:
 	""" Contains atmospheric parameters (u speed, v speed, geopotential height)
-	for two time layers at any given time.
+	for two time layers at a given time.
 	"""
 	def __init__(self,
-				 time=0): 	# Current time in hours from start
+				 time): 	# Current time in hours from start
+
 		self.time = time
 		self.time_between_files = 3		# Time in hours	between predictions	
 		# Generate list of all filenames and index of current file
@@ -32,7 +33,8 @@ class Atmosphere:
 		vars = file.variables
 		file.close()
 
-		latitudes = vars['lat'][:]
+		# Flip latitudes so they're increasing, (-90, 90).
+		latitudes = np.flip(vars['lat'][:], 0)	 
 		longitudes = vars['lon'][:]
 		times = np.array([0, self.time_between_files])
 		points = latitudes, longitudes, times
@@ -43,17 +45,18 @@ class Atmosphere:
 		a 3D ndarray of float, named values, of shape (nlats, nlons, ntimes),
 		which is updated when the trajectory passes a new time layer.
 		Arguments:
-		parameter -- 'u', 'v', or 'gh'; the atmospheric parameter """
+		parameter -- 'u', 'v', or 'gh'; the atmospheric parameter 
+		"""
 		
 		# Open first file and retrieve gridded values
-		file0 = netcdf.netcdf_file(self.filenames[file_index], mmap=False)
+		file0 = netcdf.netcdf_file(self.filenames[self.file_index], mmap=False)
 		vars0 = file0.variables
 		file0.close()
 		t0_values = vars0[parameter][0][0]
 		t0_values = t0_values[:, :, np.newaxis]
 
 		# Open second file and retrieve gridded values
-		file1 = netcdf.netcdf_file(self.filenames[file_index + 1], mmap=False)
+		file1 = netcdf.netcdf_file(self.filenames[self.file_index + 1], mmap=False)
 		vars1 = file1.variables
 		file1.close()
 		t1_values = vars1[parameter][0][0]
@@ -64,19 +67,27 @@ class Atmosphere:
 		return t_values
 
 class Parcel:
-	def __init__(self, 
-				 latitude=41,	# Latitude in degrees (-90, 90) 
-				 longitude=-71, # Longitude in degrees (0, 360]
-				 time=0):		# Time in hours
+	def __init__(self,
+				 atmosphere, 	# Instance of class Atmosphere
+				 latitude,		# Latitude in degrees (-90, 90) 
+				 longitude): 	# Longitude in degrees (0, 360])		
+		
+		self.lat = np.array(latitude)
+		self.lon = np.array(longitude) % 360	# Convert longitude to (0, 360]
+		self.atmosphere = atmosphere 
 
-		self.lat = latitude
-		self.lon = longitude
-		self.time = time
+	def interpolate(self, interp_values):
+		""" Linear interpolation of u, v, or gh between two time layers of a
+		lat-lon grid. The interp_values parameter accepts u_values, g_values,
+		or gh_values from the Atmosphere class.
+		"""
+		xi_times = np.full_like(self.lat, self.atmosphere.time)
+		xi = np.array([self.lat, self.lon, xi_times]).T
+		interp_result = scipy.interpolate.interpn(self.atmosphere.points,
+			interp_values, xi)
+		return interp_result
 
-	#def speed_grid(self)
-
-
-p = Parcel([41, 42, 43], [-71, -72, -73], 0)
-atmo = Atmosphere()
-#print(p.time)
-print(atmo.u_values)
+atmo = Atmosphere(0)
+p = Parcel(atmo, [41, 42], [-71, -72])
+print(p.interpolate(atmo.u_values))
+#print atmo.points
