@@ -74,7 +74,7 @@ class Atmosphere:
 
 class Parcel:
     """ Represents the position and atmospheric parameters for a parcel of air.
-    Latitude and longitude can be scalars or, to represent multiple parcels,
+    Latitude and longitude can be scalars, or, to represent multiple parcels,
     lists of the same length.
     """
     def __init__(self,
@@ -96,6 +96,12 @@ class Parcel:
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
             interp_values, xi)
         return interp_result
+
+class Trajectory:
+    """ Lists of positions for each timestep along the trajectory."""
+    def __init__(self,
+                 parcel):       # Instance of class Parcel
+        self.parcel = parcel
 
 atmo = Atmosphere(237)
 p = Parcel(atmo, [41, 42], [-71, -72])
