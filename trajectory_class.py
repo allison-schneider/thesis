@@ -13,7 +13,8 @@ class Atmosphere:
                  time):     # Current time in hours from start
 
         self.time = time
-        self.time_between_files = 3     # Time in hours between samples
+        self.time_between_files = 3.0    # Time in hours between samples
+        self.timestep = 3.0 / 60
         
         # Generate list of all filenames and index of current file
         self.filenames = ['data/hgt-{:03d}.nc'.format(time) 
@@ -97,6 +98,30 @@ class Parcel:
             interp_values, xi)
         return interp_result
 
+    def velocity_components(self, scheme="grid"):
+        """ Gets the u and v components of wind velocity at a point 
+        according to the current calculation scheme. 
+
+        Schemes:
+        grid -- calculate from wind field
+        force -- calculate advection from geostropic wind equation using 
+                 geopotential height
+        """
+
+        if scheme == "grid":
+            # Interpolate u and v at given position
+            u_speed = self.interpolate(atmo.u_values)
+            v_speed = self.interpolate(atmo.v_values)
+
+        ## To do: implement force method    
+        #elif scheme == "force":
+        #    u_speed, v_speed = speed_force(grid_lat, grid_lon, filename)
+
+        else:
+            print("Invalid calculation scheme.")
+
+        return u_speed, v_speed
+
 class Trajectory:
     """ Lists of positions for each timestep along the trajectory."""
     def __init__(self,
@@ -105,5 +130,5 @@ class Trajectory:
 
 atmo = Atmosphere(237)
 p = Parcel(atmo, [41, 42], [-71, -72])
-print(p.interpolate(atmo.u_values))
+print(p.velocity_components())
 #print(atmo.file_index)
