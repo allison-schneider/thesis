@@ -5,7 +5,7 @@ import scipy.interpolate
 from mpl_toolkits.basemap import Basemap
 import sys
 
-# Declare global variables
+# Global variables
 EARTH_RADIUS = 6371e3    # meters
 
 class Atmosphere:
@@ -18,6 +18,7 @@ class Atmosphere:
         self.time = time
         self.time_between_files = 3.0    # Time in hours between samples
         self.timestep = 3.0 / 60         # Timestep in hours
+        self.total_time = 240.0          # Time to run trajectory in hours
         
         # Generate list of all filenames and index of current file
         self.filenames = ['data/hgt-{:03d}.nc'.format(time) 
@@ -92,6 +93,13 @@ class Parcel:
         self.atmosphere = atmosphere
         self.scheme = scheme  
 
+        self.trajectory_lat = np.zeros(
+                    (np.int(2.9 / self.atmosphere.timestep) + 2, 
+                    np.size(self.lat)))
+        self.trajectory_lon = np.zeros(
+                    (np.int(2.9 / self.atmosphere.timestep) + 2, 
+                    np.size(self.lon)))
+
     def spherical_hypotenuse(self, a, b):
         """ Given the lengths of two sides of a right triangle on a sphere, 
         a and b, find the length of the hypotenuse c. 
@@ -143,7 +151,7 @@ class Parcel:
 
     def velocity_components(self):
         """ Gets the u and v components of wind velocity at a point 
-        according to the current calculation scheme. 
+        according to the given calculation scheme. 
 
         Schemes:
         grid -- calculate from wind field
@@ -166,12 +174,8 @@ class Parcel:
 
     def next_position(self):
         """ This gets the next position in a trajectory according to the given 
-            calculation scheme, by multiplying velocity with the timestep. 
-
-            Schemes:
-            grid -- calculate from wind field
-            force -- calculate advection from geostropic wind equation using 
-                     geopotential height
+            calculation scheme ("grid" or "force"), by multiplying velocity with 
+            the timestep. 
         """
         u_speed, v_speed = self.velocity_components()
 
@@ -191,14 +195,49 @@ class Parcel:
                                             wind_bearing)
         return new_lat, new_lon
 
+    def runge_kutta_trajectory(self):
+        # This is half-edited from the version in traj.py
+
+        # Implement Runge Kutta integration method
+        
+        i = 0   # Index for timestep
+ 
+        #while self.atmosphere.time < self.atmosphere.total_time:
+        while self.atmosphere.time < 2.9:
+            guess_lat, guess_lon = self.next_position()
+            initial_u, initial_v = self.velocity_components()
+            
+            self.atmosphere.time += self.atmosphere.timestep
+            guess_u, guess_v = self.velocity_components()
+            average_u = 0.5 * (initial_u + guess_u)
+            average_v = 0.5 * (initial_v + guess_v)
+
+            wind_speed = self.spherical_hypotenuse(average_u, average_v)
+            wind_direction = np.arctan2(average_v, average_u)
+            wind_bearing = np.degrees(self.compass_bearing(wind_direction))
+            displacement = wind_speed * self.atmosphere.timestep * 60 ** 2   
+
+            self.trajectory_lat[i,:], self.trajectory_lon[i,:] = (
+                                self.destination(displacement, wind_bearing))
+            self.lat = self.trajectory_lat[i,:]
+            self.lon = self.trajectory_lon[i,:]
+            i += 1
+
+        return self.trajectory_lat, self.trajectory_lon
+
 class Trajectory:
     """ Lists of positions for each timestep along the trajectory."""
     def __init__(self,
+                 atmosphere,    # Instance of class Atmosphere
                  parcel):       # Instance of class Parcel
-        self.parcel = parcel
 
-atmo = Atmosphere(237)
+        self.parcel = parcel
+        self.atmosphere = atmosphere
+        self.latitudes, self.longitudes = self.parcel.runge_kutta_trajectory()
+
+atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 52], [-71, -62])
-#p = Parcel(atmo, [41], [-71])
-print(p.next_position())
-#print(atmo.file_index)
+tra = Trajectory(atmo, p)
+
+test_lat, test_lon = p.runge_kutta_trajectory()
+print(tra.longitudes)
