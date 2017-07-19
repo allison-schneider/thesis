@@ -94,10 +94,10 @@ class Parcel:
         self.scheme = scheme  
 
         self.trajectory_lat = np.zeros(
-                    (np.int(2.9 / self.atmosphere.timestep) + 2, 
+                    (np.int(2.9 / self.atmosphere.timestep) + 3, 
                     np.size(self.lat)))
         self.trajectory_lon = np.zeros(
-                    (np.int(2.9 / self.atmosphere.timestep) + 2, 
+                    (np.int(2.9 / self.atmosphere.timestep) + 3, 
                     np.size(self.lon)))
 
     def spherical_hypotenuse(self, a, b):
@@ -200,8 +200,11 @@ class Parcel:
 
         # Implement Runge Kutta integration method
         
-        i = 0   # Index for timestep
+        i = 1   # Index for timestep
  
+        # Start trajectory at initial position 
+        self.trajectory_lat[0,:] = self.lat
+        self.trajectory_lon[0,:] = self.lon
         #while self.atmosphere.time < self.atmosphere.total_time:
         while self.atmosphere.time < 2.9:
             guess_lat, guess_lon = self.next_position()
@@ -235,9 +238,24 @@ class Trajectory:
         self.atmosphere = atmosphere
         self.latitudes, self.longitudes = self.parcel.runge_kutta_trajectory()
 
+    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
+        map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
+                        resolution='c')
+        map.drawcoastlines(linewidth=0.25, color='gray')
+        map.drawcountries(linewidth=0)
+        map.fillcontinents(color='white',lake_color='white', zorder=1)
+        # draw the edge of the map projection region (the projection limb)
+        map.drawmapboundary(fill_color='white')
+        map.plot(self.longitudes, self.latitudes, latlon=True, 
+                    zorder=2, color='black')
+        #plt.title("First Order v * dt Integration")
+        if savefig == True:
+            filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
+            plt.savefig(filename)
+        plt.show()
+
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 52], [-71, -62])
 tra = Trajectory(atmo, p)
 
-test_lat, test_lon = p.runge_kutta_trajectory()
-print(tra.longitudes)
+print(tra.latitudes)
