@@ -94,11 +94,11 @@ class Parcel:
         self.scheme = scheme  
 
         self.trajectory_lat = np.zeros(
-                    (np.int(2.9 / self.atmosphere.timestep) + 3, 
-                    np.size(self.lat)))
+                    (np.int(self.atmosphere.total_time / 
+                        self.atmosphere.timestep) + 3, np.size(self.lat)))
         self.trajectory_lon = np.zeros(
-                    (np.int(2.9 / self.atmosphere.timestep) + 3, 
-                    np.size(self.lon)))
+                    (np.int(self.atmosphere.total_time / 
+                        self.atmosphere.timestep) + 3, np.size(self.lon)))
 
     def spherical_hypotenuse(self, a, b):
         """ Given the lengths of two sides of a right triangle on a sphere, 
@@ -147,6 +147,8 @@ class Parcel:
         xi = np.array([self.lat, self.lon, xi_times]).T
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
             interp_values, xi)
+
+        print(xi)
         return interp_result
 
     def velocity_components(self):
@@ -196,35 +198,49 @@ class Parcel:
         return new_lat, new_lon
 
     def runge_kutta_trajectory(self):
-        # This is half-edited from the version in traj.py
-
-        # Implement Runge Kutta integration method
-        
+        """ Uses a second order Runge-Kutta method to get the position at the 
+        next timestep.
+        """        
         i = 1   # Index for timestep
  
         # Start trajectory at initial position 
         self.trajectory_lat[0,:] = self.lat
         self.trajectory_lon[0,:] = self.lon
         #while self.atmosphere.time < self.atmosphere.total_time:
-        while self.atmosphere.time < 2.9:
-            guess_lat, guess_lon = self.next_position()
-            initial_u, initial_v = self.velocity_components()
-            
-            self.atmosphere.time += self.atmosphere.timestep
-            guess_u, guess_v = self.velocity_components()
-            average_u = 0.5 * (initial_u + guess_u)
-            average_v = 0.5 * (initial_v + guess_v)
+        while self.atmosphere.time < 41:
+            try:
+                guess_lat, guess_lon = self.next_position()
+                initial_u, initial_v = self.velocity_components()
+                
+                self.atmosphere.time += self.atmosphere.timestep
+                guess_u, guess_v = self.velocity_components()
 
-            wind_speed = self.spherical_hypotenuse(average_u, average_v)
-            wind_direction = np.arctan2(average_v, average_u)
-            wind_bearing = np.degrees(self.compass_bearing(wind_direction))
-            displacement = wind_speed * self.atmosphere.timestep * 60 ** 2   
+                #print("working time is ", self.atmosphere.time)
 
-            self.trajectory_lat[i,:], self.trajectory_lon[i,:] = (
-                                self.destination(displacement, wind_bearing))
-            self.lat = self.trajectory_lat[i,:]
-            self.lon = self.trajectory_lon[i,:]
-            i += 1
+            except:
+                #print("exception time is ", self.atmosphere.time)
+                self.atmosphere = Atmosphere(np.round(self.atmosphere.time))
+
+                self.atmosphere.time += self.atmosphere.timestep
+                guess_u, guess_v = self.velocity_components()
+
+                #print("second exception time is ", self.atmosphere.time)
+  
+            finally:    
+                average_u = 0.5 * (initial_u + guess_u)
+                average_v = 0.5 * (initial_v + guess_v)
+
+                wind_speed = self.spherical_hypotenuse(average_u, average_v)
+                wind_direction = np.arctan2(average_v, average_u)
+                wind_bearing = np.degrees(self.compass_bearing(wind_direction))
+                displacement = wind_speed * self.atmosphere.timestep * 60 ** 2   
+
+                self.trajectory_lat[i,:], self.trajectory_lon[i,:] = (
+                                    self.destination(displacement, wind_bearing))
+                self.lat = self.trajectory_lat[i,:]
+                self.lon = self.trajectory_lon[i,:] % 360
+                #print(self.lon)
+                i += 1  
 
         return self.trajectory_lat, self.trajectory_lon
 
@@ -258,4 +274,4 @@ atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 52], [-71, -62])
 tra = Trajectory(atmo, p)
 
-print(tra.latitudes)
+print(tra.latitudes[0:100,:])
