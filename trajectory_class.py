@@ -67,7 +67,8 @@ class Atmosphere:
         t0_values = t0_values[:, :, np.newaxis]
 
         # Open second file and retrieve gridded values
-        file1 = netcdf.netcdf_file(self.filenames[self.file_index + 1], mmap=False)
+        file1 = netcdf.netcdf_file(self.filenames[self.file_index + 1], 
+                                   mmap=False)
         vars1 = file1.variables
         file1.close()
         t1_values = vars1[parameter][0][0]
@@ -120,7 +121,8 @@ class Parcel:
         lat1 -- Starting latitude in degrees, -90 to 90
         lon1 -- Starting longitude in degrees, 0 to 360
         distance -- Distance to travel in meters
-        bearing -- Direction between 0 and 360 degrees, clockwise from true North.
+        bearing -- Direction between 0 and 360 degrees, 
+                    clockwise from true North.
         """
         angular_distance = distance / EARTH_RADIUS
         lat2 = np.degrees(np.arcsin(np.sin(np.radians(self.lat)) 
@@ -145,10 +147,10 @@ class Parcel:
         """
         xi_times = np.full_like(self.lat, self.atmosphere.time)
         xi = np.array([self.lat, self.lon, xi_times]).T
+        print(xi)
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
             interp_values, xi)
 
-        print(xi)
         return interp_result
 
     def velocity_components(self):
@@ -207,7 +209,7 @@ class Parcel:
         self.trajectory_lat[0,:] = self.lat
         self.trajectory_lon[0,:] = self.lon
         #while self.atmosphere.time < self.atmosphere.total_time:
-        while self.atmosphere.time < 41:
+        while self.atmosphere.time < 43:
             try:
                 guess_lat, guess_lon = self.next_position()
                 initial_u, initial_v = self.velocity_components()
@@ -236,7 +238,7 @@ class Parcel:
                 displacement = wind_speed * self.atmosphere.timestep * 60 ** 2   
 
                 self.trajectory_lat[i,:], self.trajectory_lon[i,:] = (
-                                    self.destination(displacement, wind_bearing))
+                                self.destination(displacement, wind_bearing))
                 self.lat = self.trajectory_lat[i,:]
                 self.lon = self.trajectory_lon[i,:] % 360
                 #print(self.lon)
@@ -274,4 +276,4 @@ atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 52], [-71, -62])
 tra = Trajectory(atmo, p)
 
-print(tra.latitudes[0:100,:])
+tra.plot_ortho
