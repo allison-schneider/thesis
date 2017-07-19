@@ -5,6 +5,9 @@ import scipy.interpolate
 from mpl_toolkits.basemap import Basemap
 import sys
 
+# Declare global variables
+EARTH_RADIUS = 6371e3    # meters
+
 class Atmosphere:
     """ Contains atmospheric parameters (u speed, v speed, geopotential height)
     for two time layers at a given time.
@@ -14,7 +17,7 @@ class Atmosphere:
 
         self.time = time
         self.time_between_files = 3.0    # Time in hours between samples
-        self.timestep = 3.0 / 60
+        self.timestep = 3.0 / 60         # Timestep in hours
         
         # Generate list of all filenames and index of current file
         self.filenames = ['data/hgt-{:03d}.nc'.format(time) 
@@ -79,13 +82,53 @@ class Parcel:
     lists of the same length.
     """
     def __init__(self,
-                 atmosphere,    # Instance of class Atmosphere
-                 latitude,      # Latitude in degrees (-90, 90) 
-                 longitude):    # Longitude in degrees (0, 360])        
+                 atmosphere,        # Instance of class Atmosphere
+                 latitude,          # Latitude in degrees (-90, 90) 
+                 longitude,         # Longitude in degrees (0, 360]) 
+                 scheme="grid"):    # "grid" or "force"
         
         self.lat = np.array(latitude)
         self.lon = np.array(longitude) % 360    # Convert longitude to (0, 360]
-        self.atmosphere = atmosphere 
+        self.atmosphere = atmosphere
+        self.scheme = scheme  
+
+    def spherical_hypotenuse(self, a, b):
+        """ Given the lengths of two sides of a right triangle on a sphere, 
+        a and b, find the length of the hypotenuse c. 
+        
+        Arguments:
+        a -- Length of first side of the triangle, in meters
+        b -- Length of second side of the triangle, in meters 
+        """
+        c = EARTH_RADIUS * np.arccos(np.cos(a / EARTH_RADIUS) 
+            * np.cos(b / EARTH_RADIUS))
+        return c
+
+    def destination(self, distance, bearing):
+        """ Return the latitude and longitude of a destination point 
+        given a starting latitude and longitude, distance, and bearing.
+        
+        Arguments:
+        lat1 -- Starting latitude in degrees, -90 to 90
+        lon1 -- Starting longitude in degrees, 0 to 360
+        distance -- Distance to travel in meters
+        bearing -- Direction between 0 and 360 degrees, clockwise from true North.
+        """
+        angular_distance = distance / EARTH_RADIUS
+        lat2 = np.degrees(np.arcsin(np.sin(np.radians(self.lat)) 
+            * np.cos(angular_distance) + np.cos(np.radians(self.lat)) 
+            * np.sin(angular_distance) * np.cos(np.radians(bearing))))
+        # Longitude is mod 360 degrees for wrapping around earth
+        lon2 = (self.lon + np.degrees(np.arctan2(np.sin(np.radians(bearing)) 
+            * np.sin(angular_distance) * np.cos(np.radians(self.lat)), 
+            np.cos(angular_distance) - np.sin(np.radians(self.lat)) 
+            * np.sin(np.radians(lat2))))) % 360       
+        return lat2, lon2
+
+    def compass_bearing(self, math_bearing):
+        """ Transform a vector angle to a compass bearing."""
+        bearing = (5 * np.pi / 2 - math_bearing) % (2 * np.pi)
+        return bearing
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
@@ -98,7 +141,7 @@ class Parcel:
             interp_values, xi)
         return interp_result
 
-    def velocity_components(self, scheme="grid"):
+    def velocity_components(self):
         """ Gets the u and v components of wind velocity at a point 
         according to the current calculation scheme. 
 
@@ -107,8 +150,7 @@ class Parcel:
         force -- calculate advection from geostropic wind equation using 
                  geopotential height
         """
-
-        if scheme == "grid":
+        if self.scheme == "grid":
             # Interpolate u and v at given position
             u_speed = self.interpolate(atmo.u_values)
             v_speed = self.interpolate(atmo.v_values)
@@ -122,6 +164,33 @@ class Parcel:
 
         return u_speed, v_speed
 
+    def next_position(self):
+        """ This gets the next position in a trajectory according to the given 
+            calculation scheme, by multiplying velocity with the timestep. 
+
+            Schemes:
+            grid -- calculate from wind field
+            force -- calculate advection from geostropic wind equation using 
+                     geopotential height
+        """
+        u_speed, v_speed = self.velocity_components()
+
+        # Get magnitude and direction of wind vector
+        wind_speed = self.spherical_hypotenuse(u_speed, v_speed)
+        wind_direction = np.arctan2(v_speed, u_speed)
+        wind_vector = np.array([wind_speed, wind_direction])
+
+        # Get displacement using velocity times delta t
+        delta_t = self.atmosphere.timestep * 60 ** 2    # in seconds
+        displacement = wind_speed * delta_t             # in meters
+
+        # Calculate new latitude and longitude
+        # Convert wind bearing to degrees
+        wind_bearing = np.degrees(self.compass_bearing(wind_direction))
+        new_lat, new_lon = self.destination(displacement, 
+                                            wind_bearing)
+        return new_lat, new_lon
+
 class Trajectory:
     """ Lists of positions for each timestep along the trajectory."""
     def __init__(self,
@@ -129,6 +198,7 @@ class Trajectory:
         self.parcel = parcel
 
 atmo = Atmosphere(237)
-p = Parcel(atmo, [41, 42], [-71, -72])
-print(p.velocity_components())
+p = Parcel(atmo, [41, 52], [-71, -62])
+#p = Parcel(atmo, [41], [-71])
+print(p.next_position())
 #print(atmo.file_index)
