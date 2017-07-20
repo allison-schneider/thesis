@@ -154,7 +154,8 @@ class Parcel:
 
         # When ValueError occurs and longitude wraps around        
         except:      
-            print(np.shape(xi))
+            # Testing adding a 360 degree value to the end of longitudes in points
+            print(np.append(self.atmosphere.points[1], 360))
 
         return interp_result
 
