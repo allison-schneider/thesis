@@ -132,7 +132,7 @@ class Parcel:
         lon2 = (self.lon + np.degrees(np.arctan2(np.sin(np.radians(bearing)) 
             * np.sin(angular_distance) * np.cos(np.radians(self.lat)), 
             np.cos(angular_distance) - np.sin(np.radians(self.lat)) 
-            * np.sin(np.radians(lat2))))) % 360       
+            * np.sin(np.radians(lat2))))) % 360   
         return lat2, lon2
 
     def compass_bearing(self, math_bearing):
@@ -147,9 +147,14 @@ class Parcel:
         """
         xi_times = np.full_like(self.lat, self.atmosphere.time)
         xi = np.array([self.lat, self.lon, xi_times]).T
-        print(xi)
-        interp_result = scipy.interpolate.interpn(self.atmosphere.points,
-            interp_values, xi)
+        
+        try:
+            interp_result = scipy.interpolate.interpn(self.atmosphere.points,
+                interp_values, xi)
+
+        # When ValueError occurs and longitude wraps around        
+        except:      
+            print(np.shape(xi))
 
         return interp_result
 
@@ -219,6 +224,7 @@ class Parcel:
 
                 #print("working time is ", self.atmosphere.time)
 
+            # When ValueError occurs and next time layer needs to be loaded
             except:
                 #print("exception time is ", self.atmosphere.time)
                 self.atmosphere = Atmosphere(np.round(self.atmosphere.time))
