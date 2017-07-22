@@ -218,15 +218,17 @@ class Parcel:
         #while self.atmosphere.time < self.atmosphere.total_time:
         while self.atmosphere.time < (self.atmosphere.total_time 
                                       - self.atmosphere.timestep):
-            try:
-                guess_lat, guess_lon = self.next_position()
-                initial_u, initial_v = self.velocity_components()
-                
+            
+            guess_lat, guess_lon = self.next_position()
+            initial_u, initial_v = self.velocity_components()
+
+            try:    
                 self.atmosphere.time += self.atmosphere.timestep
                 guess_u, guess_v = self.velocity_components()
 
             # When ValueError occurs and next time layer needs to be loaded
             except:
+                print(self.atmosphere.time)
                 self.atmosphere = Atmosphere(np.round(self.atmosphere.time))
 
                 self.atmosphere.time += self.atmosphere.timestep
