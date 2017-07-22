@@ -42,7 +42,8 @@ class Atmosphere:
 
         # Flip latitudes so they're increasing, (-90, 90).
         latitudes = np.flip(vars['lat'][:], 0)   
-        longitudes = vars['lon'][:]
+        # Add the longitude 360 to deal with interpolation near 0 degrees.
+        longitudes = np.append(vars['lon'][:], 360)
        
         # Array of times has last and next sample times, or current and next.
         last_time = self.time - self.time % self.time_between_files
@@ -76,6 +77,10 @@ class Atmosphere:
 
         # Append values for both times along third dimension
         t_values = np.append(t0_values, t1_values, axis=2)
+
+        # Copy 0th column to end for longitude 360
+        first_column = np.expand_dims(t_values[:, 0, :], axis=1)
+        t_values = np.concatenate((t_values, first_column), axis=1)
         return t_values
 
 class Parcel:
@@ -94,11 +99,13 @@ class Parcel:
         self.atmosphere = atmosphere
         self.scheme = scheme  
 
-        self.trajectory_lat = np.zeros(
-                    (np.int(self.atmosphere.total_time / 
+        self.trajectory_lat = np.nan * np.zeros(
+                    (np.int((self.atmosphere.total_time 
+                        - self.atmosphere.timestep) / 
                         self.atmosphere.timestep) + 3, np.size(self.lat)))
-        self.trajectory_lon = np.zeros(
-                    (np.int(self.atmosphere.total_time / 
+        self.trajectory_lon = np.nan * np.zeros(
+                    (np.int((self.atmosphere.total_time 
+                        - self.atmosphere.timestep) / 
                         self.atmosphere.timestep) + 3, np.size(self.lon)))
 
     def spherical_hypotenuse(self, a, b):
@@ -148,14 +155,8 @@ class Parcel:
         xi_times = np.full_like(self.lat, self.atmosphere.time)
         xi = np.array([self.lat, self.lon, xi_times]).T
         
-        try:
-            interp_result = scipy.interpolate.interpn(self.atmosphere.points,
-                interp_values, xi)
-
-        # When ValueError occurs and longitude wraps around        
-        except:      
-            # Testing adding a 360 degree value to the end of longitudes in points
-            print(np.append(self.atmosphere.points[1], 360))
+        interp_result = scipy.interpolate.interpn(self.atmosphere.points,
+                                                  interp_values, xi)
 
         return interp_result
 
@@ -215,7 +216,8 @@ class Parcel:
         self.trajectory_lat[0,:] = self.lat
         self.trajectory_lon[0,:] = self.lon
         #while self.atmosphere.time < self.atmosphere.total_time:
-        while self.atmosphere.time < 43:
+        while self.atmosphere.time < (self.atmosphere.total_time 
+                                      - self.atmosphere.timestep):
             try:
                 guess_lat, guess_lon = self.next_position()
                 initial_u, initial_v = self.velocity_components()
@@ -223,17 +225,12 @@ class Parcel:
                 self.atmosphere.time += self.atmosphere.timestep
                 guess_u, guess_v = self.velocity_components()
 
-                #print("working time is ", self.atmosphere.time)
-
             # When ValueError occurs and next time layer needs to be loaded
             except:
-                #print("exception time is ", self.atmosphere.time)
                 self.atmosphere = Atmosphere(np.round(self.atmosphere.time))
 
                 self.atmosphere.time += self.atmosphere.timestep
                 guess_u, guess_v = self.velocity_components()
-
-                #print("second exception time is ", self.atmosphere.time)
   
             finally:    
                 average_u = 0.5 * (initial_u + guess_u)
@@ -248,9 +245,7 @@ class Parcel:
                                 self.destination(displacement, wind_bearing))
                 self.lat = self.trajectory_lat[i,:]
                 self.lon = self.trajectory_lon[i,:] % 360
-                #print(self.lon)
-                i += 1  
-
+                i += 1       
         return self.trajectory_lat, self.trajectory_lon
 
 class Trajectory:
@@ -263,7 +258,14 @@ class Trajectory:
         self.atmosphere = atmosphere
         self.latitudes, self.longitudes = self.parcel.runge_kutta_trajectory()
 
+        # Remove NaNs from arrays
+        self.finite_latitudes = self.latitudes[np.isfinite(
+                                               self.latitudes[:,0]),:]
+        self.finite_longitudes = self.longitudes[np.isfinite(
+                                               self.longitudes[:,0]),:]
+
     def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
+        """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
         map.drawcoastlines(linewidth=0.25, color='gray')
@@ -271,8 +273,8 @@ class Trajectory:
         map.fillcontinents(color='white',lake_color='white', zorder=1)
         # draw the edge of the map projection region (the projection limb)
         map.drawmapboundary(fill_color='white')
-        map.plot(self.longitudes, self.latitudes, latlon=True, 
-                    zorder=2, color='black')
+        map.plot(self.finite_longitudes, self.finite_latitudes,
+                 latlon=True, zorder=2, color='black')
         #plt.title("First Order v * dt Integration")
         if savefig == True:
             filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
@@ -280,7 +282,11 @@ class Trajectory:
         plt.show()
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 52], [-71, -62])
+p = Parcel(atmo, [41, 42], [-71, -72])
 tra = Trajectory(atmo, p)
 
-tra.plot_ortho
+#print("latitudes shape is ", np.shape(tra.latitudes[:,0]))
+#print("longitudes shape is ", np.shape(tra.longitudes[:,0]))
+#print("latitudes is \n", tra.latitudes)
+
+tra.plot_ortho()
