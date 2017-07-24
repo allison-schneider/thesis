@@ -290,6 +290,19 @@ class Trajectory:
             plt.savefig(filename)
         plt.show()
 
+    def plot_cyl(self):
+        map = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,\
+            llcrnrlon=-180,urcrnrlon=180,resolution='c')
+        map.drawcoastlines(linewidth=0.25, color='gray')
+        map.drawcountries(linewidth=0)
+        map.fillcontinents(color='white',lake_color='white', zorder=1)
+        map.drawparallels(np.arange(-90.,91.,30.))
+        map.drawmeridians(np.arange(-180.,181.,60.))
+        map.drawmapboundary(fill_color='white')
+        map.plot(self.finite_longitudes, self.finite_latitudes,
+                 latlon=True, zorder=2, color='black')
+        plt.show()
+
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 42], [-71, -72])
 tra = Trajectory(atmo, p)
