@@ -19,6 +19,7 @@ class Atmosphere:
         self.time_between_files = 3.0    # Time in hours between samples
         self.timestep = 3.0 / 60         # Timestep in hours
         self.total_time = 240.0          # Time to run trajectory in hours
+        self.num_files = 81
         
         # Generate list of all filenames and index of current file
         self.filenames = ['data/hgt-{:03d}.nc'.format(time) 
@@ -46,7 +47,7 @@ class Atmosphere:
         longitudes = np.append(vars['lon'][:], 360)
        
         # Array of times has last and next sample times, or current and next.
-        last_time = self.time - self.time % self.time_between_files
+        last_time = self.time
         times = np.array([last_time, last_time + self.time_between_files])
         
         points = latitudes, longitudes, times
@@ -100,13 +101,11 @@ class Parcel:
         self.scheme = scheme  
 
         self.trajectory_lat = np.nan * np.zeros(
-                    (np.int((self.atmosphere.total_time 
-                        - self.atmosphere.timestep) / 
-                        self.atmosphere.timestep) + 3, np.size(self.lat)))
+                    (np.int((self.atmosphere.total_time) / 
+                     self.atmosphere.timestep), np.size(self.lat)))
         self.trajectory_lon = np.nan * np.zeros(
-                    (np.int((self.atmosphere.total_time 
-                        - self.atmosphere.timestep) / 
-                        self.atmosphere.timestep) + 3, np.size(self.lon)))
+                    (np.int((self.atmosphere.total_time) / 
+                     self.atmosphere.timestep), np.size(self.lon)))
 
     def spherical_hypotenuse(self, a, b):
         """ Given the lengths of two sides of a right triangle on a sphere, 
@@ -152,11 +151,14 @@ class Parcel:
         lat-lon grid. The interp_values parameter accepts u_values, g_values,
         or gh_values from the Atmosphere class.
         """
+
         xi_times = np.full_like(self.lat, self.atmosphere.time)
         xi = np.array([self.lat, self.lon, xi_times]).T
         
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
-                                                  interp_values, xi)
+                                                  interp_values, xi,
+                                                  bounds_error=False,
+                                                  fill_value=None)
 
         return interp_result
 
@@ -215,26 +217,22 @@ class Parcel:
         # Start trajectory at initial position 
         self.trajectory_lat[0,:] = self.lat
         self.trajectory_lon[0,:] = self.lon
-        #while self.atmosphere.time < self.atmosphere.total_time:
-        while self.atmosphere.time < (self.atmosphere.total_time 
-                                      - self.atmosphere.timestep):
-            
-            guess_lat, guess_lon = self.next_position()
-            initial_u, initial_v = self.velocity_components()
+        
+        while self.atmosphere.file_index < self.atmosphere.num_files - 2:
 
-            try:    
+            # Runge-Kutta approximation between two time layers
+            for layer_step in np.arange(self.atmosphere.time_between_files 
+                                        / self.atmosphere.timestep):
+                                
+                # First guess position and velocity at starting point
+                guess_lat, guess_lon = self.next_position()
+                initial_u, initial_v = self.velocity_components()
+                
+                # Velocity at first guess point at next timestep
                 self.atmosphere.time += self.atmosphere.timestep
                 guess_u, guess_v = self.velocity_components()
-
-            # When ValueError occurs and next time layer needs to be loaded
-            except:
-                print(self.atmosphere.time)
-                self.atmosphere = Atmosphere(np.round(self.atmosphere.time))
-
-                self.atmosphere.time += self.atmosphere.timestep
-                guess_u, guess_v = self.velocity_components()
-  
-            finally:    
+                
+                # Average 
                 average_u = 0.5 * (initial_u + guess_u)
                 average_v = 0.5 * (initial_v + guess_v)
 
@@ -243,11 +241,20 @@ class Parcel:
                 wind_bearing = np.degrees(self.compass_bearing(wind_direction))
                 displacement = wind_speed * self.atmosphere.timestep * 60 ** 2   
 
+                i = np.int(layer_step + self.atmosphere.file_index 
+                                        * (self.atmosphere.time_between_files
+                                           / self.atmosphere.timestep))
                 self.trajectory_lat[i,:], self.trajectory_lon[i,:] = (
                                 self.destination(displacement, wind_bearing))
                 self.lat = self.trajectory_lat[i,:]
                 self.lon = self.trajectory_lon[i,:] % 360
-                i += 1       
+ 
+            # Get new instance of Atmosphere for next time layer
+            self.atmosphere.time = np.round(((self.atmosphere.file_index + 1) 
+                                   * self.atmosphere.time_between_files), 
+                                    decimals=4)
+            self.atmosphere = Atmosphere(self.atmosphere.time)
+
         return self.trajectory_lat, self.trajectory_lon
 
 class Trajectory:
@@ -286,9 +293,5 @@ class Trajectory:
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 42], [-71, -72])
 tra = Trajectory(atmo, p)
-
-#print("latitudes shape is ", np.shape(tra.latitudes[:,0]))
-#print("longitudes shape is ", np.shape(tra.longitudes[:,0]))
-#print("latitudes is \n", tra.latitudes)
 
 tra.plot_ortho()
