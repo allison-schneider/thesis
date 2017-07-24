@@ -291,7 +291,8 @@ class Trajectory:
         plt.show()
 
     def plot_cyl(self):
-        map = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,\
+        """ Equidistant cylindrical plot. """
+        map = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,
             llcrnrlon=-180,urcrnrlon=180,resolution='c')
         map.drawcoastlines(linewidth=0.25, color='gray')
         map.drawcountries(linewidth=0)
