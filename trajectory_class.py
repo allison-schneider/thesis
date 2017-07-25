@@ -17,7 +17,7 @@ class Atmosphere:
 
         self.time = time
         self.time_between_files = 3.0    # Time in hours between samples
-        self.timestep = 3.0 / 60         # Timestep in hours
+        self.timestep = 3.0              # Timestep in hours
         self.total_time = 240.0          # Time to run trajectory in hours
         self.num_files = 81
         
@@ -82,6 +82,9 @@ class Atmosphere:
         # Copy 0th column to end for longitude 360
         first_column = np.expand_dims(t_values[:, 0, :], axis=1)
         t_values = np.concatenate((t_values, first_column), axis=1)
+
+        # Flip along latitude axis, to match points
+        t_values = np.flip(t_values, 0)
         return t_values
 
 class Parcel:
@@ -273,6 +276,21 @@ class Trajectory:
         self.finite_longitudes = self.longitudes[np.isfinite(
                                                self.longitudes[:,0]),:]
 
+    def haversine(self):
+        """ Great-circle distance between two points. """
+        lat1 = np.radians(self.finite_latitudes[:,0])
+        lat2 = np.radians(self.finite_latitudes[:,1])
+        lon1 = np.radians(self.finite_longitudes[:,0])
+        lon2 = np.radians(self.finite_longitudes[:,1])
+        dlat = np.absolute(lat2 - lat1)
+        dlon = np.absolute(lon2 - lon1)
+
+        a = (np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) 
+            * np.sin(dlon / 2) ** 2)
+        c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a)) 
+        d = EARTH_RADIUS * c    # distance in meters
+        return d
+
     def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
@@ -288,10 +306,13 @@ class Trajectory:
         if savefig == True:
             filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
             plt.savefig(filename)
-        plt.show()
-
+        return map
     def plot_cyl(self):
         """ Equidistant cylindrical plot. """
+        
+        # Convert longitudes to (-180, 180)
+        self.lon_180 = self.finite_longitudes - (360 * (self.finite_longitudes >= 180))
+
         map = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,
             llcrnrlon=-180,urcrnrlon=180,resolution='c')
         map.drawcoastlines(linewidth=0.25, color='gray')
@@ -300,12 +321,24 @@ class Trajectory:
         map.drawparallels(np.arange(-90.,91.,30.))
         map.drawmeridians(np.arange(-180.,181.,60.))
         map.drawmapboundary(fill_color='white')
-        map.plot(self.finite_longitudes, self.finite_latitudes,
-                 latlon=True, zorder=2, color='black')
-        plt.show()
+
+        # Convert latitudes and longitudes to map projection coordinates
+        xpt, ypt = map(self.lon_180, self.finite_latitudes)
+
+        map.plot(xpt, ypt,
+                 latlon=False, zorder=2, color='black')
+        return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 42], [-71, -72])
+p = Parcel(atmo, [41, 41, 42, 42], 
+                 [-71, -72, -71, -72])
 tra = Trajectory(atmo, p)
 
-tra.plot_ortho()
+ortho_map = tra.plot_ortho()
+
+distances = tra.haversine() / 1000  # in km
+times = np.arange(np.size(distances))
+print(distances)
+graph = plt.figure()
+plt.plot(times, distances)
+plt.show()
