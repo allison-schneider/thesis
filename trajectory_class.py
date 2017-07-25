@@ -271,17 +271,21 @@ class Trajectory:
         self.latitudes, self.longitudes = self.parcel.runge_kutta_trajectory()
 
         # Remove NaNs from arrays
-        self.finite_latitudes = self.latitudes[np.isfinite(
+        self.latitudes = self.latitudes[np.isfinite(
                                                self.latitudes[:,0]),:]
-        self.finite_longitudes = self.longitudes[np.isfinite(
+        self.longitudes = self.longitudes[np.isfinite(
                                                self.longitudes[:,0]),:]
+
+        self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
+
+        print(self.mean_longitudes)
 
     def haversine(self):
         """ Great-circle distance between two points. """
-        lat1 = np.radians(self.finite_latitudes[:,0])
-        lat2 = np.radians(self.finite_latitudes[:,1])
-        lon1 = np.radians(self.finite_longitudes[:,0])
-        lon2 = np.radians(self.finite_longitudes[:,1])
+        lat1 = np.radians(self.latitudes[:,0])
+        lat2 = np.radians(self.latitudes[:,1])
+        lon1 = np.radians(self.longitudes[:,0])
+        lon2 = np.radians(self.longitudes[:,1])
         dlat = np.absolute(lat2 - lat1)
         dlon = np.absolute(lon2 - lon1)
 
@@ -290,6 +294,26 @@ class Trajectory:
         c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a)) 
         d = EARTH_RADIUS * c    # distance in meters
         return d
+
+    def mean_trajectory(self):
+        # Convert latitudes and longitudes to Cartesian coordinates
+        x = (np.cos(np.radians(self.latitudes)) * 
+            np.cos(np.radians(self.longitudes)))
+        y = (np.cos(np.radians(self.latitudes)) * 
+            np.sin(np.radians(self.longitudes)))
+        z = np.sin(np.radians(self.latitudes))
+
+        # Get average x, y, z values
+        mean_x = np.mean(x, axis=1)
+        mean_y = np.mean(y, axis=1)
+        mean_z = np.mean(z, axis=1)
+
+        # Convert average values to trajectory latitudes and longitudes
+        mean_longitudes = np.degrees(np.arctan2(mean_y, mean_x))
+        hypotenuse = np.sqrt(mean_x ** 2 + mean_y ** 2)
+        mean_latitudes = np.degrees(np.arctan2(mean_z, hypotenuse))
+
+        return mean_latitudes, mean_longitudes
 
     def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
         """ Orthographic projection plot."""
@@ -300,18 +324,22 @@ class Trajectory:
         map.fillcontinents(color='white',lake_color='white', zorder=1)
         # draw the edge of the map projection region (the projection limb)
         map.drawmapboundary(fill_color='white')
-        map.plot(self.finite_longitudes, self.finite_latitudes,
+        map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        #plt.title("First Order v * dt Integration")
+        map.plot(self.mean_longitudes, self.mean_latitudes,
+                 latlon=True, zorder=2, color='blue')
         if savefig == True:
             filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
             plt.savefig(filename)
+
+        plt.show()
         return map
+        
     def plot_cyl(self):
         """ Equidistant cylindrical plot. """
         
         # Convert longitudes to (-180, 180)
-        self.lon_180 = self.finite_longitudes - (360 * (self.finite_longitudes >= 180))
+        self.lon_180 = self.longitudes - (360 * (self.longitudes >= 180))
 
         map = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,
             llcrnrlon=-180,urcrnrlon=180,resolution='c')
@@ -323,22 +351,15 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
 
         # Convert latitudes and longitudes to map projection coordinates
-        xpt, ypt = map(self.lon_180, self.finite_latitudes)
+        xpt, ypt = map(self.lon_180, self.latitudes)
 
         map.plot(xpt, ypt,
                  latlon=False, zorder=2, color='black')
         return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 41, 42, 42], 
-                 [-71, -72, -71, -72])
+p = Parcel(atmo, [41, 41, 51, 51], 
+                 [-41, -51, -41, -51])
 tra = Trajectory(atmo, p)
 
-ortho_map = tra.plot_ortho()
-
-distances = tra.haversine() / 1000  # in km
-times = np.arange(np.size(distances))
-print(distances)
-graph = plt.figure()
-plt.plot(times, distances)
-plt.show()
+tra.plot_ortho()
