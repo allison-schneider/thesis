@@ -278,14 +278,16 @@ class Trajectory:
 
         self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
 
-        print(self.mean_longitudes)
+    def haversine(self, latitude1, longitude1, latitude2, longitude2):
+        """ Great-circle distance between two points. Latitudes and longitudes
+        are 1D NumPy arrays. 
+        Returns a 1D array of distances between two trajectories. """
 
-    def haversine(self):
-        """ Great-circle distance between two points. """
-        lat1 = np.radians(self.latitudes[:,0])
-        lat2 = np.radians(self.latitudes[:,1])
-        lon1 = np.radians(self.longitudes[:,0])
-        lon2 = np.radians(self.longitudes[:,1])
+        lat1 = np.radians(latitude1)
+        lat2 = np.radians(latitude2)
+        lon1 = np.radians(longitude1)
+        lon2 = np.radians(longitude2)
+
         dlat = np.absolute(lat2 - lat1)
         dlon = np.absolute(lon2 - lon1)
 
@@ -315,6 +317,21 @@ class Trajectory:
 
         return mean_latitudes, mean_longitudes
 
+    def rms_distance(self):
+        """ Calculate the root mean square distance of each trajectory from the
+        mean trajectory. """
+        
+        # Make mean lat and lon arrays the same shape as trajectory arrays
+        mean_lat = np.repeat(tra.mean_latitudes[:, np.newaxis], 
+                             np.size(self.latitudes, axis=1), axis=1)
+        mean_lon = np.repeat(tra.mean_longitudes[:, np.newaxis], 
+                             np.size(self.longitudes, axis=1), axis=1)
+
+        rms = np.sqrt(np.mean(self.haversine(mean_lat, mean_lon, 
+                              self.latitudes, self.longitudes) ** 2, axis=1))
+
+        return rms
+
     def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
@@ -334,7 +351,7 @@ class Trajectory:
 
         plt.show()
         return map
-        
+
     def plot_cyl(self):
         """ Equidistant cylindrical plot. """
         
@@ -358,8 +375,9 @@ class Trajectory:
         return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 41, 51, 51], 
-                 [-41, -51, -41, -51])
+p = Parcel(atmo, [41, 44], 
+                 [-71, -71])
 tra = Trajectory(atmo, p)
 
 tra.plot_ortho()
+
