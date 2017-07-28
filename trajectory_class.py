@@ -6,7 +6,8 @@ from mpl_toolkits.basemap import Basemap
 import sys
 
 # Global variables
-EARTH_RADIUS = 6371e3    # meters
+EARTH_RADIUS = 6371e3       # meters
+OMEGA = 1674.4e3 / 60 ** 2  # rotation rate of Earth, in ms^-1
 
 class Atmosphere:
     """ Contains atmospheric parameters (u speed, v speed, geopotential height)
@@ -38,7 +39,7 @@ class Atmosphere:
         
         elif self.scheme == "force":
             self.gh_values = self.values("gh")
-            #self.gh_dlat = 
+            self.gh_dlat, self.gh_dlon = self.gradient_gh()
         
         else:
             raise ValueError("Invalid calculation scheme chosen:", self.scheme,
@@ -117,7 +118,7 @@ class Atmosphere:
         """
         dlat = np.abs(latitude[1]-latitude[0])*np.pi/180
         dy = 2*(np.arctan2(np.sqrt((np.sin(dlat/2))**2),
-                np.sqrt(1-(np.sin(dlat/2))**2)))*6371000
+                np.sqrt(1-(np.sin(dlat/2))**2)))*EARTH_RADIUS
         dy = np.ones((latitude.shape[0],longitude.shape[0]))*dy
 
         dx = np.empty((latitude.shape))
@@ -126,16 +127,25 @@ class Atmosphere:
             a = (np.cos(latitude[i]*np.pi/180)
                 *np.cos(latitude[i]*np.pi/180)*np.sin(dlon/2))**2
             c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a) )
-            dx[i] = c * 6371000
+            dx[i] = c * EARTH_RADIUS
         dx = np.repeat(dx[:,np.newaxis],longitude.shape,axis=1)
         return dx, dy
 
     def gradient_gh(self):
-        grid_spacing = (180 / ((np.size(self.points[0])-1))) # degrees
+        # Distances between grid points in lat and lon directions in meters
+        length_grid_lon, length_grid_lat = self.calc_dx_dy(self.points[0], 
+                                                           self.points[1])
+        length_grid_lat = np.expand_dims(length_grid_lat, axis=2)
+        length_grid_lon = np.expand_dims(length_grid_lon, axis=2)
         
         # Gradient in latitude and longitude directions in degrees
-        gradient_lat, gradient_lon = np.gradient(self.gh_values, 
-                                                     grid_spacing, axis=(0,1))
+        gradient_lat_degrees, gradient_lon_degrees = np.gradient(self.gh_values,
+                                                                 axis=(0,1))
+
+        # Gradient in meters
+        gradient_lat = gradient_lat_degrees / length_grid_lat
+        gradient_lon = gradient_lon_degrees / length_grid_lon
+
         return gradient_lat, gradient_lon
 
 class Parcel:
@@ -146,10 +156,10 @@ class Parcel:
     def __init__(self,
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
-                 longitude):         # Longitude in degrees (0, 360]) 
+                 longitude):         # Longitude in degrees [0, 360) 
         
         self.lat = np.array(latitude)
-        self.lon = np.array(longitude) % 360    # Convert longitude to (0, 360]
+        self.lon = np.array(longitude) % 360    # Convert longitude to [0, 360)
         self.atmosphere = atmosphere  
 
         self.trajectory_lat = np.nan * np.zeros(
@@ -158,6 +168,10 @@ class Parcel:
         self.trajectory_lon = np.nan * np.zeros(
                     (np.int((self.atmosphere.total_time) / 
                      self.atmosphere.timestep), np.size(self.lon)))
+
+        # Initialize u and v
+        #self.u_speed = self.interpolate(atmo.u_values)
+        #self.v_speed = self.interpolate(atmo.v_values)
 
     def spherical_hypotenuse(self, a, b):
         """ Given the lengths of two sides of a right triangle on a sphere, 
@@ -232,14 +246,13 @@ class Parcel:
 
         else:
             print("Invalid calculation scheme.")
-
         return u_speed, v_speed
 
     def next_position(self):
-        """ This gets the next position in a trajectory according to the given 
-            calculation scheme ("grid" or "force"), by multiplying velocity by 
+        """ Gets the next position in a trajectory by multiplying velocity by 
             the timestep. 
         """
+        # Set u and v speeds
         u_speed, v_speed = self.velocity_components()
 
         # Get magnitude and direction of wind vector
@@ -429,3 +442,4 @@ p = Parcel(atmo, [41, 44],
 tra = Trajectory(atmo, p)
 
 tra.plot_ortho()
+
