@@ -13,9 +13,11 @@ class Atmosphere:
     for two time layers at a given time.
     """
     def __init__(self,
-                 time):     # Current time in hours from start
+                 time,
+                 scheme="grid"):     # Current time in hours from start
 
         self.time = time
+        self.scheme = scheme
         self.time_between_files = 3.0    # Time in hours between samples
         self.timestep = 3.0              # Timestep in hours
         self.total_time = 240.0          # Time to run trajectory in hours
@@ -26,12 +28,22 @@ class Atmosphere:
                             for time in np.arange(0,241,3)]
         self.file_index = np.int(np.floor(self.time / self.time_between_files))                 
         
-        # Initialize values for interpolate function
+        # Initialize points for interpolate function
         self.points = self.build_points()
-        self.u_values = self.values("u")
-        self.v_values = self.values("v")
-        self.gh_values = self.values("gh")
         
+        # Initialize values for interpolation, depending on calculation scheme
+        if self.scheme == "grid":
+            self.u_values = self.values("u")
+            self.v_values = self.values("v")
+        
+        elif self.scheme == "force":
+            self.gh_values = self.values("gh")
+            #self.gh_dlat = 
+        
+        else:
+            raise ValueError("Invalid calculation scheme chosen:", self.scheme,
+                             " Try 'grid' or 'force'.")
+
     def build_points(self):
         """ Returns the first argument for the interpn function,
         a tuple of 3 ndarrays of float, named points,
@@ -87,6 +99,45 @@ class Atmosphere:
         t_values = np.flip(t_values, 0)
         return t_values
 
+    def calc_dx_dy(self, latitude, longitude):
+        """This definition calculates the distance between grid points that are in
+            a latitude/longitude format.
+            
+            Equations from:
+            http://andrew.hedges.name/experiments/haversine/
+
+            dy should be close to 55600 m
+            dx at pole should be 0 m
+            dx at equator should be close to 55600 m
+            
+            Accepts, 1D arrays for latitude and longitude
+            
+            Returns: dx, dy; 2D arrays of distances between grid points 
+                                        in the x and y direction in meters 
+        """
+        dlat = np.abs(latitude[1]-latitude[0])*np.pi/180
+        dy = 2*(np.arctan2(np.sqrt((np.sin(dlat/2))**2),
+                np.sqrt(1-(np.sin(dlat/2))**2)))*6371000
+        dy = np.ones((latitude.shape[0],longitude.shape[0]))*dy
+
+        dx = np.empty((latitude.shape))
+        dlon = np.abs(longitude[1] - longitude[0])*np.pi/180
+        for i in range(latitude.shape[0]):
+            a = (np.cos(latitude[i]*np.pi/180)
+                *np.cos(latitude[i]*np.pi/180)*np.sin(dlon/2))**2
+            c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a) )
+            dx[i] = c * 6371000
+        dx = np.repeat(dx[:,np.newaxis],longitude.shape,axis=1)
+        return dx, dy
+
+    def gradient_gh(self):
+        grid_spacing = (180 / ((np.size(self.points[0])-1))) # degrees
+        
+        # Gradient in latitude and longitude directions in degrees
+        gradient_lat, gradient_lon = np.gradient(self.gh_values, 
+                                                     grid_spacing, axis=(0,1))
+        return gradient_lat, gradient_lon
+
 class Parcel:
     """ Represents the position and atmospheric parameters for a parcel of air.
     Latitude and longitude can be scalars, or, to represent multiple parcels,
@@ -95,13 +146,11 @@ class Parcel:
     def __init__(self,
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
-                 longitude,         # Longitude in degrees (0, 360]) 
-                 scheme="grid"):    # "grid" or "force"
+                 longitude):         # Longitude in degrees (0, 360]) 
         
         self.lat = np.array(latitude)
         self.lon = np.array(longitude) % 360    # Convert longitude to (0, 360]
-        self.atmosphere = atmosphere
-        self.scheme = scheme  
+        self.atmosphere = atmosphere  
 
         self.trajectory_lat = np.nan * np.zeros(
                     (np.int((self.atmosphere.total_time) / 
@@ -159,9 +208,7 @@ class Parcel:
         xi = np.array([self.lat, self.lon, xi_times]).T
         
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
-                                                  interp_values, xi,
-                                                  bounds_error=False,
-                                                  fill_value=None)
+                         interp_values, xi, bounds_error=False, fill_value=None)
 
         return interp_result
 
@@ -174,13 +221,13 @@ class Parcel:
         force -- calculate advection from geostropic wind equation using 
                  geopotential height
         """
-        if self.scheme == "grid":
+        if self.atmosphere.scheme == "grid":
             # Interpolate u and v at given position
             u_speed = self.interpolate(atmo.u_values)
             v_speed = self.interpolate(atmo.v_values)
 
         ## To do: implement force method    
-        #elif scheme == "force":
+        #elif self.atmosphere.scheme == "force":
         #    u_speed, v_speed = speed_force(grid_lat, grid_lon, filename)
 
         else:
@@ -190,7 +237,7 @@ class Parcel:
 
     def next_position(self):
         """ This gets the next position in a trajectory according to the given 
-            calculation scheme ("grid" or "force"), by multiplying velocity with 
+            calculation scheme ("grid" or "force"), by multiplying velocity by 
             the timestep. 
         """
         u_speed, v_speed = self.velocity_components()
@@ -298,6 +345,8 @@ class Trajectory:
         return d
 
     def mean_trajectory(self):
+        """ Get the centroid of parcels at each timestep. """
+
         # Convert latitudes and longitudes to Cartesian coordinates
         x = (np.cos(np.radians(self.latitudes)) * 
             np.cos(np.radians(self.longitudes)))
@@ -320,7 +369,7 @@ class Trajectory:
     def rms_distance(self):
         """ Calculate the root mean square distance of each trajectory from the
         mean trajectory. """
-        
+
         # Make mean lat and lon arrays the same shape as trajectory arrays
         mean_lat = np.repeat(tra.mean_latitudes[:, np.newaxis], 
                              np.size(self.latitudes, axis=1), axis=1)
@@ -380,4 +429,3 @@ p = Parcel(atmo, [41, 44],
 tra = Trajectory(atmo, p)
 
 tra.plot_ortho()
-
