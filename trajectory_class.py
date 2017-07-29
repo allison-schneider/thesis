@@ -38,6 +38,8 @@ class Atmosphere:
             self.v_values = self.values("v")
         
         elif self.scheme == "force":
+            self.u_values = self.values("u")
+            self.v_values = self.values("v")
             self.gh_values = self.values("gh")
             self.gh_dlat, self.gh_dlon = self.gradient_gh()
         
@@ -142,9 +144,6 @@ class Atmosphere:
         gradient_lat_degrees, gradient_lon_degrees = np.gradient(self.gh_values,
                                                                  axis=(0,1))
 
-        print("length grid shape is", np.shape(length_grid_lat))
-        print("gradient grid shape is", np.shape(gradient_lat_degrees))
-
         # Gradient in meters
         gradient_lat = gradient_lat_degrees / length_grid_lat
         gradient_lon = gradient_lon_degrees / length_grid_lon
@@ -171,6 +170,10 @@ class Parcel:
         self.trajectory_lon = np.nan * np.zeros(
                     (np.int((self.atmosphere.total_time) / 
                      self.atmosphere.timestep), np.size(self.lon)))
+
+        # Initialize wind speed for force scheme
+        self.u = self.interpolate(self.atmosphere.u_values)
+        self.v = self.interpolate(self.atmosphere.v_values)
 
     def spherical_hypotenuse(self, a, b):
         """ Given the lengths of two sides of a right triangle on a sphere, 
@@ -236,27 +239,34 @@ class Parcel:
         """
         if self.atmosphere.scheme == "grid":
             # Interpolate u and v at given position
-            u_speed = self.interpolate(atmo.u_values)
-            v_speed = self.interpolate(atmo.v_values)
+            self.u = self.interpolate(self.atmosphere.u_values)
+            self.v = self.interpolate(self.atmosphere.v_values)
 
         ## To do: implement force method    
-        #elif self.atmosphere.scheme == "force":
-        #    u_speed, v_speed = speed_force(grid_lat, grid_lon, filename)
+        elif self.atmosphere.scheme == "force":
+            du_dt = -1 * self.interpolate(self.atmosphere.gh_dlon) + (2 
+                                * OMEGA * np.sin(np.radians(self.lat)) * self.v)
+            dv_dt = -1 * self.interpolate(self.atmosphere.gh_dlat) - (2 
+                                * OMEGA * np.sin(np.radians(self.lat)) * self.u)
+            self.u += du_dt * (self.atmosphere.timestep * 60 ** 2)
+            self.v += dv_dt * (self.atmosphere.timestep * 60 ** 2)
+
+            print("Omega is", OMEGA)
+            print("f is ", 2 * OMEGA * np.sin(np.radians(self.lat)))
+            print("latitude is", self.lat)
+            print("du_dt is", du_dt)
 
         else:
             print("Invalid calculation scheme.")
-        return u_speed, v_speed
+        return self.u, self.v
 
     def next_position(self):
         """ Gets the next position in a trajectory by multiplying velocity by 
             the timestep. 
         """
-        # Set u and v speeds
-        u_speed, v_speed = self.velocity_components()
-
         # Get magnitude and direction of wind vector
-        wind_speed = self.spherical_hypotenuse(u_speed, v_speed)
-        wind_direction = np.arctan2(v_speed, u_speed)
+        wind_speed = self.spherical_hypotenuse(self.u, self.v)
+        wind_direction = np.arctan2(self.v, self.u)
         wind_vector = np.array([wind_speed, wind_direction])
 
         # Get displacement using velocity times delta t
@@ -295,11 +305,11 @@ class Parcel:
                 guess_u, guess_v = self.velocity_components()
                 
                 # Average of initial and first guess velocities
-                average_u = 0.5 * (initial_u + guess_u)
-                average_v = 0.5 * (initial_v + guess_v)
+                self.u = 0.5 * (initial_u + guess_u)
+                self.v = 0.5 * (initial_v + guess_v)
 
-                wind_speed = self.spherical_hypotenuse(average_u, average_v)
-                wind_direction = np.arctan2(average_v, average_u)
+                wind_speed = self.spherical_hypotenuse(self.u, self.v)
+                wind_direction = np.arctan2(self.v, self.u)
                 wind_bearing = np.degrees(self.compass_bearing(wind_direction))
                 displacement = wind_speed * self.atmosphere.timestep * 60 ** 2   
 
@@ -436,10 +446,10 @@ class Trajectory:
         return map
 
 atmo = Atmosphere(0)
-#p = Parcel(atmo, [41, 44], 
-#                 [-71, -71])
-#tra = Trajectory(atmo, p)
+p = Parcel(atmo, [41, 44], 
+                 [-71, -71])
+tra = Trajectory(atmo, p)
 
-#tra.plot_ortho()
-atmo.gradient_gh()
+tra.plot_ortho()
+
 
