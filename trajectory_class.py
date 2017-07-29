@@ -15,7 +15,7 @@ class Atmosphere:
     """
     def __init__(self,
                  time,
-                 scheme="grid"):     # Current time in hours from start
+                 scheme="force"):     # Current time in hours from start
 
         self.time = time
         self.scheme = scheme
@@ -142,6 +142,9 @@ class Atmosphere:
         gradient_lat_degrees, gradient_lon_degrees = np.gradient(self.gh_values,
                                                                  axis=(0,1))
 
+        print("length grid shape is", np.shape(length_grid_lat))
+        print("gradient grid shape is", np.shape(gradient_lat_degrees))
+
         # Gradient in meters
         gradient_lat = gradient_lat_degrees / length_grid_lat
         gradient_lon = gradient_lon_degrees / length_grid_lon
@@ -168,10 +171,6 @@ class Parcel:
         self.trajectory_lon = np.nan * np.zeros(
                     (np.int((self.atmosphere.total_time) / 
                      self.atmosphere.timestep), np.size(self.lon)))
-
-        # Initialize u and v
-        #self.u_speed = self.interpolate(atmo.u_values)
-        #self.v_speed = self.interpolate(atmo.v_values)
 
     def spherical_hypotenuse(self, a, b):
         """ Given the lengths of two sides of a right triangle on a sphere, 
@@ -295,7 +294,7 @@ class Parcel:
                 self.atmosphere.time += self.atmosphere.timestep
                 guess_u, guess_v = self.velocity_components()
                 
-                # Average 
+                # Average of initial and first guess velocities
                 average_u = 0.5 * (initial_u + guess_u)
                 average_v = 0.5 * (initial_v + guess_v)
 
@@ -437,9 +436,10 @@ class Trajectory:
         return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 44], 
-                 [-71, -71])
-tra = Trajectory(atmo, p)
+#p = Parcel(atmo, [41, 44], 
+#                 [-71, -71])
+#tra = Trajectory(atmo, p)
 
-tra.plot_ortho()
+#tra.plot_ortho()
+atmo.gradient_gh()
 
