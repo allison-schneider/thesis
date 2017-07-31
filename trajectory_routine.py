@@ -9,34 +9,47 @@ import sys
 EARTH_RADIUS = 6371e3    # meters
 
 class Atmosphere:
-    """ Contains atmospheric parameters (u speed, v speed, geopotential height)
-    for two time layers at a given time.
+    """ Contains atmospheric parameters (u speed, v speed, geopotential height
+    gradient) for two time layers at a given time.
+
+    hour -- The time for the first layer, a multiple of the prediction interval. 
     """
     def __init__(self,
-                 time):     # Current time in hours from start
+                 hour):      # First layer time in hours
 
-        self.time = time
-        self.time_between_files = 3.0    # Time in hours between samples
-        self.timestep = 3.0              # Timestep in hours
-        self.total_time = 240.0          # Time to run trajectory in hours
-        self.num_files = 81
-        
+        self.hour = hour
+        self.hours_between_files = 3    # Time in hours between samples
+        self.total_hours = 240          # Time to run trajectory in hours
+
+        # Test that the argument is a valid hour.
+        if self.hour > self.total_hours - self.hours_between_files:
+            raise ValueError("Maximum value for hour argument is {}."
+                           .format(self.total_hours - self.hours_between_files))
+
+        if self.hour % self.hours_between_files != 0:
+            raise ValueError("Hour argument must be a multiple of {}."
+                             .format(self.hours_between_files))
+
         # Generate list of all filenames and index of current file
         self.filenames = ['data/hgt-{:03d}.nc'.format(time) 
-                            for time in np.arange(0,241,3)]
-        self.file_index = np.int(np.floor(self.time / self.time_between_files))                 
+                            for time in np.arange(0, 
+                                                  self.total_hours + 1, 
+                                                  self.hours_between_files)]
+        self.file_index = np.int(np.floor(self.hour / self.hours_between_files))                 
         
         # Initialize values for interpolate function
         self.points = self.build_points()
         self.u_values = self.values("u")
         self.v_values = self.values("v")
         self.gh_values = self.values("gh")
+        self.gh_dlat, self.gh_dlon = self.gh_gradient()
         
     def build_points(self):
         """ Returns the first argument for the interpn function,
-        a tuple of 3 ndarrays of float, named points,
-        of shape ((nlats,), (nlons,), (ntimes)),
-        which stays constant throughout the trajectory."""
+        a tuple of 3 ndarrays of float, named points, 
+        of shape ((nlats,), (nlons,), (ntimes)), 
+        which stays constant throughout the trajectory.
+        """
         file = netcdf.netcdf_file(self.filenames[self.file_index], mmap=False)
         vars = file.variables
         file.close()
@@ -47,8 +60,7 @@ class Atmosphere:
         longitudes = np.append(vars['lon'][:], 360)
        
         # Array of times has last and next sample times, or current and next.
-        last_time = self.time
-        times = np.array([last_time, last_time + self.time_between_files])
+        times = np.array([self.hour, self.hour + self.hours_between_files])
         
         points = latitudes, longitudes, times
         return points
@@ -57,8 +69,8 @@ class Atmosphere:
         """ Returns the second argument for the interpn function,
         a 3D ndarray of float, named values, of shape (nlats, nlons, ntimes),
         which is updated when the trajectory passes a new time layer.
-        Arguments:
-        parameter -- 'u', 'v', or 'gh'; the atmospheric parameter 
+
+        parameter -- 'u', 'v', or 'gh'; the atmospheric parameter. 
         """
         
         # Open first file and retrieve gridded values
@@ -86,3 +98,19 @@ class Atmosphere:
         # Flip along latitude axis, to match points
         t_values = np.flip(t_values, 0)
         return t_values
+
+    def gh_gradient(self):
+        """ Returns two 3D arrays of the same shape as gh_values, representing
+        gradient in latitude and longitude directions with length in radians.
+        """
+        spacing_lat = np.radians(180 / (np.size(self.points[0]) - 1))  # radians
+        spacing_lon = np.radians(360 / (np.size(self.points[1]) - 1))  # radians
+        spacing_time = self.hours_between_files * 60 ** 2              # seconds
+
+        gradient_lat, gradient_lon, gradient_time = np.gradient(self.gh_values, 
+            spacing_lat, spacing_lon, spacing_time)
+        return gradient_lat, gradient_lon
+
+atmo = Atmosphere(0)
+test = np.shape(atmo.gh_dlon)
+print(test)
