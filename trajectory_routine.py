@@ -141,17 +141,20 @@ class Parcel:
                                     / self.timestep) + 1), np.size(self.lon)))
         self.u = self.interpolate(self.atmosphere.u_values)
         self.v = self.interpolate(self.atmosphere.v_values)
+        self.gh = self.interpolate(self.atmosphere.gh_values)
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
         lat-lon grid. The interp_values parameter accepts u_values, g_values,
         or gh_values from the Atmosphere class.
         """
+        xi_lat = np.degrees(self.lat)
+        xi_lon = np.degrees(self.lon) % 360
         xi_times = np.full_like(self.lat, self.time)
-        xi = np.array([np.degrees(self.lat), np.degrees(self.lon), xi_times]).T
+        xi = np.array([xi_lat, xi_lon, xi_times]).T
         
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
-                         interp_values, xi, bounds_error=False, fill_value=None)
+                         interp_values, xi, bounds_error=False, fill_value=np.nan)
         return interp_result
 
     def calculate_trajectory(self):
@@ -172,9 +175,10 @@ class Parcel:
 
                 self.u = self.interpolate(self.atmosphere.u_values)
                 self.v = self.interpolate(self.atmosphere.v_values)
+                self.gh = self.interpolate(self.atmosphere.gh_values)
 
-                dlat_dt = self.v / EARTH_RADIUS
-                dlon_dt = self.u / (EARTH_RADIUS * np.cos(self.lat))
+                dlat_dt = self.v / (EARTH_RADIUS + self.gh)
+                dlon_dt = self.u / ((EARTH_RADIUS + self.gh) * np.cos(self.lat))
 
                 self.lat = self.lat + dlat_dt * self.timestep
                 self.lon = self.lon + dlon_dt * self.timestep
