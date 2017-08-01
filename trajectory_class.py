@@ -261,7 +261,8 @@ class Parcel:
         return self.trajectory_lat, self.trajectory_lon
 
 class Trajectory:
-    """ Lists of positions for each timestep along the trajectory."""
+    """ Lists of positions for each timestep along the trajectory. Contains 
+    functions for multiple trajectory analysis and plotting. """
     def __init__(self,
                  atmosphere,    # Instance of class Atmosphere
                  parcel):       # Instance of class Parcel
