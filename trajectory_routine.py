@@ -177,28 +177,25 @@ class Parcel:
                 initial_lon = self.lon
 
                 # Find u0 and v0 at starting latitude and longitude
-                self.u = self.interpolate(self.atmosphere.u_values)
-                self.v = self.interpolate(self.atmosphere.v_values)
+                initial_u = self.interpolate(self.atmosphere.u_values)
+                initial_v = self.interpolate(self.atmosphere.v_values)
                 self.gh = self.interpolate(self.atmosphere.gh_values)
-                initial_u = self.u 
-                initial_v = self.v
 
-                # Use u0 and v0 to get guess_lat and guess_lon
-                dlat_dt = self.v / (EARTH_RADIUS + self.gh)
-                dlon_dt = self.u / ((EARTH_RADIUS + self.gh) * np.cos(self.lat))
-                guess_lat = self.lat + dlat_dt * self.timestep
-                guess_lon = self.lon + dlon_dt * self.timestep
-                self.lat = guess_lat
-                self.lon = guess_lon
+                # Use u0 and v0 to get guess latitude and longitude
+                dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
+                dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
+                                        * np.cos(self.lat))
+                self.lat = initial_lat + dlat_dt * self.timestep
+                self.lon = initial_lon + dlon_dt * self.timestep
 
                 # Find guess_u and guess_v at guess position after one timestep
                 self.time += self.timestep
-                self.u = self.interpolate(self.atmosphere.u_values)
-                self.v = self.interpolate(self.atmosphere.v_values)
+                guess_u = self.interpolate(self.atmosphere.u_values)
+                guess_v = self.interpolate(self.atmosphere.v_values)
 
                 # Average initial and guess velocities
-                self.u = (initial_u + self.u) / 2
-                self.v = (initial_v + self.v) / 2
+                self.u = (initial_u + guess_u) / 2
+                self.v = (initial_v + guess_v) / 2
 
                 # Use the timestep and u and v to get next trajectory position
                 dlat_dt = self.v / (EARTH_RADIUS + self.gh)
@@ -238,6 +235,64 @@ class Trajectory:
         self.longitudes = self.longitudes[np.isfinite(
                                                self.longitudes[:,0]),:]
 
+        self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
+
+    def haversine(self, latitude1, longitude1, latitude2, longitude2):
+        """ Great-circle distance between two points. Latitudes and longitudes
+        are 1D NumPy arrays. 
+        Returns a 1D array of distances between two trajectories. """
+
+        lat1 = np.radians(latitude1)
+        lat2 = np.radians(latitude2)
+        lon1 = np.radians(longitude1)
+        lon2 = np.radians(longitude2)
+
+        dlat = np.absolute(lat2 - lat1)
+        dlon = np.absolute(lon2 - lon1)
+
+        a = (np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) 
+            * np.sin(dlon / 2) ** 2)
+        c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a)) 
+        d = EARTH_RADIUS * c    # distance in meters
+        return d
+
+    def mean_trajectory(self):
+        """ Get the centroid of parcels at each timestep. """
+
+        # Convert latitudes and longitudes to Cartesian coordinates
+        x = (np.cos(np.radians(self.latitudes)) * 
+            np.cos(np.radians(self.longitudes)))
+        y = (np.cos(np.radians(self.latitudes)) * 
+            np.sin(np.radians(self.longitudes)))
+        z = np.sin(np.radians(self.latitudes))
+
+        # Get average x, y, z values
+        mean_x = np.mean(x, axis=1)
+        mean_y = np.mean(y, axis=1)
+        mean_z = np.mean(z, axis=1)
+
+        # Convert average values to trajectory latitudes and longitudes
+        mean_longitudes = np.degrees(np.arctan2(mean_y, mean_x))
+        hypotenuse = np.sqrt(mean_x ** 2 + mean_y ** 2)
+        mean_latitudes = np.degrees(np.arctan2(mean_z, hypotenuse))
+
+        return mean_latitudes, mean_longitudes
+
+    def rms_distance(self):
+        """ Calculate the root mean square distance of each trajectory from the
+        mean trajectory. """
+
+        # Make mean lat and lon arrays the same shape as trajectory arrays
+        mean_lat = np.repeat(tra.mean_latitudes[:, np.newaxis], 
+                             np.size(self.latitudes, axis=1), axis=1)
+        mean_lon = np.repeat(tra.mean_longitudes[:, np.newaxis], 
+                             np.size(self.longitudes, axis=1), axis=1)
+
+        rms = np.sqrt(np.mean(self.haversine(mean_lat, mean_lon, 
+                              self.latitudes, self.longitudes) ** 2, axis=1))
+
+        return rms
+
     def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
@@ -249,6 +304,8 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
+        map.plot(self.mean_longitudes, self.mean_latitudes,
+                 latlon=True, zorder=2, color='blue')
         if savefig == True:
             filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
             plt.savefig(filename)
@@ -257,8 +314,8 @@ class Trajectory:
         return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 42], 
-                 [-71, -72])
+p = Parcel(atmo, [41, 41, 51, 51], 
+                 [-71, -61, -71, -61])
 tra = Trajectory(atmo, p)
 
 tra.plot_ortho()
