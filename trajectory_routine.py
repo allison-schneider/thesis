@@ -134,11 +134,11 @@ class Parcel:
         self.timestep = 60 ** 2 / 2     # seconds  
 
         self.trajectory_lat = np.nan * np.zeros(
-                                        (np.int((self.atmosphere.total_time) 
-                                        / self.timestep), np.size(self.lat)))
+                                    (np.int(((self.atmosphere.total_time) 
+                                    / self.timestep) + 1), np.size(self.lat)))
         self.trajectory_lon = np.nan * np.zeros(
-                                        (np.int((self.atmosphere.total_time) 
-                                        / self.timestep), np.size(self.lon)))
+                                    (np.int(((self.atmosphere.total_time) 
+                                    / self.timestep) + 1), np.size(self.lon)))
         self.u = self.interpolate(self.atmosphere.u_values)
         self.v = self.interpolate(self.atmosphere.v_values)
 
@@ -170,19 +170,17 @@ class Parcel:
                 self.v = self.interpolate(self.atmosphere.v_values)
 
                 dlat_dt = self.v / EARTH_RADIUS
-                dlon_dt = self.u / (EARTH_RADIUS * np.cos(np.radians(self.lat)))
+                dlon_dt = self.u / (EARTH_RADIUS * np.cos(self.lat))
 
                 self.lat = self.lat + dlat_dt * self.timestep
                 self.lon = self.lon + dlon_dt * self.timestep
-
-                i = np.int(layer_step + self.atmosphere.file_index 
-                        * (self.atmosphere.time_between_files / self.timestep))
                 
                 # Convert to degrees and store in trajectory array
                 self.trajectory_lat[i,:] = np.degrees(self.lat)
                 self.trajectory_lon[i,:] = np.degrees(self.lon)
 
                 self.time += self.timestep
+                i += 1
 
             # Get new instance of Atmosphere for next time layer
             layer_index += 1
