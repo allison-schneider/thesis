@@ -147,20 +147,24 @@ class Parcel:
         lat-lon grid. The interp_values parameter accepts u_values, g_values,
         or gh_values from the Atmosphere class.
         """
-        time_in_hours = self.time / (60 ** 2)
-        xi_times = np.full_like(self.lat, time_in_hours)
-        xi = np.array([self.lat, self.lon, xi_times]).T
+        xi_times = np.full_like(self.lat, self.time)
+        xi = np.array([np.degrees(self.lat), np.degrees(self.lon), xi_times]).T
         
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
                          interp_values, xi, bounds_error=False, fill_value=None)
         return interp_result
 
     def calculate_trajectory(self):
-        """ placeholder docstring
+        """ Calculate the trajectory of parcels.
         """   
+        # Start trajectory at initial position 
+        self.trajectory_lat[0,:] = self.lat
+        self.trajectory_lon[0,:] = self.lon
+
         i = 1                   # Index for timestep
         layer_index = 0         # Index for instance of Atmosphere
         next_layer_hour = 0     # Argument for next instance of Atmosphere
+
         while next_layer_hour < self.atmosphere.total_time / 60 ** 2:
             self.atmosphere = Atmosphere(next_layer_hour)
             for layer_step in np.arange(self.atmosphere.time_between_files 
@@ -176,8 +180,8 @@ class Parcel:
                 self.lon = self.lon + dlon_dt * self.timestep
                 
                 # Convert to degrees and store in trajectory array
-                self.trajectory_lat[i,:] = np.degrees(self.lat)
-                self.trajectory_lon[i,:] = np.degrees(self.lon)
+                self.trajectory_lat[i,:] = self.lat
+                self.trajectory_lon[i,:] = self.lon
 
                 self.time += self.timestep
                 i += 1
@@ -198,7 +202,7 @@ class Trajectory:
 
         self.parcel = parcel
         self.atmosphere = atmosphere
-        self.latitudes, self.longitudes = self.parcel.calculate_trajectory()
+        self.latitudes, self.longitudes = np.degrees(self.parcel.calculate_trajectory())
 
         # Remove NaNs from arrays
         self.latitudes = self.latitudes[np.isfinite(
