@@ -44,7 +44,7 @@ class Atmosphere:
         self.u_values = self.values("u")
         self.v_values = self.values("v")
         self.gh_values = self.values("gh")
-        self.dgh_dlat, self.dgh_dlon = self.gh_gradient()
+        self.dgh_dlat_values, self.dgh_dlon_values = self.gh_gradient()
         
     def build_points(self):
         """ Returns the first argument for the interpn function,
@@ -123,7 +123,7 @@ class Parcel:
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
                  longitude,         # Longitude in degrees (0, 360]) 
-                 scheme="grid"):    # "grid" or "force"
+                 scheme="force"):    # "grid" or "force"
         
         self.lat = np.radians(np.array(latitude))
         self.lon = np.radians(np.array(longitude))
@@ -168,53 +168,113 @@ class Parcel:
         layer_index = 0         # Index for instance of Atmosphere
         next_layer_hour = 0     # Argument for next instance of Atmosphere
 
-        while next_layer_hour < self.atmosphere.total_time / 60 ** 2:
-            self.atmosphere = Atmosphere(next_layer_hour)
-            for layer_step in np.arange(self.atmosphere.time_between_files 
-                                        / self.timestep):
-                # Identify starting latitude and longitude
-                initial_lat = self.lat 
-                initial_lon = self.lon
+        if self.scheme == "grid":
+            while next_layer_hour < self.atmosphere.total_time / 60 ** 2:
+                self.atmosphere = Atmosphere(next_layer_hour)
+                for layer_step in np.arange(self.atmosphere.time_between_files 
+                                            / self.timestep):
+                    # Identify starting latitude and longitude
+                    initial_lat = self.lat 
+                    initial_lon = self.lon
 
-                # Find u0 and v0 at starting latitude and longitude
-                initial_u = self.interpolate(self.atmosphere.u_values)
-                initial_v = self.interpolate(self.atmosphere.v_values)
-                self.gh = self.interpolate(self.atmosphere.gh_values)
+                    # Find u0 and v0 at starting latitude and longitude
+                    initial_u = self.interpolate(self.atmosphere.u_values)
+                    initial_v = self.interpolate(self.atmosphere.v_values)
+                    self.gh = self.interpolate(self.atmosphere.gh_values)
 
-                # Use u0 and v0 to get guess latitude and longitude
-                dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
-                dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
-                                        * np.cos(self.lat))
-                self.lat = initial_lat + dlat_dt * self.timestep
-                self.lon = initial_lon + dlon_dt * self.timestep
+                    # Use u0 and v0 to get guess latitude and longitude
+                    dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
+                    dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
+                                            * np.cos(self.lat))
+                    self.lat = initial_lat + dlat_dt * self.timestep
+                    self.lon = initial_lon + dlon_dt * self.timestep
 
-                # Find guess_u and guess_v at guess position after one timestep
-                self.time += self.timestep
-                guess_u = self.interpolate(self.atmosphere.u_values)
-                guess_v = self.interpolate(self.atmosphere.v_values)
+                    # Find guess_u and guess_v at guess position after timestep
+                    self.time += self.timestep
+                    guess_u = self.interpolate(self.atmosphere.u_values)
+                    guess_v = self.interpolate(self.atmosphere.v_values)
 
-                # Average initial and guess velocities
-                self.u = (initial_u + guess_u) / 2
-                self.v = (initial_v + guess_v) / 2
+                    # Average initial and guess velocities
+                    self.u = (initial_u + guess_u) / 2
+                    self.v = (initial_v + guess_v) / 2
 
-                # Use the timestep and u and v to get next trajectory position
-                dlat_dt = self.v / (EARTH_RADIUS + self.gh)
-                dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
-                                    * np.cos(initial_lat))
-                self.lat = initial_lat + dlat_dt * self.timestep
-                self.lon = initial_lon + dlon_dt * self.timestep
+                    # Use timestep and u and v to get next trajectory position
+                    dlat_dt = self.v / (EARTH_RADIUS + self.gh)
+                    dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
+                                        * np.cos(initial_lat))
+                    self.lat = initial_lat + dlat_dt * self.timestep
+                    self.lon = initial_lon + dlon_dt * self.timestep
 
-                # Store position in trajectory array
-                self.trajectory_lat[i,:] = self.lat
-                self.trajectory_lon[i,:] = self.lon
+                    # Store position in trajectory array
+                    self.trajectory_lat[i,:] = self.lat
+                    self.trajectory_lon[i,:] = self.lon
 
-                # Increment timestep index
-                i += 1
+                    # Increment timestep index
+                    i += 1
 
-            # Get new instance of Atmosphere for next time layer
-            layer_index += 1
-            next_layer_hour = layer_index * (self.atmosphere.time_between_files 
-                                             / (60 ** 2)) 
+                # Get new instance of Atmosphere for next time layer
+                layer_index += 1
+                next_layer_hour = layer_index * (
+                                self.atmosphere.time_between_files / (60 ** 2)) 
+
+        elif self.scheme == "force":
+            while next_layer_hour < self.atmosphere.total_time / 60 ** 2:
+                self.atmosphere = Atmosphere(next_layer_hour)
+                for layer_step in np.arange(self.atmosphere.time_between_files 
+                                            / self.timestep):
+                    # Identify starting latitude and longitude
+                    initial_lat = self.lat 
+                    initial_lon = self.lon
+
+                    # Find u0 and v0 at starting latitude and longitude
+                    initial_u = self.u
+                    initial_v = self.v
+                    self.gh = self.interpolate(self.atmosphere.gh_values)
+
+                    # Use u0 and v0 to get guess latitude and longitude
+                    dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
+                    dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
+                                            * np.cos(self.lat))
+                    self.lat = initial_lat + dlat_dt * self.timestep
+                    self.lon = initial_lon + dlon_dt * self.timestep
+
+                    # Find guess_u and guess_v at guess position after timestep
+                    self.time += self.timestep
+                    dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
+                    dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
+                    du_dt = ((-1 / ((EARTH_RADIUS + self.gh)) * np.cos(self.lat)
+                        ) * dgh_dlon + 2 * OMEGA * np.sin(self.lat) * initial_v)
+                    dv_dt = ((-1 / (EARTH_RADIUS + self.gh)) * dgh_dlat
+                        - 2 * OMEGA * np.sin(self.lat) * initial_u)
+                    guess_u = initial_u + du_dt * self.timestep
+                    guess_v = initial_v + dv_dt * self.timestep
+
+                    # Average initial and guess velocities
+                    self.u = (initial_u + guess_u) / 2
+                    self.v = (initial_v + guess_v) / 2
+
+                    # Use timestep and u and v to get next trajectory position
+                    dlat_dt = self.v / (EARTH_RADIUS + self.gh)
+                    dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
+                                        * np.cos(initial_lat))
+                    self.lat = initial_lat + dlat_dt * self.timestep
+                    self.lon = initial_lon + dlon_dt * self.timestep
+
+                    # Store position in trajectory array
+                    self.trajectory_lat[i,:] = self.lat
+                    self.trajectory_lon[i,:] = self.lon
+
+                    # Increment timestep index
+                    i += 1
+
+                # Get new instance of Atmosphere for next time layer
+                layer_index += 1
+                next_layer_hour = layer_index * (
+                                self.atmosphere.time_between_files / (60 ** 2))
+        else:
+            raise ValueError("Invalid scheme. Try 'grid' or 'force'.")
+
+
             
         return self.trajectory_lat, self.trajectory_lon
 
