@@ -131,7 +131,7 @@ class Parcel:
         self.scheme = scheme
 
         self.time = 0                   # seconds
-        self.timestep = 60 ** 2 / 2     # seconds  
+        self.timestep = 180             # seconds  
 
         self.trajectory_lat = np.nan * np.zeros(
                                     (np.int(((self.atmosphere.total_time) 
@@ -172,22 +172,46 @@ class Parcel:
             self.atmosphere = Atmosphere(next_layer_hour)
             for layer_step in np.arange(self.atmosphere.time_between_files 
                                         / self.timestep):
+                # Identify starting latitude and longitude
+                initial_lat = self.lat 
+                initial_lon = self.lon
 
+                # Find u0 and v0 at starting latitude and longitude
                 self.u = self.interpolate(self.atmosphere.u_values)
                 self.v = self.interpolate(self.atmosphere.v_values)
                 self.gh = self.interpolate(self.atmosphere.gh_values)
+                initial_u = self.u 
+                initial_v = self.v
 
+                # Use u0 and v0 to get guess_lat and guess_lon
                 dlat_dt = self.v / (EARTH_RADIUS + self.gh)
                 dlon_dt = self.u / ((EARTH_RADIUS + self.gh) * np.cos(self.lat))
+                guess_lat = self.lat + dlat_dt * self.timestep
+                guess_lon = self.lon + dlon_dt * self.timestep
+                self.lat = guess_lat
+                self.lon = guess_lon
 
-                self.lat = self.lat + dlat_dt * self.timestep
-                self.lon = self.lon + dlon_dt * self.timestep
-                
-                # Convert to degrees and store in trajectory array
+                # Find guess_u and guess_v at guess position after one timestep
+                self.time += self.timestep
+                self.u = self.interpolate(self.atmosphere.u_values)
+                self.v = self.interpolate(self.atmosphere.v_values)
+
+                # Average initial and guess velocities
+                self.u = (initial_u + self.u) / 2
+                self.v = (initial_v + self.v) / 2
+
+                # Use the timestep and u and v to get next trajectory position
+                dlat_dt = self.v / (EARTH_RADIUS + self.gh)
+                dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
+                                    * np.cos(initial_lat))
+                self.lat = initial_lat + dlat_dt * self.timestep
+                self.lon = initial_lon + dlon_dt * self.timestep
+
+                # Store position in trajectory array
                 self.trajectory_lat[i,:] = self.lat
                 self.trajectory_lon[i,:] = self.lon
 
-                self.time += self.timestep
+                # Increment timestep index
                 i += 1
 
             # Get new instance of Atmosphere for next time layer
