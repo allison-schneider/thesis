@@ -320,7 +320,6 @@ class Trajectory:
                                                self.latitudes[:,0]),:]
 
         self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
-        print("latitudes shpe is",np.shape(self.latitudes))
 
     def haversine(self, latitude1, longitude1, latitude2, longitude2):
         """ Great-circle distance between two points. Latitudes and longitudes
@@ -416,6 +415,18 @@ class Trajectory:
         plt.show()
         return ax
 
+    def save_data(self):
+        header_string = ("Trajectories to test the save_data() function.\n"
+            "Calculation scheme is {}".format(self.parcel.scheme))
+        np.savetxt("trajectory_data/latitudes.txt", self.latitudes, 
+            header=header_string)
+        np.savetxt("trajectory_data/longitudes.txt", self.longitudes,
+            header=header_string)
+        np.savetxt("trajectory_data/trajectory_u.txt", self.trajectory_u,
+            header=header_string)
+        np.savetxt("trajectory_data/trajectory_v.txt", self.trajectory_v,
+            header=header_string)
+
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41], 
                  [-71], scheme="force")
@@ -425,4 +436,4 @@ p = Parcel(atmo, [41],
 tra = Trajectory(atmo, p)
 
 #tra.plot_ortho()
-tra.graph()
+tra.save_data()
