@@ -137,6 +137,9 @@ class Parcel:
                                     (np.int(((self.atmosphere.total_time) 
                                     / self.timestep) + 1), np.size(self.lat)))
         self.trajectory_lon = np.full_like(self.trajectory_lat, np.nan)
+
+        self.trajectory_u = np.full_like(self.trajectory_lat, np.nan)
+        self.trajectory_v = np.full_like(self.trajectory_lat, np.nan)
         
         self.gh = self.interpolate(self.atmosphere.gh_values)
         
@@ -173,6 +176,10 @@ class Parcel:
         # Start trajectory at initial position 
         self.trajectory_lat[0,:] = self.lat
         self.trajectory_lon[0,:] = self.lon 
+
+        # Start u and v at initial u and v
+        self.trajectory_u[0,:] = self.u
+        self.trajectory_v[0,:] = self.v        
 
         i = 1                   # Index for timestep
         layer_index = 0         # Index for instance of Atmosphere
@@ -218,6 +225,8 @@ class Parcel:
                     # Store position in trajectory array
                     self.trajectory_lat[i,:] = self.lat
                     self.trajectory_lon[i,:] = self.lon
+                    self.trajectory_u[i,:] = self.u
+                    self.trajectory_v[i,:] = self.v
 
                     # Increment timestep index
                     i += 1
@@ -273,6 +282,8 @@ class Parcel:
                     # Store position in trajectory array
                     self.trajectory_lat[i,:] = self.lat
                     self.trajectory_lon[i,:] = self.lon
+                    self.trajectory_u[i,:] = self.u
+                    self.trajectory_v[i,:] = self.v
 
                     # Increment timestep index
                     i += 1
@@ -303,8 +314,13 @@ class Trajectory:
                                                self.latitudes[:,0]),:]
         self.longitudes = self.longitudes[np.isfinite(
                                                self.longitudes[:,0]),:]
+        self.trajectory_u = self.parcel.trajectory_u[np.isfinite(
+                                               self.latitudes[:,0]),:]
+        self.trajectory_v = self.parcel.trajectory_u[np.isfinite(
+                                               self.latitudes[:,0]),:]
 
         self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
+        print("latitudes shpe is",np.shape(self.latitudes))
 
     def haversine(self, latitude1, longitude1, latitude2, longitude2):
         """ Great-circle distance between two points. Latitudes and longitudes
@@ -382,6 +398,24 @@ class Trajectory:
         plt.show()
         return map
 
+    def graph(self):
+        """ Graph of u and v along the trajectory. """
+        time = np.arange(np.size(self.latitudes[:,0])) * (self.parcel.timestep 
+                                                           / 60 ** 2)
+
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 1, 1)
+
+        u_line, = ax1.plot(time, self.parcel.trajectory_u, label="u")
+        v_line, = ax1.plot(time, self.parcel.trajectory_v, label="v")
+        ax1.legend()
+        ax1.set_title("Force Trajectory Speeds")
+        ax1.set_xlabel("Time in hours")
+        ax1.set_ylabel("Velocity in m/s")
+        plt.savefig("plots/force_trajectory_speeds.png")
+        plt.show()
+        return ax
+
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41], 
                  [-71], scheme="force")
@@ -390,4 +424,5 @@ p = Parcel(atmo, [41],
 #                 [-71], scheme="grid")
 tra = Trajectory(atmo, p)
 
-tra.plot_ortho()
+#tra.plot_ortho()
+tra.graph()
