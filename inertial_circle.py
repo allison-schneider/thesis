@@ -1,3 +1,7 @@
+# When the initial speed for the dynamical ("force") calculation is taken from
+# the first GFS file, inertial circles are present in the trajectory. This 
+# code plots and analyzes inertial circle trajectories.
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import netcdf
@@ -123,7 +127,7 @@ class Parcel:
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
                  longitude,         # Longitude in degrees (0, 360]) 
-                 scheme="grid"):    # "grid" or "force"
+                 scheme="force"):    # "grid" or "force"
         
         self.lat = np.radians(np.array(latitude))
         self.lon = np.radians(np.array(longitude))
@@ -141,19 +145,9 @@ class Parcel:
                                     / self.timestep) + 1), np.size(self.lon)))
         
         self.gh = self.interpolate(self.atmosphere.gh_values)
+        self.u = self.interpolate(self.atmosphere.u_values)
+        self.v = self.interpolate(self.atmosphere.v_values)
         
-        if self.scheme == "grid":
-            self.u = self.interpolate(self.atmosphere.u_values)
-            self.v = self.interpolate(self.atmosphere.v_values)
-            
-        if self.scheme == "force":
-            g = 9.806                           # meters per second squared
-            f = 2 * OMEGA * np.sin(self.lat)    # radians per second
-            dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
-            dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
-            # Geostrophic u and v in meters per second
-            self.u = ((-g / f) * dgh_dlat) / EARTH_RADIUS
-            self.v = ((g / f) * dgh_dlon) / (EARTH_RADIUS * np.cos(self.lat))                     
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
@@ -166,7 +160,7 @@ class Parcel:
         xi = np.array([xi_lat, xi_lon, xi_times]).T
         
         interp_result = scipy.interpolate.interpn(self.atmosphere.points,
-                       interp_values, xi, bounds_error=False, fill_value=np.nan)
+                         interp_values, xi, bounds_error=False, fill_value=np.nan)
         return interp_result
 
     def calculate_trajectory(self):
@@ -297,8 +291,7 @@ class Trajectory:
 
         self.parcel = parcel
         self.atmosphere = atmosphere
-        self.latitudes, self.longitudes = np.degrees(
-                                             self.parcel.calculate_trajectory())
+        self.latitudes, self.longitudes = np.degrees(self.parcel.calculate_trajectory())
 
         # Remove NaNs from arrays
         self.latitudes = self.latitudes[np.isfinite(
@@ -361,7 +354,6 @@ class Trajectory:
 
         rms = np.sqrt(np.mean(self.haversine(mean_lat, mean_lon, 
                               self.latitudes, self.longitudes) ** 2, axis=1))
-
         return rms
 
     def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
@@ -375,8 +367,6 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        map.plot(self.mean_longitudes, self.mean_latitudes,
-                 latlon=True, zorder=2, color='blue')
         if savefig == True:
             filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
             plt.savefig(filename)
@@ -385,8 +375,8 @@ class Trajectory:
         return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 41, 41, 42], 
-                 [-71, -72, -71, -72])
+p = Parcel(atmo, [41, 61, 81], 
+                 [-71, -71, -71])
 tra = Trajectory(atmo, p)
 
 tra.plot_ortho()
