@@ -136,17 +136,13 @@ class Parcel:
         self.trajectory_lat = np.nan * np.zeros(
                                     (np.int(((self.atmosphere.total_time) 
                                     / self.timestep) + 1), np.size(self.lat)))
-        self.trajectory_lon = np.nan * np.zeros(
-                                    (np.int(((self.atmosphere.total_time) 
-                                    / self.timestep) + 1), np.size(self.lon)))
+        self.trajectory_lon = np.full_like(self.trajectory_lat, np.nan)
         
         self.gh = self.interpolate(self.atmosphere.gh_values)
         
         if self.scheme == "grid":
             self.u = self.interpolate(self.atmosphere.u_values)
             self.v = self.interpolate(self.atmosphere.v_values)
-            print("grid initial u is", self.u)
-            print("grid initial v is", self.v)
             
         if self.scheme == "force":
             g = 9.806                           # meters per second squared
@@ -155,9 +151,7 @@ class Parcel:
             dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
             # Geostrophic u and v in meters per second
             self.u = ((-g / f) * dgh_dlat) / EARTH_RADIUS
-            self.v = ((g / f) * dgh_dlon) / (EARTH_RADIUS * np.cos(self.lat))   
-            print("initial geostrophic u is", self.u)
-            print("initial geostrophic v is", self.v)                  
+            self.v = ((g / f) * dgh_dlon) / (EARTH_RADIUS * np.cos(self.lat))                 
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
@@ -178,7 +172,7 @@ class Parcel:
         """   
         # Start trajectory at initial position 
         self.trajectory_lat[0,:] = self.lat
-        self.trajectory_lon[0,:] = self.lon
+        self.trajectory_lon[0,:] = self.lon 
 
         i = 1                   # Index for timestep
         layer_index = 0         # Index for instance of Atmosphere
@@ -382,7 +376,7 @@ class Trajectory:
         #map.plot(self.mean_longitudes, self.mean_latitudes,
         #         latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
+            filename = "plots/inertial.png"
             plt.savefig(filename)
 
         plt.show()
