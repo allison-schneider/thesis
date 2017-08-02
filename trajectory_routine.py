@@ -123,7 +123,7 @@ class Parcel:
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
                  longitude,         # Longitude in degrees (0, 360]) 
-                 scheme="grid"):    # "grid" or "force"
+                 scheme="force"):    # "grid" or "force"
         
         self.lat = np.radians(np.array(latitude))
         self.lon = np.radians(np.array(longitude))
@@ -145,6 +145,8 @@ class Parcel:
         if self.scheme == "grid":
             self.u = self.interpolate(self.atmosphere.u_values)
             self.v = self.interpolate(self.atmosphere.v_values)
+            print("grid initial u is", self.u)
+            print("grid initial v is", self.v)
             
         if self.scheme == "force":
             g = 9.806                           # meters per second squared
@@ -153,7 +155,9 @@ class Parcel:
             dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
             # Geostrophic u and v in meters per second
             self.u = ((-g / f) * dgh_dlat) / EARTH_RADIUS
-            self.v = ((g / f) * dgh_dlon) / (EARTH_RADIUS * np.cos(self.lat))                     
+            self.v = ((g / f) * dgh_dlon) / (EARTH_RADIUS * np.cos(self.lat))   
+            print("initial geostrophic u is", self.u)
+            print("initial geostrophic v is", self.v)                  
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
@@ -375,8 +379,8 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        map.plot(self.mean_longitudes, self.mean_latitudes,
-                 latlon=True, zorder=2, color='blue')
+        #map.plot(self.mean_longitudes, self.mean_latitudes,
+        #         latlon=True, zorder=2, color='blue')
         if savefig == True:
             filename = "trajectory_"+sys.argv[1]+"_"+sys.argv[2]+".eps"
             plt.savefig(filename)
@@ -385,8 +389,11 @@ class Trajectory:
         return map
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 41, 41, 42], 
-                 [-71, -72, -71, -72])
+p = Parcel(atmo, [41], 
+                 [-71], scheme="force")
+## For grid trajectory calculation instead:
+#p = Parcel(atmo, [41], 
+#                 [-71], scheme="grid")
 tra = Trajectory(atmo, p)
 
 tra.plot_ortho()
