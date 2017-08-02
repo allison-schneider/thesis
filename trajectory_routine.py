@@ -413,11 +413,13 @@ class Trajectory:
         ax1.set_ylabel("Velocity in m/s")
         plt.savefig("plots/force_trajectory_speeds.png")
         plt.show()
-        return ax
+        return ax1
 
     def save_data(self):
-        header_string = ("Trajectories to test the save_data() function.\n"
-            "Calculation scheme is {}".format(self.parcel.scheme))
+        header_string = (
+            "Trajectories to test the save_data() function.\n"
+            "Calculation scheme is {0} seconds.\n"
+            "Timestep is {1}".format(self.parcel.scheme, self.parcel.timestep))
         np.savetxt("trajectory_data/latitudes.txt", self.latitudes, 
             header=header_string)
         np.savetxt("trajectory_data/longitudes.txt", self.longitudes,
@@ -428,8 +430,8 @@ class Trajectory:
             header=header_string)
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41], 
-                 [-71], scheme="force")
+p = Parcel(atmo, [41, 42], 
+                 [-71, -72], scheme="force")
 ## For grid trajectory calculation instead:
 #p = Parcel(atmo, [41], 
 #                 [-71], scheme="grid")
