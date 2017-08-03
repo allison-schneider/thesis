@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
+# Global variables
+EARTH_RADIUS = 6371e3    # meters
+
 class Trajectory:
     """ Version of trajectory class for analyzing trajectory data from text files."""
     
@@ -13,6 +16,9 @@ class Trajectory:
         self.trajectory_v = np.loadtxt("trajectory_data/trajectory_v.txt")
 
         self.timestep = 180     # seconds
+        # List of times for plotting
+        self.times = np.arange(np.size(self.latitudes[:,0])) * (self.timestep 
+                                                          / 60 ** 2)
 
         self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
 
@@ -92,23 +98,35 @@ class Trajectory:
         plt.show()
         return map
 
-    def graph(self):
+    def graph_speed(self):
         """ Graph of u and v along the trajectory. """
-        time = np.arange(np.size(self.latitudes[:,0])) * (self.timestep 
-                                                          / 60 ** 2)
 
         fig = plt.figure()
         ax1 = fig.add_subplot(1, 1, 1)
 
-        u_line, = ax1.plot(time, self.trajectory_u[:,0], label="u")
-        v_line, = ax1.plot(time, self.trajectory_v[:,0], label="v")
+        u_line, = ax1.plot(self.times, self.trajectory_u[:,0], label="u")
+        v_line, = ax1.plot(self.times, self.trajectory_v[:,0], label="v")
         ax1.legend()
         ax1.set_title("Force Trajectory Speeds")
-        ax1.set_xlabel("Time in hours")
-        ax1.set_ylabel("Velocity in m/s")
-        plt.savefig("plots/force_trajectory_speeds.png")
+        ax1.set_xlabel("Time (hours)")
+        ax1.set_ylabel("Velocity (m/s)")
+        #plt.savefig("plots/force_trajectory_speeds.png")
         plt.show()
         return ax1
 
+    def graph_rms(self):
+        """ Graph of rms distance from mean trajectory. """
+        rms = self.rms_distance()
+
+        fig = plt.figure()
+        ax2 = fig.add_subplot(1, 1, 1)
+
+        rms_line, = ax2.plot(self.times, rms)
+        ax2.set_title("RMS Distance from Mean Trajectory")
+        ax2.set_xlabel("Time (hours)")
+        ax2.set_ylabel("RMS distance (m)")
+        plt.show()
+        return ax2
+
 tra = Trajectory()
-tra.graph()
+tra.graph_rms()

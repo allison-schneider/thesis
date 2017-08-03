@@ -419,7 +419,10 @@ class Trajectory:
         header_string = (
             "Trajectories to test the save_data() function.\n"
             "Calculation scheme is {0} seconds.\n"
-            "Timestep is {1}".format(self.parcel.scheme, self.parcel.timestep))
+            "Timestep is {1}"
+            "Trajectories calculated for a 5 x 5 grid of parcels between"
+            "41, -72 and" 
+            "42, -71.".format(self.parcel.scheme, self.parcel.timestep))
         np.savetxt("trajectory_data/latitudes.txt", self.latitudes, 
             header=header_string)
         np.savetxt("trajectory_data/longitudes.txt", self.longitudes,
@@ -429,13 +432,24 @@ class Trajectory:
         np.savetxt("trajectory_data/trajectory_v.txt", self.trajectory_v,
             header=header_string)
 
+# Create grid of latitudes and longitudes to launch parcels from
+num_lats = 5  
+num_lons = 5
+first_lat = 41
+last_lat = 42
+first_lon = -72
+last_lon = -71
+
+latitudes = np.linspace(first_lat, last_lat, num=num_lats)
+longitudes = np.linspace(first_lon, last_lon, num=num_lons)
+grid_lon, grid_lat = np.meshgrid(longitudes, latitudes)
+lon = np.ndarray.flatten(grid_lon)
+lat = np.ndarray.flatten(grid_lat)
+
+# Perform the trajectory calculation
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 42], 
-                 [-71, -72], scheme="force")
-## For grid trajectory calculation instead:
-#p = Parcel(atmo, [41], 
-#                 [-71], scheme="grid")
+p = Parcel(atmo, lat, lon, scheme="grid")
 tra = Trajectory(atmo, p)
 
-#tra.plot_ortho()
+# Save data to text files
 tra.save_data()
