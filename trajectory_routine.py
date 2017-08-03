@@ -8,6 +8,7 @@ import sys
 # Global variables
 EARTH_RADIUS = 6371e3    # meters
 OMEGA = 7.292e-5         # radians per second
+STANDARD_GRAVITY = 9.806 # meters per second squared
 
 class Atmosphere:
     """ Contains atmospheric parameters (u speed, v speed, geopotential height
@@ -110,7 +111,7 @@ class Atmosphere:
         spacing_lon = np.radians(360 / (np.size(self.points[1]) - 1))  # radians
         spacing_time = self.time_between_files                         # seconds
 
-        gradient_lat, gradient_lon, gradient_time = np.gradient(self.gh_values, 
+        gradient_lat, gradient_lon, gradient_time = np.gradient(self.gh_values,
             spacing_lat, spacing_lon, spacing_time)
         return gradient_lat, gradient_lon
 
@@ -148,13 +149,13 @@ class Parcel:
             self.v = self.interpolate(self.atmosphere.v_values)
             
         if self.scheme == "force":
-            g = 9.806                           # meters per second squared
             f = 2 * OMEGA * np.sin(self.lat)    # radians per second
             dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
             dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
             # Geostrophic u and v in meters per second
-            self.u = ((-g / f) * dgh_dlat) / EARTH_RADIUS
-            self.v = ((g / f) * dgh_dlon) / (EARTH_RADIUS * np.cos(self.lat))                 
+            self.u = ((-STANDARD_GRAVITY / f) * dgh_dlat) / EARTH_RADIUS
+            self.v = ((STANDARD_GRAVITY / f) * dgh_dlon) / (EARTH_RADIUS 
+                                                            * np.cos(self.lat))                 
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
@@ -261,16 +262,23 @@ class Parcel:
                     self.time += self.timestep
                     dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
                     dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
-                    du_dt = ((-1 / ((EARTH_RADIUS + self.gh)) * np.cos(self.lat)
-                        ) * dgh_dlon + 2 * OMEGA * np.sin(self.lat) * initial_v)
-                    dv_dt = ((-1 / (EARTH_RADIUS + self.gh)) * dgh_dlat
-                        - 2 * OMEGA * np.sin(self.lat) * initial_u)
+                    du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
+                            - (1 / ((EARTH_RADIUS + self.gh) 
+                                * np.cos(self.lat))) 
+                                * STANDARD_GRAVITY * dgh_dlon)
+                    dv_dt = ((-2 * OMEGA * np.sin(self.lat) * initial_u)
+                            - (1 / (EARTH_RADIUS + self.gh)) 
+                            * STANDARD_GRAVITY * dgh_dlat)
                     guess_u = initial_u + du_dt * self.timestep
                     guess_v = initial_v + dv_dt * self.timestep
 
                     # Average initial and guess velocities
                     self.u = (initial_u + guess_u) / 2
                     self.v = (initial_v + guess_v) / 2
+
+                    #print("PG u term is", (-1 / ((EARTH_RADIUS)) 
+                    #    * np.cos(self.lat)) * dgh_dlon, "Coriolis u term is", 
+                    #    2 * OMEGA * np.sin(self.lat) * initial_v)
 
                     # Use timestep and u and v to get next trajectory position
                     dlat_dt = self.v / (EARTH_RADIUS + self.gh)
@@ -377,7 +385,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
+    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=True):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -388,10 +396,11 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
+        plt.title("Gridded Trajectories")
         #map.plot(self.mean_longitudes, self.mean_latitudes,
         #         latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename = "plots/inertial.png"
+            filename = "plots/grid.png"
             plt.savefig(filename)
 
         plt.show()
@@ -418,18 +427,18 @@ class Trajectory:
     def save_data(self):
         header_string = (
             "Trajectories to test the save_data() function.\n"
-            "Calculation scheme is {0} seconds.\n"
-            "Timestep is {1}"
+            "Calculation scheme is {0}.\n"
+            "Timestep is {1} seconds.\n"
             "Trajectories calculated for a 5 x 5 grid of parcels between"
-            "41, -72 and" 
+            "41, -72 and " 
             "42, -71.".format(self.parcel.scheme, self.parcel.timestep))
-        np.savetxt("trajectory_data/latitudes.txt", self.latitudes, 
+        np.savetxt("trajectory_data/latitudes_force.txt", self.latitudes, 
             header=header_string)
-        np.savetxt("trajectory_data/longitudes.txt", self.longitudes,
+        np.savetxt("trajectory_data/longitudes_force.txt", self.longitudes,
             header=header_string)
-        np.savetxt("trajectory_data/trajectory_u.txt", self.trajectory_u,
+        np.savetxt("trajectory_data/trajectory_u_force.txt", self.trajectory_u,
             header=header_string)
-        np.savetxt("trajectory_data/trajectory_v.txt", self.trajectory_v,
+        np.savetxt("trajectory_data/trajectory_v_force.txt", self.trajectory_v,
             header=header_string)
 
 # Create grid of latitudes and longitudes to launch parcels from
@@ -448,8 +457,9 @@ lat = np.ndarray.flatten(grid_lat)
 
 # Perform the trajectory calculation
 atmo = Atmosphere(0)
-p = Parcel(atmo, lat, lon, scheme="grid")
+p = Parcel(atmo, lat, lon, 
+                 scheme="force")
 tra = Trajectory(atmo, p)
 
 # Save data to text files
-tra.save_data()
+tra.plot_ortho()
