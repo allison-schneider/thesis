@@ -8,6 +8,11 @@
 
 \section{Interpolation}
 
+Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables in between the gridded values provided by GFS. 
+Linear interpolation is the standard choice for trajectory models \cite{bowman_input_2013}. 
+For both models, linear interpolation was used in three dimensions (latitude, longitude, and time). 
+In the kinematic model, $u$ and $v$ components of wind speed were interpolated, while in the dynamic model, geopotential height was interpolated.
+
 \section{Integration Scheme}
 The numerical scheme chosen was a second-order Runge-Kutta method with a long track record in trajectory modeling \cite{petterssen_weather_1940}.
 The velocity at a given timestep is taken to be the average of the velocity at the initial position and the velocity at the first-guess position after one timestep.
@@ -35,5 +40,5 @@ To save computation, HYSPLIT uses a dynamic timestep, varying from one minute to
 U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-units}] 
 \end{align}
 
-\cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares, which would reduce the accuracy of the calculation. 
-% Check my trajectories to see if the U_max dt < 0.75 relation is always satisfied. If it isn't, consider reducing the timestep.
+\cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares during a single timestep, which maximizes the accuracy of the calculation. 
+%Check my trajectories to see if the U_max dt < 0.75 relation is always satisfied. If it isn't, consider reducing the timestep.
