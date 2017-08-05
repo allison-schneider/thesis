@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 AUG 2017 14:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 AUG 2017 16:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -196,59 +196,62 @@ Chapter 1.
 ]
 Chapter 2.
 
-Overfull \hbox (2.57712pt too wide) in paragraph at lines 17--19
+Underfull \vbox (badness 1472) has occurred while \output is active []
+
+ [15]
+Overfull \hbox (2.57712pt too wide) in paragraph at lines 29--31
 \T1/cmr/m/n/12 track record in tra-jec-tory mod-el-ing [[]]. The ve-loc-ity at 
 a given timestep
  []
 
 
-Underfull \vbox (badness 3168) has occurred while \output is active []
+Underfull \vbox (badness 7814) has occurred while \output is active []
 
- [15])
-[16]
+ [16])
+[17]
 \openout2 = `chap2.aux'.
 
 
 No file chap2.tex.
 \openout2 = `biblio.aux'.
 
-(./biblio.tex (./main.bbl)) [17
+(./biblio.tex (./main.bbl [18
 
 
 
 
 
-] (./main.aux (./cover.aux) (./contents.aux)
-(./1_introduction.aux) (./2_methods.aux) (./chap2.aux) (./biblio.aux)) ) 
+])) [19] (./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux) (./2
+_methods.aux) (./chap2.aux) (./biblio.aux)) ) 
 Here is how much of TeX's memory you used:
  1397 strings out of 493089
  15195 string characters out of 6134842
- 70195 words of memory out of 5000000
+ 71195 words of memory out of 5000000
  4822 multiletter control sequences out of 15000+600000
  16464 words of font info for 39 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  28i,11n,21p,230b,170s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/l
-ocal/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/loc
-al/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/loca
-l/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local
-/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/t
-exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/tex
-live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texliv
-e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
-/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2
-015/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/201
-5/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2015/
-texmf-dist/fonts/type1/public/cm-super/sfbx1728.pfb></usr/local/texlive/2015/te
-xmf-dist/fonts/type1/public/cm-super/sfbx2488.pfb></usr/local/texlive/2015/texm
-f-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2015/texmf-
-dist/fonts/type1/public/cm-super/sfrm1440.pfb></usr/local/texlive/2015/texmf-di
-st/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2015/texmf-dist
-/fonts/type1/public/cm-super/sfti1200.pfb>
-Output written on main.pdf (17 pages, 196384 bytes).
+{/usr/local/texlive/2015/texmf-dis
+t/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local/texlive/2015/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2015/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2015/texmf-dist/font
+s/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2015/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/
+public/cm-super/sfbx1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/pu
+blic/cm-super/sfbx1440.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publ
+ic/cm-super/sfbx1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public
+/cm-super/sfbx2488.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/c
+m-super/sfrm1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-
+super/sfrm1440.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-su
+per/sfrm1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-supe
+r/sfti1200.pfb>
+Output written on main.pdf (19 pages, 205015 bytes).
 PDF statistics:
- 125 PDF objects out of 1000 (max. 8388607)
- 85 compressed objects within 1 object stream
+ 132 PDF objects out of 1000 (max. 8388607)
+ 90 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

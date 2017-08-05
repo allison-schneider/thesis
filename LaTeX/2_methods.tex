@@ -6,14 +6,26 @@
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Methods}
 
-\section{Interpolation}
+Two trajectory calculation routines, a kinematic and a dynamic model, were written using Python's NumPy scientific computing package.
+Both routines numerically predict the trajectories of an ensemble of parcels by determining the velocities of parcels over time. 
+The kinematic routine finds these velocities by interpolating between grids of wind speed data. 
+The dynamic routine calculates velocities using advection equations relating the parcel acceleration and the geopotential height of a given pressure level. 
+
+\section{Ten Day Dataset}
+Data from the Global Forecast System (GFS), a weather forecast model produced by the National Centers for Environmental Protection (NCEP), was used for both models.
+The dataset chosen was a ten day forecast, starting at 12:00:00 on February 21st, 2017, with predictions at intervals of three hours.
+Each file in the dataset contains atmospheric predictions for the beginning of a three-hour interval. 
+The values of atmospheric variables are predicted at each point on a latitude-longitude grid spanning the globe, with a spacing between gridpoints of 0.25 degree.
+Values are predicted for East-West and North-South wind speed components $u$ and $v$, as well as the geopotential height $Z_g$ of the 250 millibar pressure level.
+
+\section{Linear Interpolation}
 
 Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables in between the gridded values provided by GFS. 
 Linear interpolation is the standard choice for trajectory models \cite{bowman_input_2013}. 
 For both models, linear interpolation was used in three dimensions (latitude, longitude, and time). 
 In the kinematic model, $u$ and $v$ components of wind speed were interpolated, while in the dynamic model, geopotential height was interpolated.
 
-\section{Integration Scheme}
+\section{Second-order Integration Scheme}
 The numerical scheme chosen was a second-order Runge-Kutta method with a long track record in trajectory modeling \cite{petterssen_weather_1940}.
 The velocity at a given timestep is taken to be the average of the velocity at the initial position and the velocity at the first-guess position after one timestep.
 
@@ -31,7 +43,7 @@ where $\vec{P}$ is a position vector with latitude and longitude components, and
 This integration method is used by HYSPLIT and a number of other trajectory models, including FLEXPART, LAGRANTO, and STILT \cite{stein_noaas_2015} \cite{bowman_input_2013}. 
 For trajectories calculated from interpolated gridded wind velocities, higher order integration schemes do not add precision \cite{draxler_description_1997}.  
 
-\section{Timestep}
+\section{Constant Timestep}
 
 The timestep for integration was three minutes, with the timestep throughout the trajectory. 
 To save computation, HYSPLIT uses a dynamic timestep, varying from one minute to one hour, computed to satisfy
@@ -42,3 +54,13 @@ U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-un
 
 \cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares during a single timestep, which maximizes the accuracy of the calculation. 
 %Check my trajectories to see if the U_max dt < 0.75 relation is always satisfied. If it isn't, consider reducing the timestep.
+
+\section{Kinematic Equations}
+
+\begin{align}
+r &= R_E + Z_g \\
+\frac{d \varphi}{dt} &= \frac{v}{r} \\
+\frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}}
+\end{align}
+
+\section{Dynamic Equations}
