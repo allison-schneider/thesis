@@ -1,0 +1,39 @@
+%% This is an example first chapter.  You should put chapter/appendix that you
+%% write into a separate file, and add a line \include{yourfilename} to
+%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
+%% You can process specific files by typing their names in at the 
+%% \files=
+%% prompt when you run the file main.tex through LaTeX.
+\chapter{Methods}
+
+\section{Interpolation}
+
+\section{Integration Scheme}
+The numerical scheme chosen was a second-order Runge-Kutta method with a long track record in trajectory modeling \cite{petterssen_weather_1940}.
+The velocity at a given timestep is taken to be the average of the velocity at the initial position and the velocity at the first-guess position after one timestep.
+
+The first guess position $\vec{P}' (t + \Delta t)$ is 
+\begin{align}
+\vec{P}' (t + \Delta t) = \vec{P}(t) + \vec{V} (\vec{P}, t) \Delta t
+\end{align}
+
+and the final position $\vec{P} (t + \Delta t)$ is
+\begin{align}
+\vec{P} (t + \Delta t) = \vec{P} (t) + \frac{1}{2} \left [ \vec{V} (\vec{P}, t) + \vec{V} (\vec{P'}, t + \Delta t) \right ] \Delta t
+\end{align}
+
+where $\vec{P}$ is a position vector with latitude and longitude components, and $\vec{V}$ a velocity vector with $u$ and $v$ wind speeds \cite{draxler_description_1997}.
+This integration method is used by HYSPLIT and a number of other trajectory models, including FLEXPART, LAGRANTO, and STILT \cite{stein_noaas_2015} \cite{bowman_input_2013}. 
+For trajectories calculated from interpolated gridded wind velocities, higher order integration schemes do not add precision \cite{draxler_description_1997}.  
+
+\section{Timestep}
+
+The timestep for integration was three minutes, with the timestep throughout the trajectory. 
+To save computation, HYSPLIT uses a dynamic timestep, varying from one minute to one hour, computed to satisfy
+
+\begin{align}
+U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-units}] 
+\end{align}
+
+\cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares, which would reduce the accuracy of the calculation. 
+% Check my trajectories to see if the U_max dt < 0.75 relation is always satisfied. If it isn't, consider reducing the timestep.

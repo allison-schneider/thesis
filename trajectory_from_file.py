@@ -122,6 +122,8 @@ class Trajectory:
         ax2 = fig.add_subplot(1, 1, 1)
 
         rms_line, = ax2.plot(self.times, rms)
+        t_half_line, = ax2.plot(self.times, self.times ** 0.5)
+        
         ax2.set_title("RMS Distance from Mean Trajectory")
         ax2.set_xlabel("Time (hours)")
         ax2.set_ylabel("RMS distance (m)")
@@ -129,4 +131,4 @@ class Trajectory:
         return ax2
 
 tra = Trajectory()
-tra.graph_rms()
+tra.plot_ortho()
