@@ -19,7 +19,6 @@ The values of atmospheric variables are predicted at each point on a latitude-lo
 Values are predicted for East-West and North-South wind speed components $u$ and $v$, as well as the geopotential height $Z_g$ of the 250 millibar pressure level.
 
 \section{Linear Interpolation}
-
 Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables in between the gridded values provided by GFS. 
 Linear interpolation is the standard choice for trajectory models \cite{bowman_input_2013}. 
 For both models, linear interpolation was used in three dimensions (latitude, longitude, and time). 
@@ -44,7 +43,6 @@ This integration method is used by HYSPLIT and a number of other trajectory mode
 For trajectories calculated from interpolated gridded wind velocities, higher order integration schemes do not add precision \cite{draxler_description_1997}.  
 
 \section{Constant Timestep}
-
 The timestep for integration was three minutes, with the timestep throughout the trajectory. 
 To save computation, HYSPLIT uses a dynamic timestep, varying from one minute to one hour, computed to satisfy
 
@@ -56,6 +54,9 @@ U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-un
 %Check my trajectories to see if the U_max dt < 0.75 relation is always satisfied. If it isn't, consider reducing the timestep.
 
 \section{Kinematic Equations}
+At each timestep, after $u$ and $v$ speeds were interpolated and an average value found using the integration scheme, the kinematic model used two equations to solve for a parcel's displacement. 
+Since the gridded $u$ and $v$ values are given in meters per second, the equations convert from Cartesian to geographic coordinates. 
+The $r$ value of a parcel is taken to be the radius of the Earth $R_E$ plus the parcel's geopotential height $Z_g$.
 
 \begin{align}
 r &= R_E + Z_g \\
@@ -64,3 +65,12 @@ r &= R_E + Z_g \\
 \end{align}
 
 \section{Dynamic Equations}
+In the dynamic model, velocity at the next timestep was calculated using two more differential equations, using the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
+The Coriolis parameter $f$ measures the effect of the Earth's rotation speed $\Omega$ at a given latitude $\varphi$.
+Standard acceleration due to gravity is $g$. 
+
+\begin{align}
+f &= 2 \Omega \sin{\varphi} \\
+\frac{du}{dt} &= g \frac{\partial Z_g}{\partial \lambda} + fv \\
+\frac{dv}{dt} &= g \frac{\partial Z_g}{\partial \varphi} - fu
+\end{align}
