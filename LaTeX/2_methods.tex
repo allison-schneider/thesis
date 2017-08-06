@@ -19,7 +19,7 @@ The values of atmospheric variables are predicted at each point on a latitude-lo
 Values are predicted for East-West and North-South wind speed components $u$ and $v$, as well as the geopotential height $Z_g$ of the 250 millibar pressure level.
 
 \section{Linear Interpolation}
-Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables in between the gridded values provided by GFS. 
+Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables at positions between the gridded values provided by GFS. 
 Linear interpolation is the standard choice for trajectory models \cite{bowman_input_2013}. 
 For both models, linear interpolation was used in three dimensions (latitude, longitude, and time). 
 In the kinematic model, $u$ and $v$ components of wind speed were interpolated, while in the dynamic model, geopotential height was interpolated.
@@ -55,31 +55,32 @@ U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-un
 
 \section{Kinematic Equations}
 At each timestep, after $u$ and $v$ speeds were interpolated and an average value found using the integration scheme, the kinematic model used two equations to solve for a parcel's displacement. 
-Since the gridded $u$ and $v$ values are given in meters per second, the equations convert from Cartesian to geographic coordinates. 
+Since GFS provides $u$ and $v$ values in meters per second, the equations convert from Cartesian to geographic coordinates. 
 The $r$ value of a parcel is taken to be the radius of the Earth $R_E$ plus the parcel's geopotential height $Z_g$.
 
 \begin{align}
-r &= R_E + Z_g \\
+r &= R_E + Z_g \\[2ex]
 \frac{d \varphi}{dt} &= \frac{v}{r} \\
 \frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}}
 \end{align}
 
 \section{Dynamic Equations}
-In the dynamic model, velocity at the next timestep was calculated using advection equations with the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
+In the dynamic model, velocity at the next timestep was calculated using advection equations which incorporate the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
 The Coriolis parameter $f$ measures the effect of the Earth's rotation speed $\Omega$ at a given latitude $\varphi$.
 Standard acceleration due to gravity is $g$. 
 
 \begin{align}
-f &= 2 \Omega \sin{\varphi} \\
+f &= 2 \Omega \sin{\varphi} \\[2ex]
 \frac{du}{dt} &= g \frac{\partial Z_g}{\partial \lambda} + fv \\
 \frac{dv}{dt} &= g \frac{\partial Z_g}{\partial \varphi} - fu
 \end{align}
 
 \section{Mean Trajectory and RMSE}
 For an ensemble of parcels, variance among trajectories over time was measured by calculating the mean trajectory: the path of an imaginary parcel whose position at each timestep is the average of the parcels' positions.
-At each timestep, the root-mean-square error (RMSE) is the square root of the sum of the square of each particle's distance from the mean trajectory.
+At each timestep, the root-mean-square error (RMSE) is the square root of the average squared value of each particle's distance from the mean trajectory.
 
-The mean trajectory was determined by finding the centroids of parcel positions at each timestep after converting trajectory latitudes and longitudes to Cartesian coordinates.
+The mean trajectory was determined by finding the centroids of parcel positions at each timestep after converting trajectory latitudes and longitudes to Cartesian coordinates. 
+NumPy's \texttt{arctan2(y,x)} is a two-argument arctangent function with a range of $(-\pi, \pi]$.
 
 \begin{align}
 x &= \cos \varphi \cos \lambda & \bar{x} &= \frac{x_1 + x_2 + \cdots + x_n}{n} \\
@@ -89,7 +90,19 @@ z &= \sin \varphi & \bar{z} &= \frac{z_1 + z_2 + \cdots + z_n}{n} \\[2ex]
 \bar{\varphi} &= \arctantwo{(\bar{z}, \sqrt{\bar{x}^2 + \bar{y}^2})}
 \end{align}
 
-Numpy's \texttt{arctan2(y,x)} is a two-argument arctangent function with a range of $(-\pi, \pi]$.
+The distance $d$ between each parcel (with position $\varphi_i, \lambda_i$) and the mean parcel was calculated with the haversine formula
 
-Haversine is great \cite{sinnott_virtues_1984}
+\begin{align}
+\Delta \varphi_i &= | \varphi_i - \bar{\varphi}| \\
+\Delta \lambda_i &= |\lambda_i - \bar{\lambda}| \\
+a_i &= \sin^2 \left ( \frac{\Delta \varphi}{2} \right ) + \cos{\varphi_1}  \cos{\varphi_2} \sin^2 \left ( \frac{\Delta \lambda}{2} \right ) \\
+c_i &= 2 \cdot \arctantwo{(\sqrt{a}, \sqrt{1 - a})} \\
+d_i &= R_E \cdot c
+\end{align}
 
+which is accurate and well-conditioned for small angles \cite{sinnott_virtues_1984}. 
+The RMSE at each timestep is calculated using the distance between each parcel and the mean parcel.
+
+\begin{align}
+\text{RMSE} = \sqrt{\frac{{d_1}^2 + {d_2}^2 + \cdots + {d_n}^2}{n}}
+\end{align}

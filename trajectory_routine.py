@@ -397,8 +397,8 @@ class Trajectory:
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
         plt.title("Gridded Trajectories")
-        #map.plot(self.mean_longitudes, self.mean_latitudes,
-        #         latlon=True, zorder=2, color='blue')
+        map.plot(self.mean_longitudes, self.mean_latitudes,
+                 latlon=True, zorder=2, color='blue')
         if savefig == True:
             filename = "plots/grid.png"
             plt.savefig(filename)
@@ -457,7 +457,8 @@ lat = np.ndarray.flatten(grid_lat)
 
 # Perform the trajectory calculation
 atmo = Atmosphere(0)
-p = Parcel(atmo, lat, lon, 
+p = Parcel(atmo, [41, 41, 42, 42],
+                 [-71, -72, -71, -72], 
                  scheme="force")
 tra = Trajectory(atmo, p)
 
