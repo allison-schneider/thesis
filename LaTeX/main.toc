@@ -6,4 +6,5 @@
 \contentsline {section}{\numberline {2.3}Second-order Integration Scheme}{16}
 \contentsline {section}{\numberline {2.4}Constant Timestep}{17}
 \contentsline {section}{\numberline {2.5}Kinematic Equations}{17}
-\contentsline {section}{\numberline {2.6}Dynamic Equations}{17}
+\contentsline {section}{\numberline {2.6}Dynamic Equations}{18}
+\contentsline {section}{\numberline {2.7}Mean Trajectory and RMSE}{18}

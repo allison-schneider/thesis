@@ -51,7 +51,7 @@ U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-un
 \end{align}
 
 \cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares during a single timestep, which maximizes the accuracy of the calculation. 
-%Check my trajectories to see if the U_max dt < 0.75 relation is always satisfied. If it isn't, consider reducing the timestep.
+[Todo: Plot u and v along my trajectories to see if the $U_{max} \Delta t < 0.75$ relation is always satisfied. If it isn't, consider reducing the timestep. If it is satisfied, write that here.]
 
 \section{Kinematic Equations}
 At each timestep, after $u$ and $v$ speeds were interpolated and an average value found using the integration scheme, the kinematic model used two equations to solve for a parcel's displacement. 
@@ -65,7 +65,7 @@ r &= R_E + Z_g \\
 \end{align}
 
 \section{Dynamic Equations}
-In the dynamic model, velocity at the next timestep was calculated using two more differential equations, using the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
+In the dynamic model, velocity at the next timestep was calculated using advection equations with the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
 The Coriolis parameter $f$ measures the effect of the Earth's rotation speed $\Omega$ at a given latitude $\varphi$.
 Standard acceleration due to gravity is $g$. 
 
@@ -74,3 +74,20 @@ f &= 2 \Omega \sin{\varphi} \\
 \frac{du}{dt} &= g \frac{\partial Z_g}{\partial \lambda} + fv \\
 \frac{dv}{dt} &= g \frac{\partial Z_g}{\partial \varphi} - fu
 \end{align}
+
+\section{Mean Trajectory and RMSE}
+For an ensemble of parcels, variance among trajectories over time was measured by calculating the mean trajectory: the path of an imaginary parcel whose position at each timestep is the average of the parcels' positions.
+At each timestep, the root-mean-square error (RMSE) is the square root of the sum of the square of each particle's distance from the mean trajectory.
+
+The mean trajectory was determined by finding the centroids of parcel positions at each timestep after converting trajectory latitudes and longitudes to Cartesian coordinates.
+
+\begin{align}
+x &= \cos \varphi \cos \lambda & \bar{x} &= \frac{x_1 + x_2 + \cdots + x_n}{n} \\
+y &= \cos \varphi \sin \lambda & \bar{y} &= \frac{y_1 + y_2 + \cdots + y_n}{n} \\
+z &= \sin \varphi & \bar{z} &= \frac{z_1 + z_2 + \cdots + z_n}{n} \\[2ex]
+\bar{\lambda} &= \arctantwo{(\bar{y},\bar{x})} \\
+\bar{\varphi} &= \arctantwo{(\bar{z}, \sqrt{\bar{x}^2 + \bar{y}^2})}
+\end{align}
+
+Numpy's \texttt{arctan2(y,x)} is a two-argument arctangent function with a range of $(-\pi, \pi]$.
+
