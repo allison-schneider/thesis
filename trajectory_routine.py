@@ -246,10 +246,14 @@ class Parcel:
                     initial_lat = self.lat 
                     initial_lon = self.lon
 
+                    # Get gradient of geopotential height at initial position
+                    self.gh = self.interpolate(self.atmosphere.gh_values)
+                    dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
+                    dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
+
                     # Find u0 and v0 at starting latitude and longitude
                     initial_u = self.u
                     initial_v = self.v
-                    self.gh = self.interpolate(self.atmosphere.gh_values)
 
                     # Use u0 and v0 to get guess latitude and longitude
                     dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
@@ -259,9 +263,6 @@ class Parcel:
                     self.lon = initial_lon + dlon_dt * self.timestep
 
                     # Find guess_u and guess_v at guess position after timestep
-                    self.time += self.timestep
-                    dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
-                    dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
                     du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
                             - (1 / ((EARTH_RADIUS + self.gh) 
                                 * np.cos(self.lat))) 
@@ -289,7 +290,8 @@ class Parcel:
                     self.trajectory_u[i,:] = self.u
                     self.trajectory_v[i,:] = self.v
 
-                    # Increment timestep index
+                    # Increment timestep and timestep index
+                    self.time += self.timestep
                     i += 1
 
                 # Get new instance of Atmosphere for next time layer
@@ -307,10 +309,14 @@ class Parcel:
                     initial_lat = self.lat 
                     initial_lon = self.lon
 
+                    # Get gradient of geopotential height at initial position
+                    self.gh = self.interpolate(self.atmosphere.gh_values)
+                    dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
+                    dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
+
                     # Find u0 and v0 at starting latitude and longitude
                     initial_u = self.u
                     initial_v = self.v
-                    self.gh = self.interpolate(self.atmosphere.gh_values)
 
                     # Use u0 and v0 to get guess latitude and longitude
                     dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
@@ -320,9 +326,6 @@ class Parcel:
                     self.lon = initial_lon + dlon_dt * self.timestep
 
                     # Find guess_u and guess_v at guess position after timestep
-                    self.time += self.timestep
-                    dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
-                    dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
                     du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
                             - (1 / ((EARTH_RADIUS + self.gh) 
                                 * np.cos(self.lat))) 
@@ -350,7 +353,8 @@ class Parcel:
                     self.trajectory_u[i,:] = self.u
                     self.trajectory_v[i,:] = self.v
 
-                    # Increment timestep index
+                    # Increment timestep and timestep index
+                    self.time += self.timestep
                     i += 1
 
                 # Get new instance of Atmosphere for next time layer
