@@ -132,7 +132,7 @@ class Parcel:
         self.scheme = scheme
 
         self.time = 0                   # seconds
-        self.timestep = 60             # seconds  
+        self.timestep = 180             # seconds  
 
         self.trajectory_lat = np.nan * np.zeros(
                                     (np.int(((self.atmosphere.total_time) 
@@ -148,7 +148,7 @@ class Parcel:
             self.u = self.interpolate(self.atmosphere.u_values)
             self.v = self.interpolate(self.atmosphere.v_values)
             
-        if self.scheme == "force":
+        if self.scheme == "force" or "friction":
             f = 2 * OMEGA * np.sin(self.lat)    # radians per second
             dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
             dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
@@ -296,6 +296,67 @@ class Parcel:
                 layer_index += 1
                 next_layer_hour = layer_index * (
                                 self.atmosphere.time_between_files / (60 ** 2))
+
+        # Same as "force" scheme, but with a friction term to damp oscillations
+        elif self.scheme == "friction":
+            while next_layer_hour < self.atmosphere.total_time / 60 ** 2:
+                self.atmosphere = Atmosphere(next_layer_hour)
+                for layer_step in np.arange(self.atmosphere.time_between_files 
+                                            / self.timestep):
+                    # Identify starting latitude and longitude
+                    initial_lat = self.lat 
+                    initial_lon = self.lon
+
+                    # Find u0 and v0 at starting latitude and longitude
+                    initial_u = self.u
+                    initial_v = self.v
+                    self.gh = self.interpolate(self.atmosphere.gh_values)
+
+                    # Use u0 and v0 to get guess latitude and longitude
+                    dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
+                    dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
+                                            * np.cos(self.lat))
+                    self.lat = initial_lat + dlat_dt * self.timestep
+                    self.lon = initial_lon + dlon_dt * self.timestep
+
+                    # Find guess_u and guess_v at guess position after timestep
+                    self.time += self.timestep
+                    dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
+                    dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
+                    du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
+                            - (1 / ((EARTH_RADIUS + self.gh) 
+                                * np.cos(self.lat))) 
+                                * STANDARD_GRAVITY * dgh_dlon)
+                    dv_dt = ((-2 * OMEGA * np.sin(self.lat) * initial_u)
+                            - (1 / (EARTH_RADIUS + self.gh)) 
+                            * STANDARD_GRAVITY * dgh_dlat)
+                    guess_u = initial_u + du_dt * self.timestep
+                    guess_v = initial_v + dv_dt * self.timestep
+
+                    # Average initial and guess velocities
+                    self.u = (initial_u + guess_u) / 2
+                    self.v = (initial_v + guess_v) / 2
+
+                    # Use timestep and u and v to get next trajectory position
+                    dlat_dt = self.v / (EARTH_RADIUS + self.gh)
+                    dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
+                                        * np.cos(initial_lat))
+                    self.lat = initial_lat + dlat_dt * self.timestep
+                    self.lon = initial_lon + dlon_dt * self.timestep
+
+                    # Store position in trajectory array
+                    self.trajectory_lat[i,:] = self.lat
+                    self.trajectory_lon[i,:] = self.lon
+                    self.trajectory_u[i,:] = self.u
+                    self.trajectory_v[i,:] = self.v
+
+                    # Increment timestep index
+                    i += 1
+
+                # Get new instance of Atmosphere for next time layer
+                layer_index += 1
+                next_layer_hour = layer_index * (
+                                self.atmosphere.time_between_files / (60 ** 2))
         else:
             raise ValueError("Invalid scheme. Try 'grid' or 'force'.")
 
@@ -381,7 +442,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=True):
+    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -392,12 +453,12 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        plt.title("Dynamic Trajectories\n"
-                  "2 minute timestep")
+        #plt.title("Dynamic Trajectories\n"
+        #          "2 minute timestep")
         map.plot(self.mean_longitudes, self.mean_latitudes,
                  latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename = "plots/force2.png"
+            filename = "plots/test.png"
             plt.savefig(filename)
 
         plt.show()
@@ -456,7 +517,7 @@ lat = np.ndarray.flatten(grid_lat)
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 41, 42, 42],
                  [-71, -72, -71, -72], 
-                 scheme="grid")
+                 scheme="friction")
 tra = Trajectory(atmo, p)
 
 # Save data to text files
