@@ -22,10 +22,10 @@ Values are predicted for East-West and North-South wind speed components $u$ and
 Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables at positions between the gridded values provided by GFS. 
 Linear interpolation is the standard choice for trajectory models \cite{bowman_input_2013}. 
 For both models, linear interpolation was used in three dimensions (latitude, longitude, and time). 
-In the kinematic model, $u$ and $v$ components of wind speed were interpolated, while in the dynamic model, geopotential height was interpolated.
+In the kinematic model, $u$ and $v$ components of wind speed were interpolated to the current positions of the air parcels, while in the dynamic model, geopotential height was interpolated.
 
 \section{Second-order Integration Scheme}
-The numerical scheme chosen was a second-order Runge-Kutta method with a long track record in trajectory modeling \cite{petterssen_weather_1940}.
+The numerical scheme chosen was a second-order Runge-Kutta method which has a long track record in trajectory modeling \cite{petterssen_weather_1940}.
 The velocity at a given timestep is taken to be the average of the velocity at the initial position and the velocity at the first-guess position after one timestep.
 
 The first guess position $\vec{P}' (t + \Delta t)$ is 
@@ -60,8 +60,8 @@ The $r$ value of a parcel is taken to be the radius of the Earth $R_E$ plus the 
 
 \begin{align}
 r &= R_E + Z_g \\[2ex]
-\frac{d \varphi}{dt} &= \frac{v}{r} \\
-\frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}}
+\frac{d \varphi}{dt} &= \frac{v}{r} \label{eq:uposition} \\
+\frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}} \label{eq:vposition}
 \end{align}
 
 \section{Dynamic Equations}
@@ -71,9 +71,12 @@ Standard acceleration due to gravity is $g$.
 
 \begin{align}
 f &= 2 \Omega \sin{\varphi} \\[2ex]
-\frac{du}{dt} &= g \frac{\partial Z_g}{\partial \lambda} + fv \\
-\frac{dv}{dt} &= g \frac{\partial Z_g}{\partial \varphi} - fu
+\frac{du}{dt} &= fv - \frac{g}{r \cos{\varphi}} \frac{\partial Z_g}{\partial \lambda} \label{eq:uvelocitygeo}\\
+\frac{dv}{dt} &= -fu -\frac{g}{r} \frac{\partial Z_g}{\partial \varphi} \label{eq:vvelocitygeo}
 \end{align}
+
+Equations \ref{eq:uvelocitygeo} and \ref{eq:vvelocitygeo} are equations \ref{eq:uvelocity} and \ref{eq:vvelocity} transformed from Cartesian to geographic coordinates. 
+After velocity at the next timestep is determined, the dynamic model also uses kinematic equations \ref{eq:uposition} and \ref{eq:vposition} to find the parcel position.
 
 \section{Mean Trajectory and RMSE}
 For an ensemble of parcels, variance among trajectories over time was measured by calculating the mean trajectory: the path of an imaginary parcel whose position at each timestep is the average of the parcels' positions.

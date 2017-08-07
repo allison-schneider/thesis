@@ -8,8 +8,46 @@
 
 \section{The Aerocene Project}
 
-\section{Geopotential Height}
+\section{Acceleration from Geopotential Height} \label{sec:acceleration}
+In an isobaric trajectory model, the acceleration of a parcel of air at a given pressure level can be determined from its velocity, latitude, and geopotential height.
+The geopotential height $Z_g$ of a surface of pressure $p$ above mean sea level is 
 
+\begin{align}
+    Z_g(p) = R \int_p^{p_s} \frac{T}{g} \frac{dp}{p},
+\end{align}
+
+where $R$ is the gas constant, $T$ is temperature, $p_s$ is surface pressure, $g$ is acceleration due to gravity at mean sea level, and $Z_g(p_s)$ is set to 0. 
+In the troposphere, the difference between geopotential height and actual height is negligible \cite{marshall_atmosphere_2008}. 
+
+The geopotential $\Phi$ is the potential energy of the Earth's gravitational field at a height $h$:
+
+\begin{align}
+    \Phi (h) = g Z_g (h) \label{eq:geopotential}
+\end{align}
+
+The full equation for acceleration of an air parcel in the atmosphere is
+
+\begin{align}
+    \frac{D \vec{u}}{Dt} + \frac{1}{\rho} \nabla p + \nabla \Phi + f \hat{z} \times \vec{u} = \mathcal{F} \label{eq:full}
+\end{align}
+
+where $\vec{u}$ is the wind velocity vector, $\rho$ is the density of air, $f$ is the Coriolis parameter, and $\mathcal{F}$ is the force of friction \cite{marshall_atmosphere_2008}. 
+In an isobaric trajectory model, the gradient of pressure is zero, and the force of friction is assumed to be negligible at the studied pressure level.
+Using these assumptions and the relation in \ref{eq:geopotential}, equation \ref{eq:full} becomes
+
+\begin{align}
+    \frac{D \vec{u}}{Dt} + \nabla \Phi + f \hat{z} \times \vec{u} &= 0 \\
+    - g \nabla Z_g - f \hat{z} \times \vec{u} &= \frac{D \vec{u}}{Dt}
+\end{align}
+
+of which the horizontal components are
+
+\begin{align}
+    \frac{Du}{Dt} &= fv - g \frac{\partial Z_g}{\partial x} \label{eq:uvelocity} \\
+    \frac{Dv}{Dt} &= -fu - g \frac{\partial Z_g}{\partial y}. \label{eq:vvelocity}
+\end{align}
 
 %% To include in intro
 % Geopotential height explanation
+% Advection equations use geopotential height gradient
+% Factors that lead to ageostrophic flow?

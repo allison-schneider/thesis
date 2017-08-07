@@ -124,7 +124,7 @@ class Parcel:
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
                  longitude,         # Longitude in degrees (0, 360]) 
-                 scheme="force"):    # "grid" or "force"
+                 scheme="grid"):    # "grid" or "force"
         
         self.lat = np.radians(np.array(latitude))
         self.lon = np.radians(np.array(longitude))
@@ -132,7 +132,7 @@ class Parcel:
         self.scheme = scheme
 
         self.time = 0                   # seconds
-        self.timestep = 180             # seconds  
+        self.timestep = 60             # seconds  
 
         self.trajectory_lat = np.nan * np.zeros(
                                     (np.int(((self.atmosphere.total_time) 
@@ -276,10 +276,6 @@ class Parcel:
                     self.u = (initial_u + guess_u) / 2
                     self.v = (initial_v + guess_v) / 2
 
-                    #print("PG u term is", (-1 / ((EARTH_RADIUS)) 
-                    #    * np.cos(self.lat)) * dgh_dlon, "Coriolis u term is", 
-                    #    2 * OMEGA * np.sin(self.lat) * initial_v)
-
                     # Use timestep and u and v to get next trajectory position
                     dlat_dt = self.v / (EARTH_RADIUS + self.gh)
                     dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
@@ -396,11 +392,12 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        plt.title("Gridded Trajectories")
+        plt.title("Dynamic Trajectories\n"
+                  "2 minute timestep")
         map.plot(self.mean_longitudes, self.mean_latitudes,
                  latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename = "plots/grid.png"
+            filename = "plots/force2.png"
             plt.savefig(filename)
 
         plt.show()
@@ -414,8 +411,8 @@ class Trajectory:
         fig = plt.figure()
         ax1 = fig.add_subplot(1, 1, 1)
 
-        u_line, = ax1.plot(time, self.parcel.trajectory_u, label="u")
-        v_line, = ax1.plot(time, self.parcel.trajectory_v, label="v")
+        u_line = ax1.plot(time, self.parcel.trajectory_u, color="0.75", label="u")
+        v_line = ax1.plot(time, self.parcel.trajectory_v, color="0.5", label="v")
         ax1.legend()
         ax1.set_title("Force Trajectory Speeds")
         ax1.set_xlabel("Time in hours")
@@ -459,7 +456,7 @@ lat = np.ndarray.flatten(grid_lat)
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 41, 42, 42],
                  [-71, -72, -71, -72], 
-                 scheme="force")
+                 scheme="grid")
 tra = Trajectory(atmo, p)
 
 # Save data to text files
