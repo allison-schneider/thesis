@@ -300,9 +300,6 @@ class Parcel:
                 self.atmosphere = Atmosphere(next_layer_hour)
                 for layer_step in np.arange(self.atmosphere.time_between_files 
                                             / self.timestep):
-                    # Identify starting latitude and longitude
-                    initial_lat = self.lat 
-                    initial_lon = self.lon
 
                     # Get gradient of geopotential height at initial position
                     self.gh = self.interpolate(self.atmosphere.gh_values)
@@ -317,8 +314,6 @@ class Parcel:
                     dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
                     dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
                                             * np.cos(self.lat))
-                    self.lat = initial_lat + dlat_dt * self.timestep
-                    self.lon = initial_lon + dlon_dt * self.timestep
 
                     # Find guess_u and guess_v at guess position after timestep
                     du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
@@ -338,9 +333,9 @@ class Parcel:
                     # Use timestep and u and v to get next trajectory position
                     dlat_dt = self.v / (EARTH_RADIUS + self.gh)
                     dlon_dt = self.u / ((EARTH_RADIUS + self.gh) 
-                                        * np.cos(initial_lat))
-                    self.lat = initial_lat + dlat_dt * self.timestep
-                    self.lon = initial_lon + dlon_dt * self.timestep
+                                        * np.cos(self.lat))
+                    self.lat = self.lat + dlat_dt * self.timestep
+                    self.lon = self.lon + dlon_dt * self.timestep
 
                     # Store position in trajectory array
                     self.trajectory_lat[i,:] = self.lat
@@ -516,7 +511,7 @@ lat = np.ndarray.flatten(grid_lat)
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 41, 42, 42],
                  [-71, -72, -71, -72], 
-                 scheme="force")
+                 scheme="friction")
 tra = Trajectory(atmo, p)
 
 # Save data to text files
