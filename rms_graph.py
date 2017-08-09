@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
 # Global variables
 EARTH_RADIUS = 6371e3    # meters
@@ -8,14 +7,16 @@ EARTH_RADIUS = 6371e3    # meters
 class Trajectory:
     """ Version of trajectory class for analyzing trajectory data from text files."""
     
-    def __init__(self):       
-        self.scheme = "force"
-        self.timestep = 180
+    def __init__(self,
+    			 scheme,
+    			 timestep):       
+        self.scheme = scheme
+        self.timestep = timestep
 
-        lat_title = ("trajectory_data/latitudes.txt")
-        lon_title = ("trajectory_data/longitudes.txt")
-        u_title = ("trajectory_data/trajectory_u.txt")
-        v_title = ("trajectory_data/trajectory_v.txt")
+        lat_title = ("trajectory_data/latitudes_{0}_{1}.txt".format(scheme, timestep))
+        lon_title = ("trajectory_data/longitudes_{0}_{1}.txt".format(scheme, timestep))
+        u_title = ("trajectory_data/trajectory_u_{0}_{1}.txt".format(scheme, timestep))
+        v_title = ("trajectory_data/trajectory_v_{0}_{1}.txt".format(scheme, timestep))
 
         self.latitudes = np.loadtxt(lat_title)
         self.longitudes = np.loadtxt(lon_title)
@@ -137,5 +138,27 @@ class Trajectory:
         plt.show()
         return ax2
 
-tra = Trajectory()
-tra.plot_ortho()
+    def mean_rms(self):
+    	""" Time-averaged RMS. """ 
+    	mean_rms = np.mean(self.rms_distance())
+    	return mean_rms
+
+
+timestep_list = (20, 30, 40, 50, 60, 80, 90, 100, 120, 150, 180)
+rms_list = np.zeros(np.size(timestep_list))
+for i, timestep in enumerate(timestep_list):
+	print(i, timestep)
+	traj = Trajectory("grid", timestep)
+	rms_list[i] = traj.mean_rms()
+
+fig = plt.figure()
+ax1 = fig.add_subplot(1, 1, 1)
+ax1.set_title("Kinematic Trajectory RMSE Across Timesteps")
+ax1.set_xlabel("Timestep (seconds)")
+ax1.set_ylabel("RMSE")
+#plt.savefig("plots/grid_rmse.png")
+#plt.savefig("plots/grid_rmse.svg")
+
+ax1.plot(timestep_list, rms_list, color="black", linestyle=" ", marker=".", markersize="5")
+plt.show()
+
