@@ -10,10 +10,15 @@ class Trajectory:
     
     def __init__(self):       # Instance of class Parcel
 
-        self.latitudes = np.loadtxt("trajectory_data/latitudes.txt")
-        self.longitudes = np.loadtxt("trajectory_data/longitudes.txt")
-        self.trajectory_u = np.loadtxt("trajectory_data/trajectory_u.txt")
-        self.trajectory_v = np.loadtxt("trajectory_data/trajectory_v.txt")
+        lat_title = ("trajectory_data/latitudes.txt")
+        lon_title = ("trajectory_data/longitudes.txt")
+        u_title = ("trajectory_data/trajectory_u.txt")
+        v_title = ("trajectory_data/trajectory_v.txt")
+
+        self.latitudes = np.loadtxt(lat_title)
+        self.longitudes = np.loadtxt(lon_title)
+        self.trajectory_u = np.loadtxt(u_title)
+        self.trajectory_v = np.loadtxt(v_title)
 
         self.timestep = 180     # seconds
         # List of times for plotting

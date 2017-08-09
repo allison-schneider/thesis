@@ -124,15 +124,16 @@ class Parcel:
                  atmosphere,        # Instance of class Atmosphere
                  latitude,          # Latitude in degrees (-90, 90) 
                  longitude,         # Longitude in degrees (0, 360]) 
-                 scheme="grid"):    # "grid" or "force"
+                 scheme,            # "grid" or "force"
+                 timestep):         # Timestep in seconds  
         
         self.lat = np.radians(np.array(latitude))
         self.lon = np.radians(np.array(longitude))
         self.atmosphere = atmosphere
         self.scheme = scheme
+        self.timestep = timestep        # seconds 
 
-        self.time = 0                   # seconds
-        self.timestep = 180             # seconds  
+        self.time = 0                   # seconds 
 
         self.trajectory_lat = np.nan * np.zeros(
                                     (np.int(((self.atmosphere.total_time) 
@@ -252,11 +253,6 @@ class Parcel:
                     initial_u = self.u
                     initial_v = self.v
 
-                    # Use u0 and v0 to get guess latitude and longitude
-                    dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
-                    dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
-                                            * np.cos(self.lat))
-
                     # Find guess_u and guess_v at guess position after timestep
                     du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
                             - (1 / ((EARTH_RADIUS + self.gh) 
@@ -310,19 +306,26 @@ class Parcel:
                     initial_u = self.u
                     initial_v = self.v
 
-                    # Use u0 and v0 to get guess latitude and longitude
-                    dlat_dt = initial_v / (EARTH_RADIUS + self.gh)
-                    dlon_dt = initial_u / ((EARTH_RADIUS + self.gh) 
-                                            * np.cos(self.lat))
+                    # Get geostrophic u and v
+                    f = 2 * OMEGA * np.sin(self.lat)
+                    u_g = ((-STANDARD_GRAVITY / f) * dgh_dlat * (1 / 
+                        (EARTH_RADIUS + self.gh)))
+                    v_g = ((STANDARD_GRAVITY / f) * dgh_dlon * (1 / 
+                        ((EARTH_RADIUS + self.gh) * np.cos(self.lat))))
+
+                    # Get friction terms
+                    r_f = 10e-6
+                    friction_u = f * (initial_v - v_g) - r_f * (initial_u - u_g)
+                    friction_v = f * (initial_u - u_g) - r_f * (initial_v - v_g)
 
                     # Find guess_u and guess_v at guess position after timestep
-                    du_dt = ((2 * OMEGA * np.sin(self.lat) * initial_v)
+                    du_dt = ((f * initial_v)
                             - (1 / ((EARTH_RADIUS + self.gh) 
                                 * np.cos(self.lat))) 
-                                * STANDARD_GRAVITY * dgh_dlon)
-                    dv_dt = ((-2 * OMEGA * np.sin(self.lat) * initial_u)
+                                * STANDARD_GRAVITY * dgh_dlon + friction_u)
+                    dv_dt = ((-f * initial_u)
                             - (1 / (EARTH_RADIUS + self.gh)) 
-                            * STANDARD_GRAVITY * dgh_dlat)
+                            * STANDARD_GRAVITY * dgh_dlat + friction_v)
                     guess_u = initial_u + du_dt * self.timestep
                     guess_v = initial_v + dv_dt * self.timestep
 
@@ -336,6 +339,10 @@ class Parcel:
                                         * np.cos(self.lat))
                     self.lat = self.lat + dlat_dt * self.timestep
                     self.lon = self.lon + dlon_dt * self.timestep
+
+                    # Replace latitudes above pi/2 or below -pi/2
+                    np.place(self.lat, self.lat > np.pi / 2, np.pi / 2)
+                    np.place(self.lat, self.lat < -np.pi / 2, -np.pi / 2)
 
                     # Store position in trajectory array
                     self.trajectory_lat[i,:] = self.lat
@@ -484,14 +491,22 @@ class Trajectory:
             "Trajectories calculated for a 5 x 5 grid of parcels between"
             "41, -72 and " 
             "42, -71.".format(self.parcel.scheme, self.parcel.timestep))
-        np.savetxt("trajectory_data/latitudes_force.txt", self.latitudes, 
-            header=header_string)
-        np.savetxt("trajectory_data/longitudes_force.txt", self.longitudes,
-            header=header_string)
-        np.savetxt("trajectory_data/trajectory_u_force.txt", self.trajectory_u,
-            header=header_string)
-        np.savetxt("trajectory_data/trajectory_v_force.txt", self.trajectory_v,
-            header=header_string)
+        lat_title = ("trajectory_data/"
+                    "latitudes_{0}_{1}.txt".format(self.parcel.scheme,
+                                                self.parcel.timestep))
+        lon_title = ("trajectory_data/"
+                    "longitudes_{0}_{1}.txt".format(self.parcel.scheme,
+                                                self.parcel.timestep))
+        u_title = ("trajectory_data/"
+                    "trajectory_u_{0}_{1}.txt".format(self.parcel.scheme,
+                                                self.parcel.timestep))
+        v_title = ("trajectory_data/"
+                    "trajectory_v_{0}_{1}.txt".format(self.parcel.scheme,
+                                                self.parcel.timestep))
+        np.savetxt(lat_title, self.latitudes, header=header_string)
+        np.savetxt(lon_title, self.longitudes, header=header_string)
+        np.savetxt(u_title, self.trajectory_u, header=header_string)
+        np.savetxt(v_title, self.trajectory_v, header=header_string)
 
 # Create grid of latitudes and longitudes to launch parcels from
 num_lats = 5  
@@ -508,11 +523,15 @@ lon = np.ndarray.flatten(grid_lon)
 lat = np.ndarray.flatten(grid_lat)
 
 # Perform the trajectory calculation
+scheme_arg = sys.argv[1]
+timestep_arg = int(sys.argv[2])
+
 atmo = Atmosphere(0)
 p = Parcel(atmo, [41, 41, 42, 42],
                  [-71, -72, -71, -72], 
-                 scheme="friction")
+                 scheme_arg,
+                 timestep_arg)
 tra = Trajectory(atmo, p)
 
 # Save data to text files
-tra.plot_ortho()
+tra.save_data()
