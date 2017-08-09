@@ -148,17 +148,19 @@ timestep_list = (20, 30, 40, 50, 60, 80, 90, 100, 120, 150, 180)
 rms_list = np.zeros(np.size(timestep_list))
 for i, timestep in enumerate(timestep_list):
 	print(i, timestep)
-	traj = Trajectory("grid", timestep)
+	traj = Trajectory("force", timestep)
 	rms_list[i] = traj.mean_rms()
 
 fig = plt.figure()
 ax1 = fig.add_subplot(1, 1, 1)
-ax1.set_title("Kinematic Trajectory RMSE Across Timesteps")
+ax1.set_title("Dynamic Trajectory RMSE Across Timesteps")
 ax1.set_xlabel("Timestep (seconds)")
 ax1.set_ylabel("RMSE")
-#plt.savefig("plots/grid_rmse.png")
-#plt.savefig("plots/grid_rmse.svg")
 
 ax1.plot(timestep_list, rms_list, color="black", linestyle=" ", marker=".", markersize="5")
+
+plt.savefig("plots/force_rmse.png")
+plt.savefig("plots/force_rmse.svg")
+
 plt.show()
 

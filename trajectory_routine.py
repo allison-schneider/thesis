@@ -467,28 +467,41 @@ class Trajectory:
 
     def graph(self):
         """ Graph of u and v along the trajectory. """
+        lat_length = 111.32e3       # Length of a degree of latitude in meters
         time = np.arange(np.size(self.latitudes[:,0])) * (self.parcel.timestep 
-                                                           / 60 ** 2)
+                                                           / (60 ** 2 * 24))
+        v_threshold = ((0.75 * 0.25 * lat_length) / self.parcel.timestep 
+                        * np.ones(np.size(time)))
+        v_threshold = v_threshold[:, np.newaxis]
+        v_diff = v_threshold - self.parcel.trajectory_v
 
-        fig = plt.figure()
-        ax1 = fig.add_subplot(1, 1, 1)
+        u_threshold = (0.75 * 0.25 * lat_length 
+            * np.cos(np.radians(self.latitudes))) / self.parcel.timestep
+        u_diff = u_threshold - self.parcel.trajectory_u
 
-        u_line = ax1.plot(time, self.parcel.trajectory_u, color="0.75", label="u")
-        v_line = ax1.plot(time, self.parcel.trajectory_v, color="0.5", label="v")
-        ax1.legend()
-        ax1.set_title("Force Trajectory Speeds")
-        ax1.set_xlabel("Time in hours")
-        ax1.set_ylabel("Velocity in m/s")
+        zero = np.zeros(np.size(time))
+        
+        # new style method 1; unpack the axes
+        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, sharey=True)
+        u_line = ax1.plot(time, u_diff, color="black")
+        u_zero_line = ax1.plot(time, zero, color="black", linestyle="--")
+        ax1.set_title("Dynamic Trajectory Zonal Speeds")
+
+        v_line = ax2.plot(time, v_diff, color="black")
+        v_zero_line = ax2.plot(time, zero, color="black", linestyle="--")
+        ax2.set_title("Dynamic Trajectory Meridional Speeds")
+
+        plt.xlabel("Time in days")
+        plt.ylabel("Velocity in m/s")
         plt.savefig("plots/force_trajectory_speeds.png")
         plt.show()
         return ax1
 
     def save_data(self):
         header_string = (
-            "Trajectories to test the save_data() function.\n"
             "Calculation scheme is {0}.\n"
             "Timestep is {1} seconds.\n"
-            "Trajectories calculated for a 5 x 5 grid of parcels between"
+            "Trajectories calculated for a 5 x 5 grid of parcels between "
             "41, -72 and " 
             "42, -71.".format(self.parcel.scheme, self.parcel.timestep))
         lat_title = ("trajectory_data/"
@@ -534,4 +547,4 @@ p = Parcel(atmo, [41, 41, 42, 42],
 tra = Trajectory(atmo, p)
 
 # Save data to text files
-tra.save_data()
+tra.graph()
