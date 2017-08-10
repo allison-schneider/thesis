@@ -315,8 +315,8 @@ class Parcel:
 
                     # Get friction terms
                     r_f = 10e-6
-                    friction_u = f * (initial_v - v_g) - r_f * (initial_u - u_g)
-                    friction_v = f * (initial_u - u_g) - r_f * (initial_v - v_g)
+                    friction_u = - r_f * (initial_u - u_g)
+                    friction_v = - r_f * (initial_v - v_g)
 
                     # Find guess_u and guess_v at guess position after timestep
                     du_dt = ((f * initial_v)
@@ -443,7 +443,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
+    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=True):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -454,13 +454,15 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        #plt.title("Dynamic Trajectories\n"
-        #          "2 minute timestep")
+        plt.title("Kinematic Trajectories \n"
+                  "3 minute timestep")
         map.plot(self.mean_longitudes, self.mean_latitudes,
                  latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename = "plots/test.png"
-            plt.savefig(filename)
+            filename1 = "plots/test.png"
+            filename2 = "plots/test.svg"
+            plt.savefig(filename1)
+            plt.savefig(filename2)
 
         plt.show()
         return map
@@ -547,4 +549,4 @@ p = Parcel(atmo, [41, 41, 42, 42],
 tra = Trajectory(atmo, p)
 
 # Save data to text files
-tra.graph()
+tra.save_data()
