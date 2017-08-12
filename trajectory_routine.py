@@ -443,7 +443,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=True):
+    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -504,19 +504,20 @@ class Trajectory:
             "Calculation scheme is {0}.\n"
             "Timestep is {1} seconds.\n"
             "Trajectories calculated for a 5 x 5 grid of parcels between "
-            "41, -72 and " 
-            "42, -71.".format(self.parcel.scheme, self.parcel.timestep))
+            "41, -72 and 42, -71.\n"
+            "Number of parcels is {2}.".format(self.parcel.scheme, 
+                        self.parcel.timestep, np.size(self.latitudes[0,:])))
         lat_title = ("trajectory_data/"
-                    "latitudes_{0}_{1}.txt".format(self.parcel.scheme,
+                    "test_latitudes_{0}_{1}.txt".format(self.parcel.scheme,
                                                 self.parcel.timestep))
         lon_title = ("trajectory_data/"
-                    "longitudes_{0}_{1}.txt".format(self.parcel.scheme,
+                    "test_longitudes_{0}_{1}.txt".format(self.parcel.scheme,
                                                 self.parcel.timestep))
         u_title = ("trajectory_data/"
-                    "trajectory_u_{0}_{1}.txt".format(self.parcel.scheme,
+                    "test_trajectory_u_{0}_{1}.txt".format(self.parcel.scheme,
                                                 self.parcel.timestep))
         v_title = ("trajectory_data/"
-                    "trajectory_v_{0}_{1}.txt".format(self.parcel.scheme,
+                    "test_trajectory_v_{0}_{1}.txt".format(self.parcel.scheme,
                                                 self.parcel.timestep))
         np.savetxt(lat_title, self.latitudes, header=header_string)
         np.savetxt(lon_title, self.longitudes, header=header_string)
@@ -542,8 +543,8 @@ scheme_arg = sys.argv[1]
 timestep_arg = int(sys.argv[2])
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, [41, 41, 42, 42],
-                 [-71, -72, -71, -72], 
+p = Parcel(atmo, lat,
+                 lon, 
                  scheme_arg,
                  timestep_arg)
 tra = Trajectory(atmo, p)

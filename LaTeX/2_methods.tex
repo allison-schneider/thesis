@@ -64,6 +64,8 @@ r &= R_E + Z_g \\[2ex]
 \frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}} \label{eq:vposition}
 \end{align}
 
+The initial conditions for these equations (latitude and longitude) are specified by choosing the initial position of a parcel.
+
 \section{Dynamic Equations}
 In the dynamic model, velocity at the next timestep was calculated using advection equations which incorporate the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
 The Coriolis parameter $f$ measures the effect of the Earth's rotation speed $\Omega$ at a given latitude $\varphi$.
@@ -77,6 +79,13 @@ f &= 2 \Omega \sin{\varphi} \\[2ex]
 
 Equations \ref{eq:uvelocitygeo} and \ref{eq:vvelocitygeo} are equations \ref{eq:uvelocity} and \ref{eq:vvelocity} transformed from Cartesian to geographic coordinates. 
 After velocity at the next timestep is determined, the dynamic model also uses kinematic equations \ref{eq:uposition} and \ref{eq:vposition} to find the parcel position.
+This system of four differential equations requires four initial conditions: initial zonal and meridional velocities are needed in addition to initial latitude and longitude.
+Initial velocity components are set as the geostrophic wind at the initial position,
+
+\begin{align}
+    u_g &= \frac{-g}{f} \frac{\partial Z_g}{\partial \varphi} \frac{1}{r} \\
+    v_g &= \frac{g}{f} \frac{\partial Z_g}{\partial \lambda} \frac{1}{r \cos{\varphi}}.
+\end{align}
 
 \section{Mean Trajectory and RMSE}
 For an ensemble of parcels, variance among trajectories over time was measured by calculating the mean trajectory: the path of an imaginary parcel whose position at each timestep is the average of the parcels' positions.

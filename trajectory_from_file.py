@@ -5,22 +5,54 @@ from mpl_toolkits.basemap import Basemap
 # Global variables
 EARTH_RADIUS = 6371e3    # meters
 
+def haversine(latitude1, longitude1, latitude2, longitude2):
+    """ Great-circle distance between two points. Latitudes and longitudes
+    are 1D NumPy arrays. 
+    Returns a 1D array of distances between two trajectories. """
+
+    lat1 = np.radians(latitude1)
+    lat2 = np.radians(latitude2)
+    lon1 = np.radians(longitude1)
+    lon2 = np.radians(longitude2)
+
+    dlat = np.absolute(lat2 - lat1)
+    dlon = np.absolute(lon2 - lon1)
+
+    a = (np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) 
+        * np.sin(dlon / 2) ** 2)
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a)) 
+    d = EARTH_RADIUS * c    # distance in meters
+    return d
+
 class Trajectory:
     """ Version of trajectory class for analyzing trajectory data from text files."""
     
-    def __init__(self):       
-        self.scheme = "force"
+    def __init__(self, 
+                 source="hysplit"):       # 'model' or 'hysplit'       
+        self.scheme = "friction"
         self.timestep = 180
+        self.source = source
 
-        lat_title = ("trajectory_data/latitudes.txt")
-        lon_title = ("trajectory_data/longitudes.txt")
-        u_title = ("trajectory_data/trajectory_u.txt")
-        v_title = ("trajectory_data/trajectory_v.txt")
+        if source == "model":
+            lat_title = ("trajectory_data/latitudes_{0}_{1}.txt").format(
+                self.scheme, self.timestep)
+            lon_title = ("trajectory_data/longitudes_{0}_{1}.txt").format(
+                self.scheme, self.timestep)
+            u_title = ("trajectory_data/trajectory_u_{0}_{1}.txt").format(
+                self.scheme, self.timestep)
+            v_title = ("trajectory_data/trajectory_v_{0}_{1}.txt").format(
+               self.scheme, self.timestep)
 
-        self.latitudes = np.loadtxt(lat_title)
-        self.longitudes = np.loadtxt(lon_title)
-        self.trajectory_u = np.loadtxt(u_title)
-        self.trajectory_v = np.loadtxt(v_title)
+            self.latitudes = np.loadtxt(lat_title)
+            self.longitudes = np.loadtxt(lon_title)
+            self.trajectory_u = np.loadtxt(u_title)
+            self.trajectory_v = np.loadtxt(v_title)
+
+        if source == "hysplit":
+
+            self.latitudes, self.longitudes = self.load_hysplit()
+            self.trajectory_u = np.zeros_like(self.latitudes)
+            self.trajectory_v = np.zeros_like(self.longitudes)
 
         self.timestep = 180     # seconds
         # List of times for plotting
@@ -29,24 +61,26 @@ class Trajectory:
 
         self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
 
-    def haversine(self, latitude1, longitude1, latitude2, longitude2):
-        """ Great-circle distance between two points. Latitudes and longitudes
-        are 1D NumPy arrays. 
-        Returns a 1D array of distances between two trajectories. """
+    def load_hysplit(self):
+        # Get 1D lat and lon vectors from file
+        num_trajectories = 25
+        file = np.loadtxt("hysplit_3D_points.txt")
+        lat = file[:,9]
+        lon = file[:,10]
 
-        lat1 = np.radians(latitude1)
-        lat2 = np.radians(latitude2)
-        lon1 = np.radians(longitude1)
-        lon2 = np.radians(longitude2)
+        # Initialize latitude and longitude arrays
+        num_rows = np.size(lat) // num_trajectories
+        latitude = np.zeros((num_rows, num_trajectories))
+        longitude = np.zeros_like(latitude)
+        
+        # Separate lats and lons by trajectory
+        for i in np.arange(np.size(latitude)):
+            row = i // num_trajectories
+            column = i % num_trajectories
+            latitude[row, column] = lat[i]
+            longitude[row, column] = lon[i]
 
-        dlat = np.absolute(lat2 - lat1)
-        dlon = np.absolute(lon2 - lon1)
-
-        a = (np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) 
-            * np.sin(dlon / 2) ** 2)
-        c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a)) 
-        d = EARTH_RADIUS * c    # distance in meters
-        return d
+        return latitude, longitude
 
     def mean_trajectory(self):
         """ Get the centroid of parcels at each timestep. """
@@ -80,7 +114,7 @@ class Trajectory:
         mean_lon = np.repeat(self.mean_longitudes[:, np.newaxis], 
                              np.size(self.longitudes, axis=1), axis=1)
 
-        rms = np.sqrt(np.mean(self.haversine(mean_lat, mean_lon, 
+        rms = np.sqrt(np.mean(haversine(mean_lat, mean_lon, 
                               self.latitudes, self.longitudes) ** 2, axis=1))
 
         return rms
