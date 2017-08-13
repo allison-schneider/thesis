@@ -11,6 +11,12 @@ Draxler, R.~R. and Hess, G.~D. (1997).
 \newblock Description of the {HYSPLIT}\_4 modeling system.
 \newblock Technical report, NOAA Air Resources Laboratory, Silver Spring, MD.
 
+\bibitem[Kuo et~al., 1985]{kuo_accuracy_1985}
+Kuo, Y., Skumanich, M., Haagenson, P.~L., and Chang, J.~S. (1985).
+\newblock The {Accuracy} of {Trajectory} {Models} as {Revealed} by the
+  {Observing} {System} {Simulation} {Experiments}.
+\newblock {\em Monthly Weather Review}, 113:1852--1867.
+
 \bibitem[Marshall and Plumb, 2008]{marshall_atmosphere_2008}
 Marshall, J. and Plumb, R.~A. (2008).
 \newblock {\em Atmosphere, {Ocean}, and {Climate} {Dynamics}: {An}
@@ -18,10 +24,28 @@ Marshall, J. and Plumb, R.~A. (2008).
   {Series}}.
 \newblock Elsevier Academic Press.
 
+\bibitem[NOAA, 2004]{noaa_global_2004}
+NOAA (2004).
+\newblock Global {Data} {Assimilation} {System} ({GDAS}1) {Archive}
+  {Information}.
+\newblock Technical report, NOAA-Air Resources Laboratory, Silver Spring, MD.
+
 \bibitem[Petterssen, 1940]{petterssen_weather_1940}
 Petterssen, S. (1940).
 \newblock {\em Weather {Analysis} and {Forecasting}}.
 \newblock McGraw-Hill Book Company, New York.
+
+\bibitem[Rolph and Draxler, 1990]{rolph_sensitivity_1990}
+Rolph, G.~D. and Draxler, R.~R. (1990).
+\newblock Sensitivity of {Three}-{Dimensional} {Trajectories} to the {Spatial}
+  and {Temporal} {Densities} of the {Wind} {Field}.
+\newblock {\em Journal of Applied Meteorology}, 29:1043--1054.
+
+\bibitem[Rolph et~al., 2017]{rolph_real-time_2017}
+Rolph, G.~D., Stein, A.~F., and Stunder, B. J.~B. (2017).
+\newblock Real-time {Environmental} {Applications} and {Display} {sYstem}:
+  {READY}.
+\newblock {\em Environmental Modelling \& Software}, 95:210--228.
 
 \bibitem[Sinnott, 1984]{sinnott_virtues_1984}
 Sinnott, R.~W. (1984).
@@ -34,5 +58,11 @@ Stein, A.~F., Draxler, R.~R., Rolph, G.~D., Stunder, B. J.~B., Cohen, M.~D.,
 \newblock {NOAA}'s {HYSPLIT} {Atmospheric} {Transport} and {Dispersion}
   {Modeling} {System}.
 \newblock {\em Bulletin of the American Meteorological Society}, 96:2059--2077.
+
+\bibitem[Stohl, 1998]{stohl_computation_1998}
+Stohl, A. (1998).
+\newblock Computation, accuracy and applications of trajectories---a review and
+  bibliography.
+\newblock {\em Atmospheric Environment}, 32(6):947--966.
 
 \end{thebibliography}

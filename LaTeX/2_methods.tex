@@ -16,7 +16,7 @@ Data from the Global Forecast System (GFS), a weather forecast model produced by
 The dataset chosen was a ten day forecast, starting at 12:00:00 on February 21st, 2017, with predictions at intervals of three hours.
 Each file in the dataset contains atmospheric predictions for the beginning of a three-hour interval. 
 The values of atmospheric variables are predicted at each point on a latitude-longitude grid spanning the globe, with a spacing between gridpoints of 0.25 degree.
-Values are predicted for East-West and North-South wind speed components $u$ and $v$, as well as the geopotential height $Z_g$ of the 250 millibar pressure level.
+Values are predicted for East-West and North-South wind speed components $u$ and $v$, as well as the geopotential height $Z_g$ of the 250 hectopascal (hPa) pressure level.
 
 \section{Linear Interpolation}
 Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables at positions between the gridded values provided by GFS. 
@@ -30,16 +30,16 @@ The velocity at a given timestep is taken to be the average of the velocity at t
 
 The first guess position $\vec{P}' (t + \Delta t)$ is 
 \begin{align}
-\vec{P}' (t + \Delta t) = \vec{P}(t) + \vec{V} (\vec{P}, t) \Delta t
+    \vec{P}' (t + \Delta t) = \vec{P}(t) + \vec{V} (\vec{P}, t) \Delta t
 \end{align}
 
 and the final position $\vec{P} (t + \Delta t)$ is
 \begin{align}
-\vec{P} (t + \Delta t) = \vec{P} (t) + \frac{1}{2} \left [ \vec{V} (\vec{P}, t) + \vec{V} (\vec{P'}, t + \Delta t) \right ] \Delta t
+    \vec{P} (t + \Delta t) = \vec{P} (t) + \frac{1}{2} \left [ \vec{V} (\vec{P}, t) + \vec{V} (\vec{P'}, t + \Delta t) \right ] \Delta t
 \end{align}
 
 where $\vec{P}$ is a position vector with latitude and longitude components, and $\vec{V}$ a velocity vector with $u$ and $v$ wind speeds \cite{draxler_description_1997}.
-This integration method is used by HYSPLIT and a number of other trajectory models, including FLEXPART, LAGRANTO, and STILT \cite{stein_noaas_2015} \cite{bowman_input_2013}. 
+This integration method is used by HYSPLIT and a number of other trajectory models, including FLEXPART, LAGRANTO, and STILT \cite{bowman_input_2013, stein_noaas_2015} 
 For trajectories calculated from interpolated gridded wind velocities, higher order integration schemes do not add precision \cite{draxler_description_1997}.  
 
 \section{Constant Timestep}
@@ -47,7 +47,7 @@ The timestep for integration was three minutes, with the timestep throughout the
 To save computation, HYSPLIT uses a dynamic timestep, varying from one minute to one hour, computed to satisfy
 
 \begin{align}
-U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-units}] 
+    U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-units}] 
 \end{align}
 
 \cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares during a single timestep, which maximizes the accuracy of the calculation. 
@@ -59,9 +59,9 @@ Since GFS provides $u$ and $v$ values in meters per second, the equations conver
 The $r$ value of a parcel is taken to be the radius of the Earth $R_E$ plus the parcel's geopotential height $Z_g$.
 
 \begin{align}
-r &= R_E + Z_g \\[2ex]
-\frac{d \varphi}{dt} &= \frac{v}{r} \label{eq:uposition} \\
-\frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}} \label{eq:vposition}
+    r &= R_E + Z_g \\[2ex]
+    \frac{d \varphi}{dt} &= \frac{v}{r} \label{eq:uposition} \\
+    \frac{d \lambda}{dt} &= \frac{u}{r \cos{\varphi}} \label{eq:vposition}
 \end{align}
 
 The initial conditions for these equations (latitude and longitude) are specified by choosing the initial position of a parcel.
@@ -72,9 +72,9 @@ The Coriolis parameter $f$ measures the effect of the Earth's rotation speed $\O
 Standard acceleration due to gravity is $g$. 
 
 \begin{align}
-f &= 2 \Omega \sin{\varphi} \\[2ex]
-\frac{du}{dt} &= fv - \frac{g}{r \cos{\varphi}} \frac{\partial Z_g}{\partial \lambda} \label{eq:uvelocitygeo}\\
-\frac{dv}{dt} &= -fu -\frac{g}{r} \frac{\partial Z_g}{\partial \varphi} \label{eq:vvelocitygeo}
+    f &= 2 \Omega \sin{\varphi} \\[2ex]
+    \frac{du}{dt} &= fv - \frac{g}{r \cos{\varphi}} \frac{\partial Z_g}{\partial \lambda} \label{eq:uvelocitygeo}\\
+    \frac{dv}{dt} &= -fu -\frac{g}{r} \frac{\partial Z_g}{\partial \varphi} \label{eq:vvelocitygeo}
 \end{align}
 
 Equations \ref{eq:uvelocitygeo} and \ref{eq:vvelocitygeo} are equations \ref{eq:uvelocity} and \ref{eq:vvelocity} transformed from Cartesian to geographic coordinates. 
@@ -87,34 +87,74 @@ Initial velocity components are set as the geostrophic wind at the initial posit
     v_g &= \frac{g}{f} \frac{\partial Z_g}{\partial \lambda} \frac{1}{r \cos{\varphi}}.
 \end{align}
 
-\section{Mean Trajectory and RMSE}
+\section{Root-mean-square Error Measures Precision}
 For an ensemble of parcels, variance among trajectories over time was measured by calculating the mean trajectory: the path of an imaginary parcel whose position at each timestep is the average of the parcels' positions.
 At each timestep, the root-mean-square error (RMSE) is the square root of the average squared value of each particle's distance from the mean trajectory.
 
 The mean trajectory was determined by finding the centroids of parcel positions at each timestep after converting trajectory latitudes and longitudes to Cartesian coordinates. 
-NumPy's \texttt{arctan2(y,x)} is a two-argument arctangent function with a range of $(-\pi, \pi]$.
+NumPy's \texttt{arctan2(y,x)} is a two-argument arctangent function with a range of $(-\pi, \pi]$, $N$ is the number of parcels, and $n$ is the parcel index.
 
 \begin{align}
-x &= \cos \varphi \cos \lambda & \bar{x} &= \frac{x_1 + x_2 + \cdots + x_n}{n} \\
-y &= \cos \varphi \sin \lambda & \bar{y} &= \frac{y_1 + y_2 + \cdots + y_n}{n} \\
-z &= \sin \varphi & \bar{z} &= \frac{z_1 + z_2 + \cdots + z_n}{n} \\[2ex]
-\bar{\lambda} &= \arctantwo{(\bar{y},\bar{x})} \\
-\bar{\varphi} &= \arctantwo{(\bar{z}, \sqrt{\bar{x}^2 + \bar{y}^2})}
+    x_n &= \cos \varphi_n \cos \lambda_n & \bar{x} &= \frac{1}{N} \sum_{n = 1}^{N} x_n \\
+    y_n &= \cos \varphi_n \sin \lambda_n & \bar{y} &= \frac{1}{N} \sum_{n = 1}^{N} y_n \\
+    z_n &= \sin \varphi_n & \bar{z} &= \frac{1}{N} \sum_{n = 1}^{N} z_n \\
+    \bar{\lambda} &= \arctantwo{(\bar{y},\bar{x})} \\
+    \bar{\varphi} &= \arctantwo{(\bar{z}, \sqrt{\bar{x}^2 + \bar{y}^2})}
 \end{align}
 
-The distance $d$ between each parcel (with position $\varphi_i, \lambda_i$) and the mean parcel was calculated with the haversine formula
+The distance $d$ between each parcel (with position $\varphi_n, \lambda_n$) and the mean parcel was calculated with the haversine formula
 
 \begin{align}
-\Delta \varphi_i &= | \varphi_i - \bar{\varphi}| \\
-\Delta \lambda_i &= |\lambda_i - \bar{\lambda}| \\
-a_i &= \sin^2 \left ( \frac{\Delta \varphi}{2} \right ) + \cos{\varphi_1}  \cos{\varphi_2} \sin^2 \left ( \frac{\Delta \lambda}{2} \right ) \\
-c_i &= 2 \cdot \arctantwo{(\sqrt{a}, \sqrt{1 - a})} \\
-d_i &= R_E \cdot c
+    \Delta \varphi_n &= | \varphi_n - \bar{\varphi}| \label{eq:delta_lat} \\
+    \Delta \lambda_n &= |\lambda_n - \bar{\lambda}| \label{eq:delta_lon} \\
+    a_n &= \sin^2 \left ( \frac{\Delta \varphi_n}{2} \right ) + \cos{\varphi_n}  \cos{\bar{\varphi}} \sin^2 \left ( \frac{\Delta \lambda_n}{2} \right ) \\
+    c_n &= 2 \cdot \arctantwo{(\sqrt{a_n}, \sqrt{1 - a_n})} \\
+    d_n &= R_E \cdot c_n
 \end{align}
 
 which is accurate and well-conditioned for small angles \cite{sinnott_virtues_1984}. 
 The RMSE at each timestep is calculated using the distance between each parcel and the mean parcel.
 
 \begin{align}
-\text{RMSE} = \sqrt{\frac{{d_1}^2 + {d_2}^2 + \cdots + {d_n}^2}{n}}
+    \RMSE{(t)} = \sqrt{ \sum_{n = 1}^{N} \frac{{d_n(t)}^2}{N} }
 \end{align}
+
+\section{Absolute and Relative Horizontal Transport Deviation Measure Accuracy}
+
+Because the RMSE uses the mean trajectory as a reference value, it measures variance among trajectories of nearby parcels within a model.
+To compare trajectories between models, however, previous work has defined the absolute and relative horizontal transport deviation measures (AHTD and RHTD) \cite{stohl_computation_1998}. 
+In this study, the AHTD is defined as
+
+\begin{align}
+    \AHTD{(t)} = \frac{1}{N} \sqrt{ \sum_{n = 1}^{N} {d_n(t)}^2 }
+\end{align}
+This is similar to the RMSE, but the factor of $\frac{1}{N}$ has been moved outside the square root to agree with the standard definition \cite{kuo_accuracy_1985, rolph_sensitivity_1990}.
+The values for $d_n$ are calculated as in the RMSE, with the mean latitude $\bar{\varphi}$ and longitude $\bar{\lambda}$ in Equations \ref{eq:delta_lat} and \ref{eq:delta_lon} replaced by the latitude and longitude of a reference trajectory.
+The RHTD is the AHTD normalized by a length $L_H$.
+
+\begin{align}
+    \RHTD{(t)} = \frac{\AHTD{(t)}}{L_H}
+\end{align}
+ 
+In this study, $L_H$ is defined as in Rolph and Draxler as the mean absolute horizontal travel distance of the reference trajectories,
+
+\begin{align}
+    L_H = \frac{1}{N} \sum_{n = 1}^{N} \sqrt{ \sum_{t = \Delta t}^{T} {d_n(t)}^2}
+\end{align}
+
+although other definitions of $L_H$ have been used [1990].
+Here $\Delta t$ is the timestep and $T$ is the total trajectory time.
+Again $d_n$ is calculated as in the RMSE, but with Equations \ref{eq:delta_lat} and \ref{eq:delta_lon} replaced by the difference between positions of a single parcel at two different timesteps:
+
+\begin{align}
+    \Delta \varphi_n &= | \varphi_n (t) - \varphi_n (t - \Delta t) | \\
+    \Delta \lambda_n &= |\lambda_n (t) - \lambda_n (t - \Delta t)|.
+\end{align}
+
+Although the ``true'' trajectories of parcels from the ten-day study period are unobservable, reference trajectories which approximate them can be calculated.
+Reference trajectories were obtained using NOAA's Real-time Environmental Applications and Display sYstem (READY), a tool which uses the HYSPLIT model to generate parcel trajectories \cite{rolph_real-time_2017}.
+Analysis data from the Global Data Assimilation System (GDAS), with a grid spacing of 0.5 degree and time resolution of three hours, was selected as the source of wind field information \cite{noaa_global_2004}.
+Trajectories were calculated using HYSPLIT's vertical transport modeling capability, in contrast to the isobaric assumption of this study's kinematic and dynamic models. 
+Fully three-dimensional trajectories and analysis data are more accurate than isobaric trajectories and forecast data, 
+so the reference trajectories will be closer to the "true" parcel trajectories than those calculated by the kinematic and dynamic models.  \cite{stohl_computation_1998}.
+  
