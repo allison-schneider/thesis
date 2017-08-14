@@ -495,7 +495,7 @@ class Trajectory:
 
         plt.xlabel("Time in days")
         plt.ylabel("Velocity in m/s")
-        plt.savefig("plots/force_trajectory_speeds.png")
+        plt.savefig("plots/test.png")
         plt.show()
         return ax1
 
@@ -550,4 +550,4 @@ p = Parcel(atmo, lat,
 tra = Trajectory(atmo, p)
 
 # Save data to text files
-tra.save_data()
+#tra.save_data()

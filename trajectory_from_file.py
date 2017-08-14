@@ -28,9 +28,9 @@ class Trajectory:
     """ Version of trajectory class for analyzing trajectory data from text files."""
     
     def __init__(self, 
-                 source="hysplit"):       # 'model' or 'hysplit'       
-        self.scheme = "friction"
-        self.timestep = 180
+                 source="model"):       # 'model' or 'hysplit'       
+        self.scheme = "grid"
+        self.timestep = 20
         self.source = source
 
         if source == "model":
@@ -54,7 +54,6 @@ class Trajectory:
             self.trajectory_u = np.zeros_like(self.latitudes)
             self.trajectory_v = np.zeros_like(self.longitudes)
 
-        self.timestep = 180     # seconds
         # List of times for plotting
         self.times = np.arange(np.size(self.latitudes[:,0])) * (self.timestep 
                                                           / 60 ** 2)
@@ -130,28 +129,47 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        map.plot(self.mean_longitudes, self.mean_latitudes,
-                 latlon=True, zorder=2, color='blue')
+        #map.plot(self.mean_longitudes, self.mean_latitudes,
+        #         latlon=True, zorder=2, color='green')
         if savefig == True:
-            filename = "plots/inertial.png"
-            plt.savefig(filename)
+            filename1 = "plots/force_180.eps"
+            plt.savefig(filename1)
 
         plt.show()
         return map
 
     def graph_speed(self):
         """ Graph of u and v along the trajectory. """
+        lat_length = 111.32e3       # Length of a degree of latitude in meters
+        time = np.arange(np.size(self.latitudes[:,0])) * (self.timestep 
+                                                           / (60 ** 2 * 24))
+        v_threshold = ((0.75 * 0.25 * lat_length) / self.timestep 
+                        * np.ones(np.size(time)))
+        v_threshold = v_threshold[:, np.newaxis]
+        v_diff = v_threshold - self.trajectory_v
 
-        fig = plt.figure()
-        ax1 = fig.add_subplot(1, 1, 1)
+        u_threshold = (0.75 * 0.25 * lat_length 
+            * np.cos(np.radians(self.latitudes))) / self.timestep
+        u_diff = u_threshold - self.trajectory_u
 
-        u_line, = ax1.plot(self.times, self.trajectory_u[:,0], label="u")
-        v_line, = ax1.plot(self.times, self.trajectory_v[:,0], label="v")
-        ax1.legend()
-        ax1.set_title("Force Trajectory Speeds")
-        ax1.set_xlabel("Time (hours)")
-        ax1.set_ylabel("Velocity (m/s)")
-        #plt.savefig("plots/force_trajectory_speeds.png")
+        zero = np.zeros(np.size(time))
+        
+        # new style method 1; unpack the axes
+        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, sharey=True)
+        u_line = ax1.plot(time, u_diff, color="black", linewidth=1)
+        u_zero_line = ax1.plot(time, zero, color="black", linestyle="--",
+                                linewidth=2)
+        ax1.set_title("Dynamic Trajectory Zonal Speeds")
+
+        v_line = ax2.plot(time, v_diff, color="black", linewidth=1)
+        v_zero_line = ax2.plot(time, zero, color="black", linestyle="--",
+                                linewidth=2)
+        ax2.set_title("Dynamic Trajectory Meridional Speeds")
+
+        plt.xlabel("Time in days")
+        plt.ylabel("                                         " #label padding
+            "Velocity in m/s")
+        #plt.savefig("plots/timestep_friction_120.eps")
         plt.show()
         return ax1
 
@@ -172,4 +190,4 @@ class Trajectory:
         return ax2
 
 tra = Trajectory()
-tra.plot_ortho()
+tra.graph_speed()
