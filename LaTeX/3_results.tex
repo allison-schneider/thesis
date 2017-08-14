@@ -6,9 +6,11 @@
 One approach, used by Stohl and Seibert, is to take a weighted average of the wind speeds from the dynamic model and interpolated speeds from a kinematic model at each timestep.
 Another approach is to change the frictionless assumption of the dynamical model.
 [Why does the force of friction damp oscillations?]
-With an added friction term, Equations \ref{eq:uvelocitygeo} and \ref{eq:vvelocitygeo} 
+Using the definition of geostrophic wind in Equations \ref{eq:u_g} and \ref{eq:v_g}, Equations \ref{eq:uvelocitygeo} and \ref{eq:vvelocitygeo} with an added friction term become
 
 \begin{align}
-    1   
+    \frac{du}{dt} &= f (v - v_g) - r_f (u - u_g) \\
+    \frac{dv}{dt} &= -f (u - u_g) - r_f (v - v_g).   
 \end{align}
 
+The friction parameter $r_f$ is analogous to the Coriolis parameter: it has units of second$^{-1}$ and is a measure of the force of friction.
