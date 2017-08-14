@@ -65,4 +65,11 @@ Stohl, A. (1998).
   bibliography.
 \newblock {\em Atmospheric Environment}, 32(6):947--966.
 
+\bibitem[Stohl and Seibert, 1998]{stohl_accuracy_1998}
+Stohl, A. and Seibert, P. (1998).
+\newblock Accuracy of trajectories as determined from the conservation of
+  meteorological tracers.
+\newblock {\em Quarterly Journal of the Royal Meteorological Society},
+  124:1465--1484.
+
 \end{thebibliography}

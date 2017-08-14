@@ -10,3 +10,5 @@
 \contentsline {section}{\numberline {2.6}Dynamic Equations}{18}
 \contentsline {section}{\numberline {2.7}Root-mean-square Error Measures Precision}{18}
 \contentsline {section}{\numberline {2.8}Absolute and Relative Horizontal Transport Deviation Measure Accuracy}{20}
+\contentsline {chapter}{\numberline {3}Results}{23}
+\contentsline {section}{\numberline {3.1}Adding Friction to the Dynamic Model}{23}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  13 AUG 2017 19:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  13 AUG 2017 20:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -93,18 +93,30 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 LaTeX Info: Redefining \[ on input line 2665.
 LaTeX Info: Redefining \] on input line 2666.
 )
+(/usr/local/texlive/2015/texmf-dist/tex/latex/titlesec/titlesec.sty
+Package: titlesec 2011/12/15 v2.10.0 Sectioning titles
+\ttl@box=\box30
+\beforetitleunit=\skip46
+\aftertitleunit=\skip47
+\ttl@plus=\dimen112
+\ttl@minus=\dimen113
+\ttl@toksa=\toks19
+\titlewidth=\dimen114
+\titlewidthlast=\dimen115
+\titlewidthfirst=\dimen116
+)
 (./lgrind.sty
 Package: lgrind 1997/01/30 v3.4 LGrind environment and supporting stuff
 \lc@unt=\count102
 \ln@xt=\count103
 \LGnuminterval=\count104
-\LGindent=\skip46
-\LGsloppy=\skip47
-\procbox=\box30
-\ls@far=\box31
-\tb@x=\box32
-\TBw@d=\dimen112
-\@ts=\dimen113
+\LGindent=\skip48
+\LGsloppy=\skip49
+\procbox=\box31
+\ls@far=\box32
+\tb@x=\box33
+\TBw@d=\dimen117
+\@ts=\dimen118
 ) (/usr/local/texlive/2015/texmf-dist/tex/latex/cmap/cmap.sty
 Package: cmap 2008/03/06 v1.0h CMap support: searchable PDF
 )
@@ -116,21 +128,21 @@ File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 )<<t1.cmap>>)
 (./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux)
-(./2_methods.aux) (./chap2.aux) (./biblio.aux))
+(./2_methods.aux) (./3_results.aux) (./chap2.aux) (./biblio.aux))
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
 \openout2 = `cover.aux'.
 
  (./cover.tex
@@ -186,23 +198,24 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <14.4> not available
 
 ]
 Chapter 1.
-[13]) [14]
+
+Underfull \vbox (badness 2538) has occurred while \output is active []
+
+ [13])
+[14]
 \openout2 = `2_methods.aux'.
 
  (./2_methods.tex
 Chapter 2.
 
-Underfull \vbox (badness 1472) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [15
 
 
 
 ]
-Underfull \vbox (badness 1824) has occurred while \output is active []
-
- [16]
-[17] [18]
+[16] [17] [18]
 LaTeX Font Info:    Try loading font information for T1+cmtt on input line 95.
  (/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
@@ -219,13 +232,22 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [20])
 [21]
+\openout2 = `3_results.aux'.
+
+ (./3_results.tex [22
+
+
+
+]
+Chapter 3.
+) [23]
 \openout2 = `chap2.aux'.
 
 
 No file chap2.tex.
 \openout2 = `biblio.aux'.
 
-(./biblio.tex (./main.bbl [22
+(./biblio.tex (./main.bbl [24
 
 
 
@@ -237,39 +259,39 @@ Underfull \hbox (badness 2126) in paragraph at lines 63--67
 ons of
  []
 
-[23])) [24] (./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux)
-(./2_methods.aux) (./chap2.aux) (./biblio.aux)) ) 
+[25])) [26] (./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux)
+(./2_methods.aux) (./3_results.aux) (./chap2.aux) (./biblio.aux)) ) 
 Here is how much of TeX's memory you used:
- 1444 strings out of 493089
- 16189 string characters out of 6134842
- 75499 words of memory out of 5000000
- 4863 multiletter control sequences out of 15000+600000
+ 1721 strings out of 493089
+ 19741 string characters out of 6134842
+ 80956 words of memory out of 5000000
+ 5129 multiletter control sequences out of 15000+600000
  16777 words of font info for 40 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 28i,11n,21p,313b,247s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2015/texmf
--dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local/texlive/2015/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2015/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2015/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2015/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015/texmf-dist/font
-s/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2015/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2015/texmf-dist/fonts/type
-1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/
-public/cm-super/sfbx1440.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/pu
-blic/cm-super/sfbx1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/publ
-ic/cm-super/sfbx2488.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public
-/cm-super/sfrm1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/c
-m-super/sfrm1440.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-
-super/sfrm1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-su
-per/sfti1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-supe
-r/sftt1200.pfb>
-Output written on main.pdf (24 pages, 269020 bytes).
+ 28i,11n,36p,313b,251s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/
+texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local/te
+xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/tex
+live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texl
+ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texliv
+e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/
+2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/20
+15/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2015/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2015/tex
+mf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2015/texmf
+-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2015/texmf-d
+ist/fonts/type1/public/cm-super/sfbx1728.pfb></usr/local/texlive/2015/texmf-dis
+t/fonts/type1/public/cm-super/sfbx2488.pfb></usr/local/texlive/2015/texmf-dist/
+fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2015/texmf-dist/fo
+nts/type1/public/cm-super/sfrm1440.pfb></usr/local/texlive/2015/texmf-dist/font
+s/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2015/texmf-dist/fonts/
+type1/public/cm-super/sfti1200.pfb></usr/local/texlive/2015/texmf-dist/fonts/ty
+pe1/public/cm-super/sftt1200.pfb>
+Output written on main.pdf (26 pages, 271771 bytes).
 PDF statistics:
- 156 PDF objects out of 1000 (max. 8388607)
- 106 compressed objects within 2 object streams
+ 163 PDF objects out of 1000 (max. 8388607)
+ 111 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -9,7 +9,7 @@
 \section{The Aerocene Project}
 
 \section{Acceleration from Geopotential Height} \label{sec:acceleration}
-In an isobaric trajectory model, the acceleration of a parcel of air at a given pressure level can be determined from its velocity, latitude, and geopotential height.
+In a dynamic isobaric trajectory model, the acceleration of a parcel of air at a given pressure level can be determined from its velocity, latitude, and geopotential height.
 The geopotential height $Z_g$ of a surface of pressure $p$ above mean sea level is 
 
 \begin{align}
@@ -32,7 +32,7 @@ The full equation for acceleration of an air parcel in the atmosphere is
 \end{align}
 
 where $\vec{u}$ is the wind velocity vector, $\rho$ is the density of air, $f$ is the Coriolis parameter, and $\mathcal{F}$ is the force of friction \cite{marshall_atmosphere_2008}. 
-In an isobaric trajectory model, the gradient of pressure is zero, and the force of friction is assumed to be negligible at the studied pressure level.
+Due to the isobaric assumption, the gradient of pressure is zero, and the force of friction is assumed to be negligible at the studied pressure level.
 Using these assumptions and the relation in \ref{eq:geopotential}, equation \ref{eq:full} becomes
 
 \begin{align}

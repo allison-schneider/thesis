@@ -5,48 +5,49 @@ A level-1 auxiliary file: cover.aux
 A level-1 auxiliary file: contents.aux
 A level-1 auxiliary file: 1_introduction.aux
 A level-1 auxiliary file: 2_methods.aux
+A level-1 auxiliary file: 3_results.aux
 A level-1 auxiliary file: chap2.aux
 A level-1 auxiliary file: biblio.aux
 The style file: apalike.bst
 Database file #1: main.bib
-You've used 11 entries,
+You've used 12 entries,
             1935 wiz_defined-function locations,
-            551 strings with 5602 characters,
-and the built_in function-call counts, 4242 in all, are:
-= -- 418
-> -- 169
-< -- 8
-+ -- 58
-- -- 56
-* -- 366
-:= -- 758
-add.period$ -- 33
-call.type$ -- 11
-change.case$ -- 83
-chr.to.int$ -- 11
-cite$ -- 11
-duplicate$ -- 149
-empty$ -- 294
-format.name$ -- 73
-if$ -- 810
+            558 strings with 5811 characters,
+and the built_in function-call counts, 4659 in all, are:
+= -- 462
+> -- 182
+< -- 9
++ -- 62
+- -- 60
+* -- 402
+:= -- 828
+add.period$ -- 36
+call.type$ -- 12
+change.case$ -- 90
+chr.to.int$ -- 12
+cite$ -- 12
+duplicate$ -- 163
+empty$ -- 325
+format.name$ -- 80
+if$ -- 892
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 11
-newline$ -- 58
-num.names$ -- 33
-pop$ -- 62
+missing$ -- 12
+newline$ -- 63
+num.names$ -- 36
+pop$ -- 66
 preamble$ -- 1
-purify$ -- 83
+purify$ -- 90
 quote$ -- 0
-skip$ -- 112
+skip$ -- 123
 stack$ -- 0
-substring$ -- 317
-swap$ -- 11
+substring$ -- 360
+swap$ -- 12
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 62
+type$ -- 68
 warning$ -- 0
-while$ -- 35
+while$ -- 39
 width$ -- 0
-write$ -- 147
+write$ -- 160

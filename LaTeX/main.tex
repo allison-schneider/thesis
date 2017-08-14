@@ -28,7 +28,8 @@
 \documentclass[12pt,twoside]{mitthesis}
 % My packages
 \usepackage{amsmath}
-\DeclareMathOperator{\arctantwo}{arctan2}
+\usepackage{titlesec}
+
 % Template packages
 \usepackage{lgrind}
 %% These have been added at the request of the MIT Libraries, because
@@ -37,10 +38,14 @@
 \usepackage[T1]{fontenc}
 \pagestyle{plain} 
 
-% My definitions
+% My function definitions
+\DeclareMathOperator{\arctantwo}{arctan2}
 \DeclareMathOperator{\AHTD}{AHTD}
 \DeclareMathOperator{\RHTD}{RHTD}
 \DeclareMathOperator{\RMSE}{RMSE}
+
+% Custom title format using package titlesec
+\titleformat{\chapter}{\huge\bf}{\thechapter}{20pt}{\huge\bf}
 
 \begin{document}
 
@@ -53,6 +58,7 @@
 \include{contents}
 \include{1_introduction}
 \include{2_methods}
+\include{3_results}
 \include{chap2}
 \include{biblio}
 \end{document}
