@@ -206,32 +206,45 @@ class Trajectory:
         plt.show()
         return ax2
 
-# Graph u and v speeds for two schemes
-trajectory_friction = Trajectory(scheme="friction", timestep=180)
-trajectory_grid = Trajectory(scheme="grid", timestep=180)
+def speed_subplots():
+    """ Graph u and v speeds for two schemes. """
+    trajectory_friction = Trajectory(scheme="friction", timestep=180)
+    trajectory_grid = Trajectory(scheme="grid", timestep=180)
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True)
-(u_diff_grid, v_diff_grid, time) = trajectory_grid.threshold()
-(u_diff_friction, v_diff_friction, time) = trajectory_friction.threshold()
-zero = np.zeros(np.size(u_diff_grid[:,0]))
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True, 
+        figsize=(10, 6))
+    # add a big axis, hide frame
+    fig.add_subplot(111, frameon=False)
+    # hide tick and tick label of the big axes
+    plt.tick_params(labelcolor='none', top='off', bottom='off', left='off', right='off')
 
-ax1.plot(time, u_diff_grid, color="black", linewidth=1)
-ax1.plot(time, zero, color="black", linestyle="--", linewidth=2)
-ax1.set_title("Kinematic Trajectory Zonal Speeds")
+    (u_diff_grid, v_diff_grid, time) = trajectory_grid.threshold()
+    (u_diff_friction, v_diff_friction, time) = trajectory_friction.threshold()
+    zero = np.zeros(np.size(u_diff_grid[:,0]))
 
-ax2.plot(time, u_diff_friction, color="black", linewidth=1)
-ax2.plot(time, zero, color="black", linestyle="--", linewidth=2)
-ax2.set_title("Kinematic Trajectory Meridional Speeds")
+    ax1.plot(time, u_diff_grid, color="black", linewidth=1)
+    ax1.plot(time, zero, color="black", linestyle="--", linewidth=2)
+    ax1.set_title("Kinematic Trajectory Zonal Speeds", fontsize=12)
 
-ax3.plot(time, v_diff_grid, color="black", linewidth=1)
-ax3.plot(time, zero, color="black", linestyle="--", linewidth=2)
-ax3.set_title("Dynamic Trajectory Zonal Speeds")
+    ax2.plot(time, u_diff_friction, color="black", linewidth=1)
+    ax2.plot(time, zero, color="black", linestyle="--", linewidth=2)
+    ax2.set_title("Dynamic Trajectory Zonal Speeds", fontsize=12)
 
-ax4.plot(time, v_diff_friction, color="black", linewidth=1)
-ax4.plot(time, zero, color="black", linestyle="--", linewidth=2)
-ax4.set_title("Dynamic Trajectory Meridional Speeds")
+    ax3.plot(time, v_diff_grid, color="black", linewidth=1)
+    ax3.plot(time, zero, color="black", linestyle="--", linewidth=2)
+    ax3.set_title("Kinematic Trajectory Meridional Speeds", fontsize=12)
 
-plt.show()
+    ax4.plot(time, v_diff_friction, color="black", linewidth=1)
+    ax4.plot(time, zero, color="black", linestyle="--", linewidth=2)
+    ax4.set_title("Dynamic Trajectory Meridional Speeds", fontsize=12)
 
-tra = Trajectory(scheme="friction", timestep=180)
-tra.graph_speed()
+    plt.xlabel("Time in days")
+    plt.ylabel("Velocity in m/s")
+
+    plt.savefig("plots/speed_subplots_180.pdf")
+
+    plt.show()
+
+speed_subplots()
+#tra = Trajectory(scheme="friction", timestep=180)
+#tra.graph_speed()
