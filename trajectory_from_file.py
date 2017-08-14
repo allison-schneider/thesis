@@ -27,10 +27,12 @@ def haversine(latitude1, longitude1, latitude2, longitude2):
 class Trajectory:
     """ Version of trajectory class for analyzing trajectory data from text files."""
     
-    def __init__(self, 
+    def __init__(self,
+                 scheme="grid",
+                 timestep=180, 
                  source="model"):       # 'model' or 'hysplit'       
-        self.scheme = "grid"
-        self.timestep = 20
+        self.scheme = scheme
+        self.timestep = timestep
         self.source = source
 
         if source == "model":
@@ -170,8 +172,23 @@ class Trajectory:
         plt.ylabel("                                         " #label padding
             "Velocity in m/s")
         #plt.savefig("plots/timestep_friction_120.eps")
-        plt.show()
-        return ax1
+        #plt.show()
+        return ax1, ax2
+
+    def threshold(self):
+        """ Difference between model and HYSPLIT threshold speeds. """
+        lat_length = 111.32e3       # Length of a degree of latitude in meters
+        time = np.arange(np.size(self.latitudes[:,0])) * (self.timestep 
+                                                           / (60 ** 2 * 24))
+        v_threshold = ((0.75 * 0.25 * lat_length) / self.timestep 
+                        * np.ones(np.size(time)))
+        v_threshold = v_threshold[:, np.newaxis]
+        v_diff = v_threshold - self.trajectory_v
+
+        u_threshold = (0.75 * 0.25 * lat_length 
+            * np.cos(np.radians(self.latitudes))) / self.timestep
+        u_diff = u_threshold - self.trajectory_u
+        return u_diff, v_diff, time
 
     def graph_rms(self):
         """ Graph of rms distance from mean trajectory. """
@@ -189,5 +206,32 @@ class Trajectory:
         plt.show()
         return ax2
 
-tra = Trajectory()
+# Graph u and v speeds for two schemes
+trajectory_friction = Trajectory(scheme="friction", timestep=180)
+trajectory_grid = Trajectory(scheme="grid", timestep=180)
+
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True)
+(u_diff_grid, v_diff_grid, time) = trajectory_grid.threshold()
+(u_diff_friction, v_diff_friction, time) = trajectory_friction.threshold()
+zero = np.zeros(np.size(u_diff_grid[:,0]))
+
+ax1.plot(time, u_diff_grid, color="black", linewidth=1)
+ax1.plot(time, zero, color="black", linestyle="--", linewidth=2)
+ax1.set_title("Kinematic Trajectory Zonal Speeds")
+
+ax2.plot(time, u_diff_friction, color="black", linewidth=1)
+ax2.plot(time, zero, color="black", linestyle="--", linewidth=2)
+ax2.set_title("Kinematic Trajectory Meridional Speeds")
+
+ax3.plot(time, v_diff_grid, color="black", linewidth=1)
+ax3.plot(time, zero, color="black", linestyle="--", linewidth=2)
+ax3.set_title("Dynamic Trajectory Zonal Speeds")
+
+ax4.plot(time, v_diff_friction, color="black", linewidth=1)
+ax4.plot(time, zero, color="black", linestyle="--", linewidth=2)
+ax4.set_title("Dynamic Trajectory Meridional Speeds")
+
+plt.show()
+
+tra = Trajectory(scheme="friction", timestep=180)
 tra.graph_speed()
