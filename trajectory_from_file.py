@@ -208,8 +208,8 @@ class Trajectory:
 
 def speed_subplots():
     """ Graph u and v speeds for two schemes. """
-    trajectory_friction = Trajectory(scheme="friction", timestep=180)
-    trajectory_grid = Trajectory(scheme="grid", timestep=180)
+    trajectory_friction = Trajectory(scheme="friction", timestep=90)
+    trajectory_grid = Trajectory(scheme="grid", timestep=90)
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True, 
         figsize=(10, 6))
@@ -241,7 +241,7 @@ def speed_subplots():
     plt.xlabel("Time in days")
     plt.ylabel("Velocity in m/s")
 
-    plt.savefig("plots/speed_subplots_180.pdf")
+    plt.savefig("plots/speed_subplots_90.pdf")
 
     plt.show()
 
