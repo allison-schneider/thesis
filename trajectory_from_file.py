@@ -212,8 +212,8 @@ class Trajectory:
 
 def speed_subplots():
     """ Graph u and v speeds for two schemes. """
-    trajectory_friction = Trajectory(scheme="friction", timestep=90)
-    trajectory_grid = Trajectory(scheme="grid", timestep=90)
+    trajectory_friction = Trajectory(scheme="friction", timestep=90, source="model")
+    trajectory_grid = Trajectory(scheme="grid", timestep=90, source="model")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True, 
         figsize=(10, 6))
@@ -226,29 +226,31 @@ def speed_subplots():
     (u_diff_friction, v_diff_friction, time) = trajectory_friction.threshold()
     zero = np.zeros(np.size(u_diff_grid[:,0]))
 
-    ax1.plot(time, u_diff_grid, color="black", linewidth=1)
+    ax1.plot(time, -u_diff_grid, color="black", linewidth=1)
     ax1.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax1.set_title("Kinematic Trajectory Zonal Speeds", fontsize=12)
 
-    ax2.plot(time, u_diff_friction, color="black", linewidth=1)
+    ax2.plot(time, -u_diff_friction, color="black", linewidth=1)
     ax2.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax2.set_title("Dynamic Trajectory Zonal Speeds", fontsize=12)
 
-    ax3.plot(time, v_diff_grid, color="black", linewidth=1)
+    ax3.plot(time, -v_diff_grid, color="black", linewidth=1)
     ax3.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax3.set_title("Kinematic Trajectory Meridional Speeds", fontsize=12)
 
-    ax4.plot(time, v_diff_friction, color="black", linewidth=1)
+    ax4.plot(time, -v_diff_friction, color="black", linewidth=1)
     ax4.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax4.set_title("Dynamic Trajectory Meridional Speeds", fontsize=12)
 
     plt.xlabel("Time in days")
-    plt.ylabel("Velocity in m/s")
+    plt.ylabel("Velocity in m/s        ")
 
-    plt.savefig("test.pdf")
+    plt.savefig("plots/test.pdf")
 
     plt.show()
 
-tra = Trajectory(scheme="grid", timestep=90, source="hysplit", location="boston", vertical="isobaric")
-last_rms = tra.graph_rms()
-print("Last RMSE value is", last_rms)
+speed_subplots()
+
+#tra = Trajectory(scheme="grid", timestep=90, source="hysplit", location="boston", vertical="isobaric")
+#last_rms = tra.graph_rms()
+#print("Last RMSE value is", last_rms)
