@@ -367,11 +367,13 @@ class Trajectory:
     """ Lists of positions for each timestep along the trajectory. Contains 
     functions for multiple trajectory analysis and plotting. """
     def __init__(self,
-                 atmosphere,    # Instance of class Atmosphere
-                 parcel):       # Instance of class Parcel
+                 atmosphere,            # Instance of class Atmosphere
+                 parcel,                # Instance of class Parcel
+                 location="boston"):    # Parcel launch site
 
         self.parcel = parcel
         self.atmosphere = atmosphere
+        self.location = location
         self.latitudes, self.longitudes = np.degrees(
                                              self.parcel.calculate_trajectory())
 
@@ -503,51 +505,59 @@ class Trajectory:
         header_string = (
             "Calculation scheme is {0}.\n"
             "Timestep is {1} seconds.\n"
-            "Trajectories calculated for a 5 x 5 grid of parcels between "
-            "41, -72 and 42, -71.\n"
-            "Number of parcels is {2}.".format(self.parcel.scheme, 
-                        self.parcel.timestep, np.size(self.latitudes[0,:])))
+            "Trajectories calculated for a 5 x 5 grid of parcels in {2} \n"
+            "Number of parcels is {3}.".format(self.parcel.scheme, 
+             self.parcel.timestep, self.location, np.size(self.latitudes[0,:])))
         lat_title = ("trajectory_data/"
-                    "test_latitudes_{0}_{1}.txt".format(self.parcel.scheme,
-                                                self.parcel.timestep))
+                    "{0}_latitudes_{1}_{2}.txt".format(self.location, 
+                        self.parcel.scheme, self.parcel.timestep))
         lon_title = ("trajectory_data/"
-                    "test_longitudes_{0}_{1}.txt".format(self.parcel.scheme,
-                                                self.parcel.timestep))
+                    "{0}_longitudes_{1}_{2}.txt".format(self.location, 
+                        self.parcel.scheme, self.parcel.timestep))
         u_title = ("trajectory_data/"
-                    "test_trajectory_u_{0}_{1}.txt".format(self.parcel.scheme,
-                                                self.parcel.timestep))
+                    "{0}_trajectory_u_{1}_{2}.txt".format(self.location, 
+                        self.parcel.scheme, self.parcel.timestep))
         v_title = ("trajectory_data/"
-                    "test_trajectory_v_{0}_{1}.txt".format(self.parcel.scheme,
-                                                self.parcel.timestep))
+                    "{0}_trajectory_v_{1}_{2}.txt".format(self.location, 
+                        self.parcel.scheme, self.parcel.timestep))
         np.savetxt(lat_title, self.latitudes, header=header_string)
         np.savetxt(lon_title, self.longitudes, header=header_string)
         np.savetxt(u_title, self.trajectory_u, header=header_string)
         np.savetxt(v_title, self.trajectory_v, header=header_string)
 
-# Create grid of latitudes and longitudes to launch parcels from
+# Get location and scheme from user arguments
+location = sys.argv[1]
+scheme = sys.argv[2]
+
+# Create grid of launch latitudes and longitudes based on location
 num_lats = 5  
 num_lons = 5
-first_lat = 41
-last_lat = 42
-first_lon = -72
-last_lon = -71
 
-latitudes = np.linspace(first_lat, last_lat, num=num_lats)
-longitudes = np.linspace(first_lon, last_lon, num=num_lons)
+if location == "boston":
+    south_lat = 41
+    north_lat = 42
+    west_lon = -72
+    east_lon = -71
+
+elif location == "barau":
+    south_lat = 23
+    north_lat = 22
+    west_lon = -50
+    east_lon = -49
+
+else:
+    raise ValueError("First command line argument is a location:"
+        "'boston' or 'barau'.")
+
+latitudes = np.linspace(south_lat, north_lat, num=num_lats)
+longitudes = np.linspace(west_lon, east_lon, num=num_lons)
 grid_lon, grid_lat = np.meshgrid(longitudes, latitudes)
 lon = np.ndarray.flatten(grid_lon)
 lat = np.ndarray.flatten(grid_lat)
 
-# Perform the trajectory calculation
-scheme_arg = sys.argv[1]
-timestep_arg = int(sys.argv[2])
-
 atmo = Atmosphere(0)
-p = Parcel(atmo, lat,
-                 lon, 
-                 scheme_arg,
-                 timestep_arg)
-tra = Trajectory(atmo, p)
+p = Parcel(atmo, lat, lon, scheme, 90)
+tra = Trajectory(atmo, p, location)
 
 # Save data to text files
-#tra.save_data()
+tra.save_data()
