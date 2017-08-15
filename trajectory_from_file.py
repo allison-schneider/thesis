@@ -229,23 +229,27 @@ def speed_subplots():
     ax1.plot(time, -u_diff_grid, color="black", linewidth=1)
     ax1.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax1.set_title("Kinematic Trajectory Zonal Speeds", fontsize=12)
+    ax1.set_ylim(-290, 45)
 
     ax2.plot(time, -u_diff_friction, color="black", linewidth=1)
     ax2.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax2.set_title("Dynamic Trajectory Zonal Speeds", fontsize=12)
+    ax2.set_ylim(-290, 45)
 
     ax3.plot(time, -v_diff_grid, color="black", linewidth=1)
     ax3.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax3.set_title("Kinematic Trajectory Meridional Speeds", fontsize=12)
+    ax3.set_ylim(-290, 45)
 
     ax4.plot(time, -v_diff_friction, color="black", linewidth=1)
     ax4.plot(time, zero, color="black", linestyle="--", linewidth=2)
     ax4.set_title("Dynamic Trajectory Meridional Speeds", fontsize=12)
+    ax4.set_ylim(-290, 45)
 
-    plt.xlabel("Time in days")
-    plt.ylabel("Velocity in m/s        ")
+    plt.xlabel("Time (days)")
+    plt.ylabel("Velocity (m/s)              ")
 
-    plt.savefig("plots/test.pdf")
+    plt.savefig("plots/speed_subplots_180_negative.pdf")
 
     plt.show()
 
