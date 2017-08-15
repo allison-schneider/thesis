@@ -28,12 +28,16 @@ class Trajectory:
     """ Version of trajectory class for analyzing trajectory data from text files."""
     
     def __init__(self,
-                 scheme="grid",
-                 timestep=180, 
-                 source="model"):       # 'model' or 'hysplit'       
-        self.scheme = scheme
-        self.timestep = timestep
-        self.source = source
+                 scheme="grid",     # "grid" or "force"
+                 timestep=90, 
+                 source="model",    # "model" or "hysplit"
+                 location="boston", # "boston"
+                 vertical="3D"):    # "3D" or "isobaric"             
+        self.scheme = scheme        # Trajectory calculation scheme
+        self.timestep = timestep    # Timestep in seconds
+        self.source = source        # Study models or HYSPLIT trajectories
+        self.location = location    # Parcel launch site 
+        self.vertical = vertical    # Vertical transport scheme
 
         if source == "model":
             lat_title = ("trajectory_data/latitudes_{0}_{1}.txt").format(
@@ -65,7 +69,7 @@ class Trajectory:
     def load_hysplit(self):
         # Get 1D lat and lon vectors from file
         num_trajectories = 25
-        file = np.loadtxt("hysplit_3D_points.txt")
+        file = np.loadtxt("hysplit_{0}_{1}.txt".format(self.vertical, self.location))
         lat = file[:,9]
         lon = file[:,10]
 
@@ -245,6 +249,6 @@ def speed_subplots():
 
     plt.show()
 
-tra = Trajectory(scheme="grid", timestep=90)
+tra = Trajectory(scheme="grid", timestep=90, source="hysplit", location="boston", vertical="isobaric")
 last_rms = tra.graph_rms()
 print("Last RMSE value is", last_rms)
