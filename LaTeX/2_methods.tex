@@ -11,20 +11,20 @@ Both routines numerically predict the trajectories of an ensemble of parcels by 
 The kinematic routine finds these velocities by interpolating between grids of wind speed data. 
 The dynamic routine calculates velocities using advection equations relating the parcel acceleration and the geopotential height of a given pressure level. 
 
-\section{Ten Day Dataset}
+\section{Ten day dataset}
 Data from the Global Forecast System (GFS), a weather forecast model produced by the National Centers for Environmental Protection (NCEP), was used for both models.
 The dataset chosen was a ten day forecast, starting at 12:00:00 on February 21st, 2017, with predictions at intervals of three hours.
 Each file in the dataset contains atmospheric predictions for the beginning of a three-hour interval. 
 The values of atmospheric variables are predicted at each point on a latitude-longitude grid spanning the globe, with a spacing between gridpoints of 0.25 degree.
 Values are predicted for East-West and North-South wind speed components $u$ and $v$, as well as the geopotential height $Z_g$ of the 250 hectopascal (hPa) pressure level.
 
-\section{Linear Interpolation}
+\section{Linear interpolation}
 Both the kinematic and dynamic models require an interpolation scheme to produce values for atmospheric variables at positions between the gridded values provided by GFS. 
 Linear interpolation is the standard choice for trajectory models \cite{bowman_input_2013}. 
 For both models, linear interpolation was used in three dimensions (latitude, longitude, and time). 
 In the kinematic model, $u$ and $v$ components of wind speed were interpolated to the current positions of the air parcels, while in the dynamic model, geopotential height was interpolated.
 
-\section{Second-order Integration Scheme}
+\section{Second-order integration scheme}
 The numerical scheme chosen was a second-order Runge-Kutta method which has a long track record in trajectory modeling \cite{petterssen_weather_1940}.
 The velocity at a given timestep is taken to be the average of the velocity at the initial position and the velocity at the first-guess position after one timestep.
 
@@ -42,18 +42,19 @@ where $\vec{P}$ is a position vector with latitude and longitude components, and
 This integration method is used by HYSPLIT and a number of other trajectory models, including FLEXPART, LAGRANTO, and STILT \cite{bowman_input_2013, stein_noaas_2015} 
 For trajectories calculated from interpolated gridded wind velocities, higher order integration schemes do not add precision \cite{draxler_description_1997}.  
 
-\section{Constant Timestep}
-The timestep for integration was three minutes, with the timestep throughout the trajectory. 
+\section{Constant timestep}
+For simplicity, both models employ a constant timestep.
 To save computation, HYSPLIT uses a dynamic timestep, varying from one minute to one hour, computed to satisfy
 
 \begin{align}
-    U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-units}] 
+    U_{max} [\text{grid-units min}^{-1}] \Delta t [\text{min}] < 0.75 [\text{grid-units}] \label{eq:threshold}
 \end{align}
 
 \cite{draxler_description_1997}. This ensures that the parcel does not blow past any grid squares during a single timestep, which maximizes the accuracy of the calculation. 
-[Todo: Plot u and v along my trajectories to see if the $U_{max} \Delta t < 0.75$ relation is always satisfied. If it isn't, consider reducing the timestep. If it is satisfied, write that here.]
+The value of the constant timestep for the experimental models was chosen so that Equation \ref{eq:threshold} is always satisfied.
+The process of choosing the timestep is detailed in Section \ref{sec:timestep}. 
 
-\section{Kinematic Equations}
+\section{Kinematic equations}
 At each timestep, after $u$ and $v$ speeds were interpolated and an average value found using the integration scheme, the kinematic model used two equations to solve for a parcel's displacement. 
 Since GFS provides $u$ and $v$ values in meters per second, the equations convert from Cartesian to geographic coordinates. 
 The $r$ value of a parcel is taken to be the radius of the Earth $R_E$ plus the parcel's geopotential height $Z_g$.
@@ -66,7 +67,7 @@ The $r$ value of a parcel is taken to be the radius of the Earth $R_E$ plus the 
 
 The initial conditions for these equations (latitude and longitude) are specified by choosing the initial position of a parcel.
 
-\section{Dynamic Equations}
+\section{Dynamic equations}
 In the dynamic model, velocity at the next timestep was calculated using advection equations which incorporate the current geopotential height gradient and the previous timestep's $u$ and $v$ values.
 The Coriolis parameter $f$ measures the effect of the Earth's rotation speed $\Omega$ at a given latitude $\varphi$.
 Standard acceleration due to gravity is $g$. 
@@ -87,7 +88,7 @@ Initial velocity components are set as the geostrophic wind at the initial posit
     v_g &= \frac{g}{f} \frac{\partial Z_g}{\partial \lambda} \frac{1}{r \cos{\varphi}}. \label{eq:v_g}
 \end{align}
 
-\section{Root-mean-square Error Measures Precision}
+\section{Root-mean-square error measures precision}
 For an ensemble of parcels, variance among trajectories over time was measured by calculating the mean trajectory: the path of an imaginary parcel whose position at each timestep is the average of the parcels' positions.
 At each timestep, the root-mean-square error (RMSE) is the square root of the average squared value of each particle's distance from the mean trajectory.
 
@@ -119,7 +120,7 @@ The RMSE at each timestep is calculated using the distance between each parcel a
     \RMSE{(t)} = \sqrt{ \sum_{n = 1}^{N} \frac{{d_n(t)}^2}{N} }
 \end{align}
 
-\section{Absolute and Relative Horizontal Transport Deviation Measure Accuracy}
+\section{Absolute and relative horizontal transport deviation measure accuracy}
 
 Because the RMSE uses the mean trajectory as a reference value, it measures variance among trajectories of nearby parcels within a model.
 To compare trajectories between models, however, previous work has defined the absolute and relative horizontal transport deviation measures (AHTD and RHTD) \cite{stohl_computation_1998}. 

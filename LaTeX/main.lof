@@ -1,6 +1,7 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3-1}{\ignorespaces Twenty five dynamic trajectories launched in an evenly-spaced grid with its lower-left corner at 41, -72 and upper-right corner at 42, -71. The large spirals are implausible for jet stream flow and reflect a problem with the model.}}{24}
-\contentsline {figure}{\numberline {3-2}{\ignorespaces For a timestep of 3 minutes, [[[blah blah]]]}}{25}
-\contentsline {figure}{\numberline {3-3}{\ignorespaces For a timestep of 1 minute 30 seconds, [[[blah blah]]]}}{25}
+\contentsline {figure}{\numberline {3-1}{\ignorespaces \textit {Left}: Twenty five trajectories calculated with the frictionless dynamic model. Parcels were launched in an evenly-spaced 5x5 grid with its lower-left corner at 41, -72 and upper-right corner at 42, -71. The large spirals are implausible for jet stream flow and reflect a problem with the model. \textit {Right}: The same parcels with trajectories calculated by the dynamic model with friction. A few parcels still exhibit unrealistic spirals, but in general, trajectories are more plausible.\relax }}{24}
+\contentsline {figure}{\numberline {3-2}{\ignorespaces For a timestep of 3 minutes, [[[blah blah]]]\relax }}{25}
+\contentsline {figure}{\numberline {3-3}{\ignorespaces For a timestep of 1 minute and 30 seconds, [[[blah blah]]]\relax }}{25}
+\addvspace {10\p@ }

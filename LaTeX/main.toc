@@ -1,16 +1,18 @@
 \contentsline {chapter}{\numberline {1}Introduction}{13}
-\contentsline {section}{\numberline {1.1}The Aerocene Project}{13}
-\contentsline {section}{\numberline {1.2}Acceleration from Geopotential Height}{13}
+\contentsline {section}{\numberline {1.1}The Aerocene project}{13}
+\contentsline {section}{\numberline {1.2}Acceleration from geopotential height}{13}
 \contentsline {chapter}{\numberline {2}Methods}{15}
-\contentsline {section}{\numberline {2.1}Ten Day Dataset}{15}
-\contentsline {section}{\numberline {2.2}Linear Interpolation}{16}
-\contentsline {section}{\numberline {2.3}Second-order Integration Scheme}{16}
-\contentsline {section}{\numberline {2.4}Constant Timestep}{17}
-\contentsline {section}{\numberline {2.5}Kinematic Equations}{17}
-\contentsline {section}{\numberline {2.6}Dynamic Equations}{18}
-\contentsline {section}{\numberline {2.7}Root-mean-square Error Measures Precision}{18}
-\contentsline {section}{\numberline {2.8}Absolute and Relative Horizontal Transport Deviation Measure Accuracy}{20}
-\contentsline {chapter}{\numberline {3}Tuning the Models}{23}
-\contentsline {section}{\numberline {3.1}Inertial Circles in the Dynamic Model}{23}
-\contentsline {section}{\numberline {3.2}Adding Friction to the Dynamic Model}{23}
-\contentsline {section}{\numberline {3.3}Choosing a Timestep}{24}
+\contentsline {section}{\numberline {2.1}Ten day dataset}{15}
+\contentsline {section}{\numberline {2.2}Linear interpolation}{16}
+\contentsline {section}{\numberline {2.3}Second-order integration scheme}{16}
+\contentsline {section}{\numberline {2.4}Constant timestep}{17}
+\contentsline {section}{\numberline {2.5}Kinematic equations}{17}
+\contentsline {section}{\numberline {2.6}Dynamic equations}{18}
+\contentsline {section}{\numberline {2.7}Root-mean-square error measures precision}{18}
+\contentsline {section}{\numberline {2.8}Absolute and relative horizontal transport deviation measure accuracy}{20}
+\contentsline {chapter}{\numberline {3}Tuning the models}{23}
+\contentsline {section}{\numberline {3.1}Inertial circles in the dynamic model}{23}
+\contentsline {section}{\numberline {3.2}Adding friction to the dynamic model}{23}
+\contentsline {section}{\numberline {3.3}Choosing a timestep}{24}
+\contentsline {chapter}{\numberline {4}Results}{27}
+\contentsline {section}{\numberline {4.1}Measures of transport error}{27}

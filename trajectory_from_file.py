@@ -134,7 +134,7 @@ class Trajectory:
         #map.plot(self.mean_longitudes, self.mean_latitudes,
         #         latlon=True, zorder=2, color='green')
         if savefig == True:
-            filename1 = "plots/force_180.eps"
+            filename1 = "plots/friction_180.pdf"
             plt.savefig(filename1)
 
         plt.show()
@@ -198,13 +198,13 @@ class Trajectory:
         ax2 = fig.add_subplot(1, 1, 1)
 
         rms_line, = ax2.plot(self.times, rms)
-        t_half_line, = ax2.plot(self.times, self.times ** 0.5)
+        #t_half_line, = ax2.plot(self.times, self.times ** 0.5)
         
         ax2.set_title("RMS Distance from Mean Trajectory")
         ax2.set_xlabel("Time (hours)")
         ax2.set_ylabel("RMS distance (m)")
         plt.show()
-        return ax2
+        return rms[-1]
 
 def speed_subplots():
     """ Graph u and v speeds for two schemes. """
@@ -241,10 +241,10 @@ def speed_subplots():
     plt.xlabel("Time in days")
     plt.ylabel("Velocity in m/s")
 
-    plt.savefig("plots/speed_subplots_90.pdf")
+    plt.savefig("test.pdf")
 
     plt.show()
 
-speed_subplots()
-#tra = Trajectory(scheme="friction", timestep=180)
-#tra.graph_speed()
+tra = Trajectory(scheme="grid", timestep=90)
+last_rms = tra.graph_rms()
+print("Last RMSE value is", last_rms)
