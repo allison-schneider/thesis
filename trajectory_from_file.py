@@ -262,9 +262,9 @@ def speed_subplots():
     plt.show()
 
 def deviation():
-    scheme = "grid"
-    location = "boston"
-    vertical = "3D"
+    scheme = "friction"
+    location = "barau"
+    vertical = "isobaric"
     num_trajectories = 25
 
     experimental = Trajectory(scheme=scheme, timestep=90, source="model", 
@@ -288,6 +288,31 @@ def deviation():
     reference_distance = haversine(reference.latitudes[1:,:], 
         reference.longitudes[1:,:], reference.latitudes[:-1,:],
         reference.longitudes[:-1,:]) 
+
+    l_h = (np.sum(np.sqrt(np.sum(reference_distance ** 2, axis=1))) 
+        / num_trajectories)
+
+    rhtd = ahtd / l_h
+
+    return rhtd
+
+def reference_deviation():
+    location = "boston"
+    num_trajectories = 25
+
+    reference_3d = Trajectory(timestep=90, source="hysplit", 
+        location=location, vertical="3D")
+    reference_iso = Trajectory(timestep=90, source="hysplit", 
+        location=location, vertical="isobaric")
+
+    distance = haversine(reference_3d.latitudes, reference_3d.longitudes,
+        reference_iso.latitudes, reference_iso.longitudes)
+
+    ahtd = np.sqrt(np.sum(distance ** 2, axis=1)) / num_trajectories
+
+    reference_distance = haversine(reference_3d.latitudes[1:,:], 
+        reference_3d.longitudes[1:,:], reference_iso.latitudes[:-1,:],
+        reference_iso.longitudes[:-1,:]) 
 
     l_h = (np.sum(np.sqrt(np.sum(reference_distance ** 2, axis=1))) 
         / num_trajectories)
