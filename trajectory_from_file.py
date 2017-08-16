@@ -25,7 +25,8 @@ def haversine(latitude1, longitude1, latitude2, longitude2):
     return d
 
 class Trajectory:
-    """ Version of trajectory class for analyzing trajectory data from text files."""
+    """ Version of trajectory class for analyzing trajectory data from 
+    text files."""
     
     def __init__(self,
                  scheme="grid",     # "grid" or "force"
@@ -40,52 +41,57 @@ class Trajectory:
         self.vertical = vertical    # Vertical transport scheme
 
         if source == "model":
-            lat_title = ("trajectory_data/latitudes_{0}_{1}.txt").format(
-                self.scheme, self.timestep)
-            lon_title = ("trajectory_data/longitudes_{0}_{1}.txt").format(
-                self.scheme, self.timestep)
-            u_title = ("trajectory_data/trajectory_u_{0}_{1}.txt").format(
-                self.scheme, self.timestep)
-            v_title = ("trajectory_data/trajectory_v_{0}_{1}.txt").format(
-               self.scheme, self.timestep)
+            lat_title = ("trajectory_data/{0}_latitudes_{1}_{2}.txt").format(
+                self.location, self.scheme, self.timestep)
+            lon_title = ("trajectory_data/{0}_longitudes_{1}_{2}.txt").format(
+                self.location, self.scheme, self.timestep)
+            u_title = ("trajectory_data/{0}_trajectory_u_{1}_{2}.txt").format(
+                self.location, self.scheme, self.timestep)
+            v_title = ("trajectory_data/{0}_trajectory_v_{1}_{2}.txt").format(
+                self.location, self.scheme, self.timestep)
 
             self.latitudes = np.loadtxt(lat_title)
             self.longitudes = np.loadtxt(lon_title)
             self.trajectory_u = np.loadtxt(u_title)
             self.trajectory_v = np.loadtxt(v_title)
 
+            # List of times in hours
+            self.times = np.arange(np.size(self.latitudes[:,0])) * (
+                self.timestep / 60 ** 2)
+
         if source == "hysplit":
 
-            self.latitudes, self.longitudes = self.load_hysplit()
+            self.latitudes, self.longitudes, self.times = self.load_hysplit()
             self.trajectory_u = np.zeros_like(self.latitudes)
             self.trajectory_v = np.zeros_like(self.longitudes)
-
-        # List of times for plotting
-        self.times = np.arange(np.size(self.latitudes[:,0])) * (self.timestep 
-                                                          / 60 ** 2)
 
         self.mean_latitudes, self.mean_longitudes = self.mean_trajectory()
 
     def load_hysplit(self):
         # Get 1D lat and lon vectors from file
         num_trajectories = 25
-        file = np.loadtxt("hysplit_{0}_{1}.txt".format(self.vertical, self.location))
-        lat = file[:,9]
-        lon = file[:,10]
+        file = np.loadtxt("trajectory_data/hysplit_{0}_{1}.txt".format(
+            self.vertical, self.location))
+        file_time = file[:,8]    # time in hours
+        file_lat = file[:,9]
+        file_lon = file[:,10]
 
         # Initialize latitude and longitude arrays
-        num_rows = np.size(lat) // num_trajectories
+        num_rows = np.size(file_lat) // num_trajectories
         latitude = np.zeros((num_rows, num_trajectories))
         longitude = np.zeros_like(latitude)
+        time = np.zeros_like(latitude)
         
         # Separate lats and lons by trajectory
         for i in np.arange(np.size(latitude)):
             row = i // num_trajectories
             column = i % num_trajectories
-            latitude[row, column] = lat[i]
-            longitude[row, column] = lon[i]
 
-        return latitude, longitude
+            time[row, column] = file_time[i]
+            latitude[row, column] = file_lat[i]
+            longitude[row, column] = file_lon[i]
+
+        return latitude, longitude, time
 
     def mean_trajectory(self):
         """ Get the centroid of parcels at each timestep. """
@@ -124,7 +130,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
+    def plot_ortho(self, lat_center=90, lon_center=-50, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -212,7 +218,8 @@ class Trajectory:
 
 def speed_subplots():
     """ Graph u and v speeds for two schemes. """
-    trajectory_friction = Trajectory(scheme="friction", timestep=90, source="model")
+    trajectory_friction = Trajectory(scheme="friction", timestep=90, 
+        source="model")
     trajectory_grid = Trajectory(scheme="grid", timestep=90, source="model")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True, 
@@ -220,7 +227,8 @@ def speed_subplots():
     # add a big axis, hide frame
     fig.add_subplot(111, frameon=False)
     # hide tick and tick label of the big axes
-    plt.tick_params(labelcolor='none', top='off', bottom='off', left='off', right='off')
+    plt.tick_params(labelcolor='none', top='off', bottom='off', left='off', 
+        right='off')
 
     (u_diff_grid, v_diff_grid, time) = trajectory_grid.threshold()
     (u_diff_friction, v_diff_friction, time) = trajectory_friction.threshold()
@@ -253,8 +261,47 @@ def speed_subplots():
 
     plt.show()
 
-speed_subplots()
+def deviation():
+    scheme = "grid"
+    location = "boston"
+    vertical = "3D"
+    num_trajectories = 25
 
-#tra = Trajectory(scheme="grid", timestep=90, source="hysplit", location="boston", vertical="isobaric")
+    experimental = Trajectory(scheme=scheme, timestep=90, source="model", 
+        location=location)
+    reference = Trajectory(scheme=scheme, timestep=90, source="hysplit", 
+        location=location, vertical=vertical)
+
+    # Find indices of times in experimental that match times in reference
+    time_index = np.searchsorted(experimental.times, reference.times)[:,0]
+
+    # Select times, latitudes and longitudes from experimental in reference
+    reduced_times = experimental.times[time_index]
+    reduced_latitudes = experimental.latitudes[time_index]
+    reduced_longitudes = experimental.longitudes[time_index]
+
+    distance = haversine(reduced_latitudes, reduced_longitudes,
+        reference.latitudes, reference.longitudes)
+
+    ahtd = np.sqrt(np.sum(distance ** 2, axis=1)) / num_trajectories
+
+    reference_distance = haversine(reference.latitudes[1:,:], 
+        reference.longitudes[1:,:], reference.latitudes[:-1,:],
+        reference.longitudes[:-1,:]) 
+
+    l_h = (np.sum(np.sqrt(np.sum(reference_distance ** 2, axis=1))) 
+        / num_trajectories)
+
+    rhtd = ahtd / l_h
+
+    return rhtd
+
+rhtd = deviation()
+print("rhtd is \n", rhtd)
+print("last rhtd is", rhtd[-1])
+
+#tra = Trajectory(scheme="friction", timestep=90, source="model", 
+#    location="boston", vertical="3D")
+#tra.plot_ortho()
 #last_rms = tra.graph_rms()
-#print("Last RMSE value is", last_rms)
+# print("Last RMSE value is", last_rms)

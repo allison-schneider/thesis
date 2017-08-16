@@ -540,8 +540,8 @@ if location == "boston":
     east_lon = -71
 
 elif location == "barau":
-    south_lat = 23
-    north_lat = 22
+    south_lat = -23
+    north_lat = -22
     west_lon = -50
     east_lon = -49
 
