@@ -21,7 +21,7 @@ class Atmosphere:
 
         self.layer_time = hour * 60 ** 2       # First layer time in seconds
         self.time_between_files = 3 * 60 ** 2  # Time between samples in seconds
-        self.total_time = 240 * 60 ** 2        # Full trajectory time in seconds
+        self.total_time = 8.875 * 24 * 60 ** 2        # Full trajectory time in seconds
 
         # Test that the argument is a valid hour.
         if self.layer_time > self.total_time - self.time_between_files:
@@ -456,8 +456,8 @@ class Trajectory:
         map.drawmapboundary(fill_color='white')
         map.plot(self.longitudes, self.latitudes,
                  latlon=True, zorder=2, color='black')
-        plt.title("Kinematic Trajectories \n"
-                  "3 minute timestep")
+        #plt.title("Kinematic Trajectories \n"
+        #          "3 minute timestep")
         map.plot(self.mean_longitudes, self.mean_latitudes,
                  latlon=True, zorder=2, color='blue')
         if savefig == True:
@@ -558,6 +558,8 @@ lat = np.ndarray.flatten(grid_lat)
 atmo = Atmosphere(0)
 p = Parcel(atmo, lat, lon, scheme, 90)
 tra = Trajectory(atmo, p, location)
+
+tra.plot_ortho()
 
 # Save data to text files
 tra.save_data()

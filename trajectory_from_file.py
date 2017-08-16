@@ -218,9 +218,9 @@ class Trajectory:
 
 def speed_subplots():
     """ Graph u and v speeds for two schemes. """
-    trajectory_friction = Trajectory(scheme="friction", timestep=90, 
+    trajectory_friction = Trajectory(scheme="friction", timestep=180, 
         source="model")
-    trajectory_grid = Trajectory(scheme="grid", timestep=90, source="model")
+    trajectory_grid = Trajectory(scheme="grid", timestep=180, source="model")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True, 
         figsize=(10, 6))
@@ -321,12 +321,14 @@ def reference_deviation():
 
     return rhtd
 
-rhtd = deviation()
-print("rhtd is \n", rhtd)
-print("last rhtd is", rhtd[-1])
+speed_subplots()
 
-#tra = Trajectory(scheme="friction", timestep=90, source="model", 
-#    location="boston", vertical="3D")
-#tra.plot_ortho()
-#last_rms = tra.graph_rms()
+#rhtd = deviation()
+#print("rhtd is \n", rhtd)
+#print("last rhtd is", rhtd[-1])
+
+# tra = Trajectory(scheme="friction", timestep=90, source="model", 
+#     location="barau", vertical="3D")
+# tra.plot_ortho()
+# last_rms = tra.graph_rms()
 # print("Last RMSE value is", last_rms)
