@@ -30,16 +30,16 @@ Using the definition of geostrophic wind in Equations \ref{eq:u_g} and \ref{eq:v
 The friction parameter $r_f$ is analogous to the Coriolis parameter: it has units of second$^{-1}$ and is a measure of the force of friction.
 
 \section{Choosing a timestep} \label{sec:timestep}
-[[[test]]]
+The threshold that HYSPLIT uses to calculate its dynamic timestep, Equation \ref{eq:threshold}, can also be expressed as the difference between a threshold velocity and trajectory velocity.
 
 \begin{figure}
     \includegraphics[width=\textwidth]{speed_subplots_180_negative.pdf}
     \centering
     \caption{For a timestep of 3 minutes, trajectory speed is compared to threshold speed.
-    Solid lines are the threshold speed minus the trajectory speed for a timestep of 3 minutes. 
+    Solid lines represent the threshold speed minus the trajectory speed for a timestep of 3 minutes. 
     The dashed line at a velocity of zero represents the speed threshold.
     Note in the upper-right hand plot that the zonal speeds for some trajectories surpass the threshold. }
-    \label{}
+    \label{fig:speed_subplots_180_negative}
 \end{figure}
 
 \begin{figure}
@@ -47,5 +47,14 @@ The friction parameter $r_f$ is analogous to the Coriolis parameter: it has unit
     \centering
     \caption{For a timestep of 1 minute and 30 seconds, trajectory speed is compared to threshold speed.
     For this choice of timestep, all parcel velocities are below the threshold.}
-    \label{}
+    \label{speed_subplots_90_negative}
+\end{figure}
+
+\section{Initializing velocity for the dynamic model}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{speed_ratio.pdf}
+    \caption{}
+    \label{fig:speed_ratio}
 \end{figure}

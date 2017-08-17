@@ -445,7 +445,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=90, lon_center=-105, savefig=False):
+    def plot_ortho(self, lat_center=-7, lon_center=106, savefig=True):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -461,8 +461,8 @@ class Trajectory:
         map.plot(self.mean_longitudes, self.mean_latitudes,
                  latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename1 = "plots/test.png"
-            filename2 = "plots/test.svg"
+            filename1 = "plots/{0}_{1}.png".format(self.location, scheme)
+            filename2 = "plots/{0}_{1}.pdf".format(self.location, scheme)
             plt.savefig(filename1)
             plt.savefig(filename2)
 
@@ -539,11 +539,29 @@ if location == "boston":
     west_lon = -72
     east_lon = -71
 
-elif location == "barau":
+elif location == "bauru":
     south_lat = -23
     north_lat = -22
     west_lon = -50
     east_lon = -49
+
+elif location == "jakarta": # Jakarta, Indonesia
+    south_lat = -7
+    north_lat = -6
+    west_lon = 106
+    east_lon = 107    
+
+elif location == "hobart":  # Hobart, New Zealand
+    south_lat = -43
+    north_lat = -42
+    west_lon = 146
+    east_lon = 147 
+
+elif location == "panama":
+    south_lat = 8
+    north_lat = 9
+    west_lon = -80
+    east_lon = -79 
 
 else:
     raise ValueError("First command line argument is a location:"
@@ -562,4 +580,4 @@ tra = Trajectory(atmo, p, location)
 tra.plot_ortho()
 
 # Save data to text files
-tra.save_data()
+#tra.save_data()

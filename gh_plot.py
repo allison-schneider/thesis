@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from scipy.io import netcdf
 from mpl_toolkits.basemap import Basemap
 
-filename = "hgt-000.nc"
+filename = "data/hgt-000.nc"
 file = netcdf.netcdf_file(filename, mmap=False)
 vars = file.variables
 file.close()
 
 # Get geopotential height
 lat = vars["lat"][:][:]
-lon = vars["lon"][:][:] - 180
+lon = vars["lon"][:][:] % 360
 gh = vars["gh"][0][0]
 
 lon_grid, lat_grid = np.meshgrid(lon, lat)
@@ -30,14 +30,14 @@ print(gh[0])
 
 # Make a movie with all time values
 for i, time in enumerate(np.arange(0,241,3)):
-	filename = 'hgt-{:03d}.nc'.format(time)
+	filename = 'data/hgt-{:03d}.nc'.format(time)
 	file = netcdf.netcdf_file(filename, mmap=False)
 	vars = file.variables
 	file.close()
 
 	# Get geopotential height
 	lat = vars["lat"][:][:]
-	lon = vars["lon"][:][:] - 180
+	lon = vars["lon"][:][:] % 360
 	gh = vars["gh"][0][0]
 
 	lon_grid, lat_grid = np.meshgrid(lon, lat)
@@ -49,4 +49,4 @@ for i, time in enumerate(np.arange(0,241,3)):
 	title = "Geopotential Height at t={}".format(time)
 	plt.title(title)
 	plt.show(block=False)
-	plt.pause(1.0/20.0)
+	plt.pause(1.0/60.0)
