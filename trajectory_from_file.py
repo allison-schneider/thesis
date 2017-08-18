@@ -262,6 +262,7 @@ def speed_subplots():
     plt.show()
 
 def deviation():
+    # Need to fix this probably
     scheme = "friction"
     location = "barau"
     vertical = "isobaric"
@@ -284,6 +285,7 @@ def deviation():
         reference.latitudes, reference.longitudes)
 
     ahtd = np.sqrt(np.sum(distance ** 2, axis=1)) / num_trajectories
+    mean_distance = np.sqrt(np.sum(distance, axis=1)) / num_trajectories
 
     reference_distance = haversine(reference.latitudes[1:,:], 
         reference.longitudes[1:,:], reference.latitudes[:-1,:],
@@ -293,6 +295,16 @@ def deviation():
         / num_trajectories)
 
     rhtd = ahtd / l_h
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    ax2.plot(self.times, rms)
+    #t_half_line, = ax2.plot(self.times, self.times ** 0.5)
+
+    ax2.set_xlabel("Time (hours)")
+    ax2.set_ylabel("RHTD")
+    plt.show()
 
     return rhtd
 
@@ -321,9 +333,7 @@ def reference_deviation():
 
     return rhtd
 
-speed_subplots()
-
-#rhtd = deviation()
+ahtd = deviation()
 #print("rhtd is \n", rhtd)
 #print("last rhtd is", rhtd[-1])
 

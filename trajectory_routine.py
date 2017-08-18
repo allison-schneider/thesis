@@ -150,13 +150,18 @@ class Parcel:
             self.v = self.interpolate(self.atmosphere.v_values)
             
         if self.scheme == "force" or "friction":
+            # Initialize with gridded wind velocity
+            # self.u = self.interpolate(self.atmosphere.u_values)
+            # self.v = self.interpolate(self.atmosphere.v_values)
+
+            ## Initialize with geostrophic velocity
             f = 2 * OMEGA * np.sin(self.lat)    # radians per second
             dgh_dlat = self.interpolate(self.atmosphere.dgh_dlat_values)
             dgh_dlon = self.interpolate(self.atmosphere.dgh_dlon_values)
             # Geostrophic u and v in meters per second
             self.u = ((-STANDARD_GRAVITY / f) * dgh_dlat) / EARTH_RADIUS
             self.v = ((STANDARD_GRAVITY / f) * dgh_dlon) / (EARTH_RADIUS 
-                                                            * np.cos(self.lat))                 
+                                                           * np.cos(self.lat))                 
 
     def interpolate(self, interp_values):
         """ Linear interpolation of u, v, or gh between two time layers of a
@@ -445,7 +450,7 @@ class Trajectory:
 
         return rms
 
-    def plot_ortho(self, lat_center=-7, lon_center=106, savefig=True):
+    def plot_ortho(self, lat_center=-7, lon_center=106, savefig=False):
         """ Orthographic projection plot."""
         map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
                         resolution='c')
@@ -458,13 +463,14 @@ class Trajectory:
                  latlon=True, zorder=2, color='black')
         #plt.title("Kinematic Trajectories \n"
         #          "3 minute timestep")
-        map.plot(self.mean_longitudes, self.mean_latitudes,
-                 latlon=True, zorder=2, color='blue')
+        #map.plot(self.mean_longitudes, self.mean_latitudes,
+        #         latlon=True, zorder=2, color='blue')
         if savefig == True:
-            filename1 = "plots/{0}_{1}.png".format(self.location, scheme)
-            filename2 = "plots/{0}_{1}.pdf".format(self.location, scheme)
-            plt.savefig(filename1)
-            plt.savefig(filename2)
+            #filename1 = "plots/{0}_{1}.png".format(self.location, scheme)
+            #filename2 = "plots/{0}_{1}.pdf".format(self.location, scheme)
+            #plt.savefig(filename1)
+            #plt.savefig(filename2)
+            plt.savefig("boston_inertial.pdf")
 
         plt.show()
         return map
@@ -533,13 +539,13 @@ scheme = sys.argv[2]
 num_lats = 5  
 num_lons = 5
 
-if location == "boston":
+if location == "boston":    # Boston, Massachusetts
     south_lat = 41
     north_lat = 42
     west_lon = -72
     east_lon = -71
 
-elif location == "bauru":
+elif location == "bauru":   # Bauru, Brazil
     south_lat = -23
     north_lat = -22
     west_lon = -50
@@ -557,7 +563,7 @@ elif location == "hobart":  # Hobart, New Zealand
     west_lon = 146
     east_lon = 147 
 
-elif location == "panama":
+elif location == "panama":  # Panama City, Panama
     south_lat = 8
     north_lat = 9
     west_lon = -80
@@ -565,7 +571,7 @@ elif location == "panama":
 
 else:
     raise ValueError("First command line argument is a location:"
-        "'boston' or 'barau'.")
+        "'boston' or 'baruru'.")
 
 latitudes = np.linspace(south_lat, north_lat, num=num_lats)
 longitudes = np.linspace(west_lon, east_lon, num=num_lons)
@@ -574,10 +580,11 @@ lon = np.ndarray.flatten(grid_lon)
 lat = np.ndarray.flatten(grid_lat)
 
 atmo = Atmosphere(0)
-p = Parcel(atmo, lat, lon, scheme, 90)
+#p = Parcel(atmo, lat, lon, scheme, 90)
+p = Parcel(atmo, 41.75, -71.5, scheme, 90)
 tra = Trajectory(atmo, p, location)
 
-tra.plot_ortho()
+tra.plot_ortho(lat_center=90, lon_center=-72, savefig=True)
 
 # Save data to text files
 #tra.save_data()

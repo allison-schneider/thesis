@@ -57,6 +57,9 @@ u_ratio = u_g_mean / u_mean
 v_ratio = v_g_mean / v_mean
 magnitude_ratio = magnitude_g_mean / magnitude_mean
 
+# Line at 1
+one = np.ones_like(lat)
+
 # Plots
 if plot_type == "zonal":
 	map = Basemap(projection="ortho", lon_0=-105, lat_0=42, resolution="c")
@@ -128,7 +131,9 @@ elif plot_type == "graph geostrophic speed":
 elif plot_type == "graph speed ratio":
 	fig = plt.figure()
 	ax1 = fig.add_subplot(1, 1, 1)
-	ax1.plot(magnitude_ratio, lat, color="black")
+	ax1.plot(one, lat, color="0.5", label="geostrophic = observed")
+	ax1.plot(magnitude_ratio, lat, color="black", label="measured ratio")
+	plt.legend()
 	ax1.set_ylim(-90, 90)
 	plt.xlabel("Ratio of zonally averaged geostrophic to observed wind speed")
 	plt.ylabel("Latitude")

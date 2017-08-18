@@ -13,7 +13,7 @@
 \contentsline {chapter}{\numberline {3}Tuning the models}{23}
 \contentsline {section}{\numberline {3.1}Inertial circles in the dynamic model}{23}
 \contentsline {section}{\numberline {3.2}Adding friction to the dynamic model}{23}
-\contentsline {section}{\numberline {3.3}Choosing a timestep}{24}
-\contentsline {section}{\numberline {3.4}Initializing velocity for the dynamic model}{24}
-\contentsline {chapter}{\numberline {4}Results}{27}
-\contentsline {section}{\numberline {4.1}Measures of transport error}{27}
+\contentsline {section}{\numberline {3.3}Choosing a timestep}{25}
+\contentsline {section}{\numberline {3.4}Initializing velocity for the dynamic model}{26}
+\contentsline {chapter}{\numberline {4}Results}{31}
+\contentsline {section}{\numberline {4.1}Measures of transport error}{31}

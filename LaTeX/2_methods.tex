@@ -155,7 +155,10 @@ Again $d_n$ is calculated as in the RMSE, but with Equations \ref{eq:delta_lat} 
 Although the ``true'' trajectories of parcels from the ten-day study period are unobservable, reference trajectories which approximate them can be calculated.
 Reference trajectories were obtained using NOAA's Real-time Environmental Applications and Display sYstem (READY), a tool which uses the HYSPLIT model to generate parcel trajectories \cite{rolph_real-time_2017}.
 Analysis data from the Global Data Assimilation System (GDAS), with a grid spacing of 0.5 degree and time resolution of three hours, was selected as the source of wind field information \cite{noaa_global_2004}.
-Trajectories were calculated using HYSPLIT's vertical transport modeling capability, in contrast to the isobaric assumption of this study's kinematic and dynamic models. 
+Two kinds of reference trajectories were calculated with HYSPLIT: isobaric and three dimensional.
+Isobaric trajectories use the same vertical transport assumption as the experimental models. 
+Three-dimensional trajectories model the vertical as well as the horizontal wind.
 Fully three-dimensional trajectories and analysis data are more accurate than isobaric trajectories and forecast data, 
 so the reference trajectories will be closer to the "true" parcel trajectories than those calculated by the kinematic and dynamic models.  \cite{stohl_computation_1998}.
+Comparing the HYSPLIT isobaric reference trajectories to the HYSPLIT 3D trajectories measures the contribution of the isobaric assumption alone to trajectory error.
   
