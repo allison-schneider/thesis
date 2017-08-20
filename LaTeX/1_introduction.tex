@@ -22,7 +22,7 @@ In the troposphere, the difference between geopotential height and actual height
 The geopotential $\Phi$ is the potential energy of the Earth's gravitational field at a height $h$:
 
 \begin{align}
-    \Phi (h) = g Z_g (h) \label{eq:geopotential}
+    \Phi (h) = g Z_g (h) \label{eq:geopotential}.
 \end{align}
 
 The full equation for acceleration of an air parcel in the atmosphere is
@@ -31,23 +31,50 @@ The full equation for acceleration of an air parcel in the atmosphere is
     \frac{D \vec{u}}{Dt} + \frac{1}{\rho} \nabla p + \nabla \Phi + f \hat{z} \times \vec{u} = \mathcal{F} \label{eq:full}
 \end{align}
 
-where $\vec{u}$ is the wind velocity vector, $\rho$ is the density of air, $f$ is the Coriolis parameter, and $\mathcal{F}$ is the force of friction \cite{marshall_atmosphere_2008}. 
-Due to the isobaric assumption, the gradient of pressure is zero, and the force of friction is assumed to be negligible at the studied pressure level.
-Using these assumptions and the relation in \ref{eq:geopotential}, equation \ref{eq:full} becomes
+where $\vec{u}$ is the wind velocity vector, $\rho$ is the density of air, $f$ is the Coriolis parameter, and $\mathcal{F}$ is the force of friction per unit mass \cite{marshall_atmosphere_2008}.
+To implement this equation in the dynamic model, it must be written in terms of the zonal, meridional, and vertical wind components $u$, $v$ and $w$.
+One assumption of the model is that friction is negligible at the studied pressure level, so $\mathcal{F}$ is taken to be zero.
 
 \begin{align}
-    \frac{D \vec{u}}{Dt} + \nabla \Phi + f \hat{z} \times \vec{u} &= 0 \\
-    - g \nabla Z_g - f \hat{z} \times \vec{u} &= \frac{D \vec{u}}{Dt}
+    \frac{Du}{Dt} + \frac{1}{\rho} \frac{\partial p}{\partial x} - fv &= 0 \label{eq:u_component} \\
+    \frac{Dv}{Dt} + \frac{1}{\rho} \frac{\partial p}{\partial y} - fu &= 0 \label{eq:v_component} \\
+    \frac{Dw}{Dt} + \frac{1}{\rho} \frac{\partial p}{\partial z} + g &= 0. \label{eq:vertical}
 \end{align}
-
-of which the horizontal components are
+ 
+The derivative of the geopotential is zero in the horizontal directions, and equal to $g$ in the vertical following from Equation \ref{eq:geopotential}.
+Due to the isobaric assumption, the vertical velocity is zero, so Equation \ref{eq:vertical} becomes an expression of hydrostatic equilibrium:
 
 \begin{align}
-    \frac{Du}{Dt} &= fv - g \frac{\partial Z_g}{\partial x} \label{eq:uvelocity} \\
-    \frac{Dv}{Dt} &= -fu - g \frac{\partial Z_g}{\partial y}. \label{eq:vvelocity}
+    \frac{1}{\rho} \frac{\partial p}{\partial z} + g &= 0, \text{ or} \\
+    \frac{\partial p}{\partial z} &= - \rho g. \label{eq:hydrostatic}
 \end{align}
 
-%% To include in intro
-% Geopotential height explanation
-% Advection equations use geopotential height gradient
-% Factors that lead to ageostrophic flow?
+Pressure can be defined as a function of the horizontal position and the geopotential height at that position at a given time:
+
+\begin{align}
+    p(x, y, Z_g(x, y, t), t) = p_0
+\end{align}
+
+where $p_0$ is the studied pressure level.
+The partial derivatives of pressure with respect to $x$ and $y$ are
+
+\begin{align}
+    \frac{\partial p}{\partial x} + \frac{\partial p}{\partial Z_g} \frac{\partial Z_g}{\partial x} &= 0 \\
+    \frac{\partial p}{\partial y} + \frac{\partial p}{\partial Z_g} \frac{\partial Z_g}{\partial y} &= 0.
+\end{align}
+
+Using the hydrostatic relationship in Equation \ref{eq:hydrostatic}, these become
+
+\begin{align}
+    \frac{\partial p}{\partial x} &= \rho g \frac{\partial Z_g}{\partial x} \\
+    \frac{\partial p}{\partial y} &= \rho g \frac{\partial Z_g}{\partial y}
+\end{align}
+
+which can be substituted into Equations \ref{eq:u_component} and \ref{eq:v_component} to yield
+
+\begin{align}
+    \frac{Du}{Dv} &= fv - g \frac{\partial Z_g}{\partial x} \label{eq:uvelocity} \\
+    \frac{Dv}{Dt} &= - fu - f \frac{\partial Z_g}{\partial y}. \label{eq:vvelocity}
+\end{align}
+
+These equations are implemented in the dynamic model to determine the acceleration of air parcels over time.

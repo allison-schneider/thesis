@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  18 AUG 2017 17:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  19 AUG 2017 21:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -181,7 +181,8 @@ Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 )<<t1.cmap>>)
-(./main.aux)
+(./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux)
+(./2_methods.aux) (./3_tuning.aux) (./4_results.aux) (./biblio.aux))
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 55.
@@ -196,7 +197,8 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 55.
 LaTeX Font Info:    ... okay on input line 55.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 55.
 LaTeX Font Info:    ... okay on input line 55.
- (/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
+
+(/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count109
 \scratchdimen=\dimen128
@@ -286,24 +288,27 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <14.4> not available
 
 
 
-] (./main.toc)
+] (./main.toc<<ot1.cmap>><<oml.cmap>><<omx.cmap>>)
 \tf@toc=\write3
 \openout3 = `main.toc'.
 
- [7]
-[8
+ [7] [8
 
 ] (./main.lof)
 \tf@lof=\write4
 \openout4 = `main.lof'.
 
- [9] [10
 
-] (./main.lot)
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [9]
+[10] (./main.lot)
 \tf@lot=\write5
 \openout5 = `main.lot'.
 
-) [11]
+) [11
+
+]
 \openout2 = `1_introduction.aux'.
 
  (./1_introduction.tex [12
@@ -312,169 +317,55 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <14.4> not available
 
 ]
 Chapter 1.
-<<ot1.cmap>><<oml.cmap>><<omx.cmap>>
 
-LaTeX Warning: Citation `marshall_atmosphere_2008' on page 13 undefined on inpu
-t line 20.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 2538) has occurred while \output is active []
 
  [13]
-
-LaTeX Warning: Citation `marshall_atmosphere_2008' on page 14 undefined on inpu
-t line 34.
-
-
-LaTeX Warning: Reference `eq:geopotential' on page 14 undefined on input line 3
-6.
-
-
-LaTeX Warning: Reference `eq:full' on page 14 undefined on input line 36.
-
-) [14]
-\openout2 = `2_methods.aux'.
-
- (./2_methods.tex
-Chapter 2.
-
-LaTeX Warning: Citation `bowman_input_2013' on page 15 undefined on input line 
-23.
-
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [15
+ [14])
+[15]
+\openout2 = `2_methods.aux'.
+
+ (./2_methods.tex [16
 
 
 
 ]
-
-LaTeX Warning: Citation `petterssen_weather_1940' on page 16 undefined on input
- line 28.
-
-
-LaTeX Warning: Citation `draxler_description_1997' on page 16 undefined on inpu
-t line 41.
-
-
-LaTeX Warning: Citation `bowman_input_2013' on page 16 undefined on input line 
-42.
-
-
-LaTeX Warning: Citation `stein_noaas_2015' on page 16 undefined on input line 4
-2.
-
-
-LaTeX Warning: Citation `draxler_description_1997' on page 16 undefined on inpu
-t line 43.
-
-
-Underfull \vbox (badness 4048) has occurred while \output is active []
-
- [16]
-
-LaTeX Warning: Citation `draxler_description_1997' on page 17 undefined on inpu
-t line 53.
-
-
-LaTeX Warning: Reference `eq:threshold' on page 17 undefined on input line 54.
-
-
-LaTeX Warning: Reference `sec:timestep' on page 17 undefined on input line 55.
-
-[17]
-
-LaTeX Warning: Reference `eq:uvelocitygeo' on page 18 undefined on input line 8
-1.
-
-
-LaTeX Warning: Reference `eq:vvelocitygeo' on page 18 undefined on input line 8
-1.
-
-
-LaTeX Warning: Reference `eq:uvelocity' on page 18 undefined on input line 81.
-
-
-LaTeX Warning: Reference `eq:vvelocity' on page 18 undefined on input line 81.
-
-
-LaTeX Warning: Reference `eq:uposition' on page 18 undefined on input line 82.
-
-
-LaTeX Warning: Reference `eq:vposition' on page 18 undefined on input line 82.
-
-[18]
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 96.
- (/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-
-LaTeX Warning: Citation `sinnott_virtues_1984' on page 19 undefined on input li
-ne 116.
-
+Chapter 2.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [19]
-
-LaTeX Warning: Citation `stohl_computation_1998' on page 20 undefined on input 
-line 126.
-
-
-LaTeX Warning: Citation `kuo_accuracy_1985' on page 20 undefined on input line 
-132.
-
-
-LaTeX Warning: Citation `rolph_sensitivity_1990' on page 20 undefined on input 
-line 132.
-
-
-LaTeX Warning: Reference `eq:delta_lat' on page 20 undefined on input line 133.
-
-
-
-LaTeX Warning: Reference `eq:delta_lon' on page 20 undefined on input line 133.
-
-
-
+ [17]
+[18] [19]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [20]
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 96.
 
-LaTeX Warning: Reference `eq:delta_lat' on page 21 undefined on input line 148.
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-LaTeX Warning: Reference `eq:delta_lon' on page 21 undefined on input line 148.
-
-
-
-LaTeX Warning: Citation `rolph_real-time_2017' on page 21 undefined on input li
-ne 156.
-
-
-LaTeX Warning: Citation `noaa_global_2004' on page 21 undefined on input line 1
-57.
+ [21]
+Overfull \hbox (0.42812pt too wide) in paragraph at lines 131--135
+\T1/cmr/m/n/12 root to agree with the stan-dard def-i-ni-tion [[], []].
+ []
 
 
-LaTeX Warning: Citation `stohl_computation_1998' on page 21 undefined on input 
-line 162.
+Underfull \vbox (badness 5533) has occurred while \output is active []
 
-) [21]
+ [22]
+Underfull \vbox (badness 2165) has occurred while \output is active []
+
+ [23])
+[24]
 \openout2 = `3_tuning.aux'.
 
- (./3_tuning.tex [22
-
-
-
-]
+ (./3_tuning.tex
 Chapter 3.
-
-LaTeX Warning: Reference `fig:boston_inertial' on page 23 undefined on input li
-ne 6.
-
-<images/boston_inertial.pdf, id=93, 462.52798pt x 346.89601pt>
+<images/boston_inertial.pdf, id=100, 462.52798pt x 346.89601pt>
 File: images/boston_inertial.pdf Graphic file (type pdf)
 
 <use images/boston_inertial.pdf>
@@ -491,7 +382,7 @@ rted-to.pdf images/force_180.eps>
 (epstopdf)             \includegraphics on input line 31.
 Package epstopdf Info: Output file is already uptodate.
 
-<images/force_180-eps-converted-to.pdf, id=94, 462.72874pt x 346.29375pt>
+<images/force_180-eps-converted-to.pdf, id=101, 462.72874pt x 346.29375pt>
 File: images/force_180-eps-converted-to.pdf Graphic file (type pdf)
 
 <use images/force_180-eps-converted-to.pdf>
@@ -499,54 +390,26 @@ Package pdftex.def Info: images/force_180-eps-converted-to.pdf used on input li
 ne 31.
 (pdftex.def)             Requested size: 212.47617pt x 151.0089pt.
 
-<images/friction_180.pdf, id=96, 462.52798pt x 346.89601pt>
+<images/friction_180.pdf, id=103, 462.52798pt x 346.89601pt>
 File: images/friction_180.pdf Graphic file (type pdf)
 
 <use images/friction_180.pdf>
 Package pdftex.def Info: images/friction_180.pdf used on input line 32.
 (pdftex.def)             Requested size: 212.47617pt x 151.40555pt.
+ [25
 
 
-LaTeX Warning: Citation `stohl_accuracy_1998' on page 23 undefined on input lin
-e 43.
 
-
-LaTeX Warning: Reference `eq:u_g' on page 23 undefined on input line 47.
-
-
-LaTeX Warning: Reference `eq:v_g' on page 23 undefined on input line 47.
-
-
-LaTeX Warning: Reference `eq:uvelocitygeo' on page 23 undefined on input line 4
-7.
-
-
-LaTeX Warning: Reference `eq:vvelocitygeo' on page 23 undefined on input line 4
-7.
-
-[23] [24 <./images/force_180-eps-converted-to.pdf> <./images/friction_180.pdf> 
-<./images/boston_inertial.pdf
+] [26 <./images/force_180-eps-converted-to.pdf> <./images/friction_180.pdf> <./
+images/boston_inertial.pdf
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./images/boston_inertial.pdf
 ): PDF inclusion: multiple pdfs with page group included in a single page
 >]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-LaTeX Warning: Reference `fig:force_180' on page 25 undefined on input line 57.
-
-
-
-LaTeX Warning: Reference `eq:threshold' on page 25 undefined on input line 61.
-
-[25]
-
-LaTeX Warning: Reference `fig:speed_subplots_180_negative' on page 26 undefined
- on input line 79.
-
-
-LaTeX Warning: Reference `fig:speed_subplots_90_negative' on page 26 undefined 
-on input line 82.
-
-<images/speed_subplots_180_negative.pdf, id=117, 722.7pt x 433.62pt>
+ [27]
+<images/speed_subplots_180_negative.pdf, id=123, 722.7pt x 433.62pt>
 File: images/speed_subplots_180_negative.pdf Graphic file (type pdf)
 
 <use images/speed_subplots_180_negative.pdf>
@@ -554,110 +417,83 @@ Package pdftex.def Info: images/speed_subplots_180_negative.pdf used on input l
 ine 88.
 (pdftex.def)             Requested size: 433.62pt x 260.17401pt.
 
-<images/speed_subplots_90_negative.pdf, id=118, 722.7pt x 433.62pt>
+<images/speed_subplots_90_negative.pdf, id=124, 722.7pt x 433.62pt>
 File: images/speed_subplots_90_negative.pdf Graphic file (type pdf)
 
 <use images/speed_subplots_90_negative.pdf>
 Package pdftex.def Info: images/speed_subplots_90_negative.pdf used on input li
 ne 98.
 (pdftex.def)             Requested size: 433.62pt x 260.17401pt.
-
-
-LaTeX Warning: Reference `eq:u_g' on page 26 undefined on input line 107.
-
-
-LaTeX Warning: Reference `eq:v_g' on page 26 undefined on input line 107.
-
-
-LaTeX Warning: Reference `eq:uvelocitygeo' on page 26 undefined on input line 1
-12.
-
-
-LaTeX Warning: Reference `eq:vvelocitygeo' on page 26 undefined on input line 1
-12.
-
-[26] [27 <./images/speed_subplots_180_negative.pdf>]
-<images/speed_ratio.pdf, id=166, 462.52798pt x 346.89601pt>
+ [28] [29 <./images/speed_subplots_180_negative.pdf>] <images/speed_ratio.pdf, 
+id=172, 462.52798pt x 346.89601pt>
 File: images/speed_ratio.pdf Graphic file (type pdf)
 
 <use images/speed_ratio.pdf>
 Package pdftex.def Info: images/speed_ratio.pdf used on input line 117.
 (pdftex.def)             Requested size: 433.62pt x 325.23009pt.
-
-
-LaTeX Warning: Reference `fig:speed_ratio' on page 28 undefined on input line 1
-24.
-
-
-LaTeX Warning: Reference `eq:uvelocitygeo' on page 28 undefined on input line 1
-27.
-
-
-LaTeX Warning: Reference `eq:vvelocitygeo' on page 28 undefined on input line 1
-27.
-
-[28 <./images/speed_subplots_90_negative.pdf>] [29 <./images/speed_ratio.pdf>])
-[30]
+ [30 <./images/speed_subplots_90_negative.pdf>]
+[31 <./images/speed_ratio.pdf>]) [32]
 \openout2 = `4_results.aux'.
 
  (./4_results.tex
 Chapter 4.
-) [31
+<images/four_ortho.pdf, id=264, 578.16pt x 578.16pt>
+File: images/four_ortho.pdf Graphic file (type pdf)
+
+<use images/four_ortho.pdf>
+Package pdftex.def Info: images/four_ortho.pdf used on input line 49.
+(pdftex.def)             Requested size: 433.62pt x 433.61893pt.
+) [33
 
 
 
-] [32]
+] [34 <./images/four_ortho.pdf>] [35]
 \openout2 = `biblio.aux'.
 
- (./biblio.tex (./main.bbl
+
+(./biblio.tex (./main.bbl [36
+
+
+
+]
 Underfull \hbox (badness 2126) in paragraph at lines 63--67
 []\T1/cmr/m/n/12 Stohl, A. (1998).  Com-pu-ta-tion, ac-cu-racy and ap-pli-ca-ti
 ons of
  []
 
-[33
-
-
-
-])) [34] (./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux)
-(./2_methods.aux) (./3_tuning.aux) (./4_results.aux) (./biblio.aux))
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+[37])) [38] (./main.aux (./cover.aux) (./contents.aux) (./1_introduction.aux)
+(./2_methods.aux) (./3_tuning.aux) (./4_results.aux) (./biblio.aux)) ) 
 Here is how much of TeX's memory you used:
- 4078 strings out of 493089
- 59163 string characters out of 6134842
- 124994 words of memory out of 5000000
- 7418 multiletter control sequences out of 15000+600000
+ 4108 strings out of 493089
+ 59609 string characters out of 6134842
+ 127876 words of memory out of 5000000
+ 7433 multiletter control sequences out of 15000+600000
  16777 words of font info for 40 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,11n,40p,682b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
-/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></
-usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></us
-r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/lo
-cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local
-/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/
-texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/te
-xlive/2015/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texl
-ive/2015/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texliv
-e/2015/texmf-dist/fonts/type1/public/cm-super/sfbx1728.pfb></usr/local/texlive/
-2015/texmf-dist/fonts/type1/public/cm-super/sfbx2488.pfb></usr/local/texlive/20
-15/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2015
-/texmf-dist/fonts/type1/public/cm-super/sfrm1440.pfb></usr/local/texlive/2015/t
-exmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2015/tex
-mf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/local/texlive/2015/texmf
--dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on main.pdf (34 pages, 1325219 bytes).
+ 42i,11n,40p,682b,300s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/loc
+al/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local
+/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/
+texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/t
+exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/tex
+live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texli
+ve/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive
+/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/20
+15/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/201
+5/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2015/
+texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2015/te
+xmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2015/texm
+f-dist/fonts/type1/public/cm-super/sfbx1728.pfb></usr/local/texlive/2015/texmf-
+dist/fonts/type1/public/cm-super/sfbx2488.pfb></usr/local/texlive/2015/texmf-di
+st/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2015/texmf-dist
+/fonts/type1/public/cm-super/sfrm1440.pfb></usr/local/texlive/2015/texmf-dist/f
+onts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2015/texmf-dist/fon
+ts/type1/public/cm-super/sfti1200.pfb></usr/local/texlive/2015/texmf-dist/fonts
+/type1/public/cm-super/sftt1200.pfb>
+Output written on main.pdf (38 pages, 2028855 bytes).
 PDF statistics:
- 326 PDF objects out of 1000 (max. 8388607)
- 153 compressed objects within 2 object streams
+ 374 PDF objects out of 1000 (max. 8388607)
+ 170 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 63 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 68 words of extra memory for PDF output out of 10000 (max. 10000000)
 

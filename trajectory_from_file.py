@@ -216,6 +216,70 @@ class Trajectory:
         plt.show()
         return rms[-1]
 
+def trajectory_subplots():
+    location = "boston"
+    map_type = "ortho"
+    lat_center = 90
+    lon_center = -71
+
+    trajectory_friction = Trajectory(scheme="friction", timestep=90,
+        source="model", location=location)
+    trajectory_grid = Trajectory(scheme="grid", timestep=90, 
+        source="model", location=location)
+    trajectory_3d = Trajectory(scheme="friction", timestep=90, 
+        source="hysplit", location=location, vertical="3D")
+    trajectory_iso = Trajectory(scheme="grid", timestep=90, 
+        source="hysplit", location=location, vertical="isobaric")
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True, 
+        figsize=(8, 8))
+
+    if map_type == "ortho":
+        ax1.set_title("Kinematic Model")
+        map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
+                        resolution='c', ax=ax1)
+        map.drawcoastlines(linewidth=0.25, color='gray')
+        map.drawcountries(linewidth=0)
+        map.fillcontinents(color='white',lake_color='white', zorder=1)
+        map.drawmapboundary(fill_color='white')
+        map.plot(trajectory_grid.longitudes, trajectory_grid.latitudes,
+                 latlon=True, zorder=2, color='black')
+
+        ax2.set_title("Dynamic Model")
+        map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
+                        resolution='c', ax=ax2)
+        map.drawcoastlines(linewidth=0.25, color='gray')
+        map.drawcountries(linewidth=0)
+        map.fillcontinents(color='white',lake_color='white', zorder=1)
+        map.drawmapboundary(fill_color='white')
+        map.plot(trajectory_friction.longitudes, trajectory_friction.latitudes,
+                 latlon=True, zorder=2, color='black')
+
+        ax3.set_title("3D HYSPLIT")
+        map = Basemap(projection='ortho', lon_0=lon_center, lat_0=40, 
+                        resolution='c', ax=ax3)
+        map.drawcoastlines(linewidth=0.25, color='gray')
+        map.drawcountries(linewidth=0)
+        map.fillcontinents(color='white',lake_color='white', zorder=1)
+        map.drawmapboundary(fill_color='white')
+        map.plot(trajectory_3d.longitudes, trajectory_3d.latitudes,
+                 latlon=True, zorder=2, color='black')
+
+        ax4.set_title("Isobaric HYSPLIT")
+        map = Basemap(projection='ortho', lon_0=lon_center, lat_0=lat_center, 
+                        resolution='c', ax=ax4)
+        map.drawcoastlines(linewidth=0.25, color='gray')
+        map.drawcountries(linewidth=0)
+        map.fillcontinents(color='white',lake_color='white', zorder=1)
+        map.drawmapboundary(fill_color='white')
+        map.plot(trajectory_iso.longitudes, trajectory_iso.latitudes,
+                 latlon=True, zorder=2, color='black')
+
+        plt.savefig("plots/four_ortho.pdf")
+
+        plt.show()
+ 
+
 def speed_subplots():
     """ Graph u and v speeds for two schemes. """
     trajectory_friction = Trajectory(scheme="friction", timestep=180, 
@@ -299,11 +363,11 @@ def deviation():
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
 
-    ax2.plot(self.times, rms)
+    ax1.plot(reduced_times, ahtd)
     #t_half_line, = ax2.plot(self.times, self.times ** 0.5)
 
-    ax2.set_xlabel("Time (hours)")
-    ax2.set_ylabel("RHTD")
+    ax1.set_xlabel("Time (hours)")
+    ax1.set_ylabel("RHTD")
     plt.show()
 
     return rhtd
@@ -333,7 +397,7 @@ def reference_deviation():
 
     return rhtd
 
-ahtd = deviation()
+trajectory_subplots()
 #print("rhtd is \n", rhtd)
 #print("last rhtd is", rhtd[-1])
 

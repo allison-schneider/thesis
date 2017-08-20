@@ -1,8 +1,20 @@
 \chapter{Results}
 
 \section{Measures of transport error}
+[[[The area containing the ensemble of parcels should grow as $t^{1/2}$, so should the RMSE as well? 
+The errors of neighboring points are highly correlated, so the RMSE shows the general $t^{1/2}$ trend, but there's a lot of noise based on idiosyncrasies of the flow in that region. 
+Maybe plot average RSME of all experiment locations over time?
 
-[[[The area containing the ensemble of parcels should grow as $t^{1/2}$. ]]]
+The AHTD and RMSE are analogous to standard deviation.
+We discussed finding error bars on the AHTD and RHTD values by calculating them for ensembles started nearby: 
+shifted a degree in every direction, for example. 
+I could find the mean and standard deviation of AHTD and RHTD for the 3x3 grid of ensembles created by shifting the starting ensemble north/south/east/west.
+Are the shifted ensembles still in the same flow regime? How generalizable are error bars on AHTD and RHTD to the whole model, then?
+
+Perhaps AHTD and RHTD are better measures for a larger grid, to get a measure of trajectory error for the whole model. 
+In that case, instead of the 3x3 grid of trajectory ensembles, I could try a mesh of trajectory starting points over the whole globe.
+6 degree spacing or so. 
+The AHTD and RHTD would be a "whole model" reference, to which the AHTD and RHTD for more specific ensemble launch locations (like Boston) could be compared.]]]
 
 \begin{table}
     \centering
@@ -31,3 +43,9 @@
         \hline
     \end{tabular}
 \end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{four_ortho.pdf}
+    \caption{Trajectories for both models with reference trajectories for parcels launched from the 5x5 grid between 41$^\circ$N, 72$^\circ$W and 42$^\circ$N, 71$^\circ$W. }
+\end{figure}

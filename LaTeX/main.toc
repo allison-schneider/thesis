@@ -1,19 +1,19 @@
 \contentsline {chapter}{\numberline {1}Introduction}{13}
 \contentsline {section}{\numberline {1.1}The Aerocene project}{13}
 \contentsline {section}{\numberline {1.2}Acceleration from geopotential height}{13}
-\contentsline {chapter}{\numberline {2}Methods}{15}
-\contentsline {section}{\numberline {2.1}Ten day dataset}{15}
-\contentsline {section}{\numberline {2.2}Linear interpolation}{16}
-\contentsline {section}{\numberline {2.3}Second-order integration scheme}{16}
-\contentsline {section}{\numberline {2.4}Constant timestep}{17}
-\contentsline {section}{\numberline {2.5}Kinematic equations}{17}
-\contentsline {section}{\numberline {2.6}Dynamic equations}{18}
-\contentsline {section}{\numberline {2.7}Root-mean-square error measures precision}{18}
-\contentsline {section}{\numberline {2.8}Absolute and relative horizontal transport deviation measure accuracy}{20}
-\contentsline {chapter}{\numberline {3}Tuning the models}{23}
-\contentsline {section}{\numberline {3.1}Inertial circles in the dynamic model}{23}
-\contentsline {section}{\numberline {3.2}Adding friction to the dynamic model}{23}
-\contentsline {section}{\numberline {3.3}Choosing a timestep}{25}
-\contentsline {section}{\numberline {3.4}Initializing velocity for the dynamic model}{26}
-\contentsline {chapter}{\numberline {4}Results}{31}
-\contentsline {section}{\numberline {4.1}Measures of transport error}{31}
+\contentsline {chapter}{\numberline {2}Methods}{17}
+\contentsline {section}{\numberline {2.1}Ten day dataset}{17}
+\contentsline {section}{\numberline {2.2}Linear interpolation}{18}
+\contentsline {section}{\numberline {2.3}Second-order integration scheme}{18}
+\contentsline {section}{\numberline {2.4}Constant timestep}{19}
+\contentsline {section}{\numberline {2.5}Kinematic equations}{19}
+\contentsline {section}{\numberline {2.6}Dynamic equations}{20}
+\contentsline {section}{\numberline {2.7}The root-mean-square deviation measures parcel spread}{21}
+\contentsline {section}{\numberline {2.8}The absolute and relative horizontal transport deviation measure accuracy}{22}
+\contentsline {chapter}{\numberline {3}Tuning the models}{25}
+\contentsline {section}{\numberline {3.1}Inertial circles in the dynamic model}{25}
+\contentsline {section}{\numberline {3.2}Adding friction to the dynamic model}{25}
+\contentsline {section}{\numberline {3.3}Choosing a timestep}{27}
+\contentsline {section}{\numberline {3.4}Initializing velocity for the dynamic model}{28}
+\contentsline {chapter}{\numberline {4}Results}{33}
+\contentsline {section}{\numberline {4.1}Measures of transport error}{33}
